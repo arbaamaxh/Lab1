@@ -12,6 +12,9 @@ app.use("/patients", patientRouter);
 const doctorRouter = require('./routes/doctors');
 app.use("/doctors", doctorRouter);
 
+const hospitalRouter = require('./routes/hospitals');
+app.use("/hospitals", hospitalRouter);
+
 db.sequelize.sync().then(() => {
     app.listen(3001, () => {
         console.log("server running on port 3001");
