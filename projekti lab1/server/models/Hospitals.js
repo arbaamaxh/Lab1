@@ -5,9 +5,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         nrRegjistrimit: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER,
             allowNull: false,
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement: true
         },
         adresa: {
             type: DataTypes.STRING,

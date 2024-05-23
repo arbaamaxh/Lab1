@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             primaryKey: true
         },
+        pozita: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         adresa: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -22,6 +26,24 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
     });
+
+    Staff.associate = (models) => {
+        Staff.belongsTo(models.Department, {
+            foreignKey: {
+                name: 'depID',
+                allowNull: false
+            },
+            onDelete: 'CASCADE'
+        });
+
+        Staff.belongsTo(models.Room, {
+            foreignKey: {
+                name: 'dhoma',
+                allowNull: false
+            },
+            onDelete: 'CASCADE'
+        });
+    };
 
     return Staff;
 };

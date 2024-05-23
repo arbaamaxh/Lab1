@@ -1,21 +1,44 @@
 const express = require('express');
 const router = express.Router();
-const { Patient } = require('../models');
+const { Patient, Doctor, Staff } = require('../models');
 
 
 // create (insertimi ne tabelen patients)
 router.post("/", async (req,res) => {
     try{
-        const {emri,mbiemri,nrPersonal,adresa,nrTel} = req.body;
+        const {emri,mbiemri,nrPersonal,datelindja,gjinia,adresa,nrTel} = req.body;
 
-        const ekziston = await Patient.findOne({
+        const patient = await Patient.findOne({
             where: {
                 nrPersonal: nrPersonal
             }
         });
 
-        if(ekziston){
-            return res.status(400).json({error: 'Pacienti ekziston!'});
+        if(patient){
+            return res.status(400).json({ error: 'This ID is already assigned to a patient.' });
+        }
+
+        const doctor = await Doctor.findOne({
+            where: {
+                nrPersonal: nrPersonal
+            }
+        });
+
+        const staff = await Staff.findOne({
+            where: {
+                nrPersonal: nrPersonal
+            }
+        });
+
+        if(doctor){
+            if(doctor.emri !== emri || doctor.mbiemri !== mbiemri){
+                return res.status(400).json({error: 'Sorry, the provided name and surname do not match our records.'});
+            }
+        }
+        else if(staff){
+            if(staff.emri !== emri || staff.mbiemri !== mbiemri){
+                return res.status(400).json({ error:'Sorry, the provided name and surname do not match our records.'});
+            }
         }
 
         const newPatient = await Patient.create(req.body);
@@ -37,8 +60,8 @@ router.get('/', async (req, res) => {
 
 // update (manipulo me te dhena ne tabelen patients)
 router.put("/:nrPersonal", async (req, res) => {
-    try {
-        const {emri,mbiemri,adresa,nrTel} = req.body;
+    try{
+        const {emri,mbiemri,datelindja,gjinia,adresa,nrTel} = req.body;
         const nrPersonal = req.params.nrPersonal;
 
         const patient = await Patient.findOne({
@@ -52,7 +75,7 @@ router.put("/:nrPersonal", async (req, res) => {
         }
 
         await Patient.update(
-            {emri,mbiemri,adresa,nrTel},
+            {emri,mbiemri,datelindja,gjinia,adresa,nrTel},
             {where: {
                 nrPersonal: nrPersonal
             }}

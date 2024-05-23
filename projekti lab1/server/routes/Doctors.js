@@ -1,12 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const { Doctor } = require('../models');
+const { Doctor, Department, Prescription } = require('../models');
 
 
 // create (insertimi ne tabelen doctors)
 router.post("/", async (req,res) => {
     try{
-        const {emri,mbiemri,nrPersonal,adresa,nrTel} = req.body;
+        const {emri,mbiemri,nrPersonal,adresa,nrTel,specializimi,departmentName} = req.body;
+
+        const department = await Department.findOne({
+            where: {
+                emri: departmentName
+            }
+        });
+
+        if(!department){
+            return res.status(400).json({error: 'Department not found!'});
+        }
 
         const ekziston = await Doctor.findOne({
             where: {
@@ -18,7 +28,14 @@ router.post("/", async (req,res) => {
             return res.status(400).json({error: 'Doktori ekziston!'});
         }
 
-        const newDoctor = await Doctor.create(req.body);
+        const newDoctor = await Doctor.create({
+            emri,
+            mbiemri,
+            adresa,
+            nrTel,
+            specializimi,
+            depID: department.departmentID
+        });
         res.json(newDoctor);
     }
     catch(error){
@@ -37,8 +54,8 @@ router.get('/', async (req, res) => {
 
 // update (manipulo me te dhena ne tabelen doctors)
 router.put("/:nrPersonal", async (req, res) => {
-    try {
-        const {emri,mbiemri,adresa,nrTel} = req.body;
+    try{
+        const {emri,mbiemri,adresa,nrTel,specializimi,depID} = req.body;
         const nrPersonal = req.params.nrPersonal;
 
         const doctor = await Doctor.findOne({
@@ -52,7 +69,7 @@ router.put("/:nrPersonal", async (req, res) => {
         }
 
         await Doctor.update(
-            {emri,mbiemri,adresa,nrTel},
+            {emri,mbiemri,adresa,nrTel,specializimi,depID},
             {where: {
                 nrPersonal: nrPersonal
             }}
@@ -63,6 +80,21 @@ router.put("/:nrPersonal", async (req, res) => {
     catch(error){
         console.error('Error updating doctor:', error);
         res.status(500).json({error: 'Failed to update doctor'});
+    }
+});
+
+
+//get prescriptions by a doctor
+router.get('/:nrPersonal/prescriptions', async (req, res) => {
+    try{
+        const { nrPersonal } = req.params;
+        const prescriptions = await Prescription.findAll({
+            where: { doctorNrPersonal: nrPersonal },
+            
+        });
+        res.json(prescriptions);
+    }catch(err){
+        res.status(500).json({ error: err.message });
     }
 });
 

@@ -1,12 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const { Staff } = require('../models');
+const { Staff, Department, Room, Doctor, Patient } = require('../models');
 
 
 // create (insertimi ne tabelen staff)
 router.post("/", async (req,res) => {
-    try{
-        const {emri,mbiemri,nrPersonal,adresa,nrTel} = req.body;
+    try {
+        const { emri, mbiemri, nrPersonal, pozita, adresa, nrTel, depID, dhoma } = req.body;
+
+        const department = await Department.findOne({
+            where: {
+                departmentID: depID
+            }
+        });
+
+        if (!department) {
+            return res.status(400).json({ error: 'Department not found!' });
+        }
+
+        const room = await Room.findOne({
+            where: {
+                roomID: dhoma
+            }
+        });
+
+        if (!room) {
+            return res.status(400).json({ error: 'Room not found!' });
+        }
 
         const ekziston = await Staff.findOne({
             where: {
@@ -14,16 +34,38 @@ router.post("/", async (req,res) => {
             }
         });
 
-        if(ekziston){
-            return res.status(400).json({error: 'Stafi ekziston!'});
+        if (ekziston) {
+            return res.status(400).json({ error: 'Stafi ekziston!' });
+        }
+
+        const doctor = await Doctor.findOne({
+            where: {
+                nrPersonal: nrPersonal
+            }
+        });
+
+        const patient = await Patient.findOne({
+            where: {
+                nrPersonal: nrPersonal
+            }
+        });
+
+        if (doctor) {
+            if (doctor.emri !== emri || doctor.mbiemri !== mbiemri) {
+                return res.status(400).json({ error: 'Sorry, the provided name and surname do not match our records.' });
+            }
+        } else if (patient) {
+            if (patient.emri !== emri || patient.mbiemri !== mbiemri) {
+                return res.status(400).json({ error: 'Sorry, the provided name and surname do not match our records.' });
+            }
         }
 
         const newStaff = await Staff.create(req.body);
-        res.json(newStaff);
-    }
-    catch(error){
+        await newStaff.addRooms(room); // Assuming addRooms expects a single room
+        res.json(newStaff); // Send success response only if no error occurred
+    } catch (error) {
         console.error('Error creating staff:', error);
-        res.status(500).json({error: 'Failed to create staff'});
+        res.status(500).json({ error: 'Failed to create staff' }); // Send error response if an error occurred
     }
 });
 
@@ -37,8 +79,8 @@ router.get('/', async (req, res) => {
 
 // update (manipulo me te dhena ne tabelen staff)
 router.put("/:nrPersonal", async (req, res) => {
-    try {
-        const {emri,mbiemri,adresa,nrTel} = req.body;
+    try{
+        const {emri,mbiemri,pozita,adresa,nrTel,depID,dhoma} = req.body;
         const nrPersonal = req.params.nrPersonal;
 
         const staff = await Staff.findOne({
@@ -52,7 +94,7 @@ router.put("/:nrPersonal", async (req, res) => {
         }
 
         await Staff.update(
-            {emri,mbiemri,adresa,nrTel},
+            {emri,mbiemri,pozita,adresa,nrTel,depID,dhoma},
             {where: {
                 nrPersonal: nrPersonal
             }}

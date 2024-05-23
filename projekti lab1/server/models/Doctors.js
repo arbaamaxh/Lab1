@@ -21,7 +21,21 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        specializimi: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
     });
+
+    Doctor.associate = (models) => {
+        Doctor.belongsTo(models.Department, {
+            foreignKey: {
+                name: 'depID',
+                allowNull: false
+            },
+            onDelete: 'CASCADE'
+        });
+    };
 
     return Doctor;
 };

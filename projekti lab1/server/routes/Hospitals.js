@@ -1,25 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const { Hospital } = require('../models');
-
+const hospitalRelationsRouter = require('./HospitalRelations');
+router.use('/', hospitalRelationsRouter);
 
 // create (insertimi ne tabelen hospitals)
 router.post("/", async (req,res) => {
     try{
-        const {emri,mbiemri,nrRegjistrimit,adresa,nrTel} = req.body;
+        const {emri,adresa,nrTel} = req.body;
 
-        const ekziston = await Hospital.findOne({
-            where: {
-                nrRegjistrimit: nrRegjistrimit
-            }
-        });
-
-        if(ekziston){
-            return res.status(400).json({error: 'Spitali ekziston!'});
-        }
-
-        const newHospital = await Hospital.create(req.body);
-        res.json(newHospital);
+        const hospital = new Hospital({ emri, adresa, nrTel });
+        await hospital.save();
+        res.status(201).json({ message: 'Hospital created successfully' });
     }
     catch(error){
         console.error('Error creating hospital:', error);
@@ -27,18 +19,16 @@ router.post("/", async (req,res) => {
     }
 });
 
-
 // read (me i pa rows ne tabelen hospitals)
 router.get('/', async (req, res) => {
     const allHospitals = await Hospital.findAll();
     res.json(allHospitals);
 });
 
-
 // update (manipulo me te dhena ne tabelen hospitals)
 router.put("/:nrRegjistrimit", async (req, res) => {
-    try {
-        const {emri,mbiemri,adresa,nrTel} = req.body;
+    try{
+        const {emri,adresa,nrTel} = req.body;
         const nrRegjistrimit = req.params.nrRegjistrimit;
 
         const hospitals = await Hospital.findOne({
@@ -52,7 +42,7 @@ router.put("/:nrRegjistrimit", async (req, res) => {
         }
 
         await Hospital.update(
-            {emri,mbiemri,adresa,nrTel},
+            {emri,adresa,nrTel},
             {where: {
                 nrRegjistrimit: nrRegjistrimit
             }}

@@ -13,6 +13,14 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             primaryKey: true
         },
+        datelindja: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        gjinia: {
+            type: DataTypes.CHAR,
+            allowNull: false,
+        },
         adresa: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -22,6 +30,16 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
     });
+
+    Patient.associate = (models) => {
+        Patient.belongsTo(models.Hospital, {
+            foreignKey: {
+                name: 'hospitalNrRegjistrimit',
+                allowNull: false
+            },
+            onDelete: 'CASCADE'
+        });
+    };
 
     return Patient;
 };
