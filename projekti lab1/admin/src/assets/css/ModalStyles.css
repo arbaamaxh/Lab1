@@ -1,0 +1,13 @@
+.Modal{
+    color: #5a5d89;
+}
+
+.ModalHeader {
+    background-color: #3C3E5B;
+    height: 60px;
+    /* color: dimgray; */
+}
+
+.ModalBody{
+    background-color: #28293C;
+}

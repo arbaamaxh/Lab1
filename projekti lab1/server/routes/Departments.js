@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { Department, Hospital, Doctor } = require('../models');
-
+const { Department, Room, Doctor, Hospital } = require('../models');
 
 // create (insertimi ne tabelen departments)
 router.post("/", async (req,res) => {
     try{
         const { emri, lokacioni, nrTel, hospitalName } = req.body;
 
-        // Find the hospital by name
         const hospital = await Hospital.findOne({
             where: {
                 emri: hospitalName
@@ -19,12 +17,11 @@ router.post("/", async (req,res) => {
             return res.status(400).json({ error: 'Hospital not found!' });
         }
 
-        // Create the department with the found hospital's ID
         const newDep = await Department.create({
             emri,
             lokacioni,
             nrTel,
-            hospitalNrRegjistrimit: hospital.nrRegjistrimit // Assuming hospital ID is stored in 'id' field
+            hospitalNrRegjistrimit: hospital.nrRegjistrimit
         });
 
         res.json(newDep);
@@ -52,8 +49,35 @@ router.put("/:departmentID", async (req, res) => {
     }
 });
 
+//read
+router.get('/:departmentID/rooms', async (req, res) => {
+    try{
+        const departmentID = req.params.departmentID;
+        const rooms = await Room.findAll({
+            where: { depID: departmentID }
+        });
+        res.json(rooms);
+    }catch(error){
+      console.error('Error fetching rooms:', error);
+      res.status(500).json({ error: 'Failed to fetch rooms' });
+    }
+});
 
-// read (me i pa rows ne tabelen departments)
+router.get('/:departmentID/doctors', async (req, res) => {
+    try{
+        const departmentID = req.params.departmentID;
+        const doctors = await Doctor.findAll({
+            where: { depID: departmentID }
+        });
+        res.json(doctors);
+    }catch(error){
+      console.error('Error fetching doctors:', error);
+      res.status(500).json({ error: 'Failed to fetch doctors' });
+    }
+});
+
+
+// read (me i pa kejt deps ne tabelen departments)
 router.get('/', async (req, res) => {
     const allDeps = await Department.findAll();
     res.json(allDeps);

@@ -1,73 +1,96 @@
 const express = require('express');
 const router = express.Router();
-const { Staff, Department, Room, Doctor, Patient } = require('../models');
+const { Staff, Department, Room, Hospital } = require('../models');
 
 
 // create (insertimi ne tabelen staff)
-router.post("/", async (req,res) => {
-    try {
-        const { emri, mbiemri, nrPersonal, pozita, adresa, nrTel, depID, dhoma } = req.body;
-
-        const department = await Department.findOne({
-            where: {
-                departmentID: depID
-            }
-        });
-
-        if (!department) {
-            return res.status(400).json({ error: 'Department not found!' });
+router.post("/", async (req, res) => {
+    try{
+      const { emri, mbiemri, nrPersonal, pozita, adresa, nrTel, hospitalName, departmentName, dhomaNumri } = req.body;
+  
+      const hospital = await Hospital.findOne({
+        where: {
+          emri: hospitalName
         }
-
-        const room = await Room.findOne({
-            where: {
-                roomID: dhoma
-            }
-        });
-
-        if (!room) {
-            return res.status(400).json({ error: 'Room not found!' });
+      });
+  
+      if(!hospital){
+        return res.status(400).json({ error: 'Hospital not found!' });
+      }
+  
+      const department = await Department.findOne({
+        where: {
+            emri: departmentName,
+            hospitalNrRegjistrimit: hospital.nrRegjistrimit
         }
-
-        const ekziston = await Staff.findOne({
-            where: {
-                nrPersonal: nrPersonal
-            }
-        });
-
-        if (ekziston) {
-            return res.status(400).json({ error: 'Stafi ekziston!' });
+      });
+  
+      if(!department){
+        return res.status(400).json({ error: 'Department not found in this hospital!' });
+      }
+  
+      const room = await Room.findOne({
+        where: {
+            numri: dhomaNumri,
+            depID: department.departmentID,
         }
-
-        const doctor = await Doctor.findOne({
-            where: {
-                nrPersonal: nrPersonal
-            }
-        });
-
-        const patient = await Patient.findOne({
-            where: {
-                nrPersonal: nrPersonal
-            }
-        });
-
-        if (doctor) {
-            if (doctor.emri !== emri || doctor.mbiemri !== mbiemri) {
-                return res.status(400).json({ error: 'Sorry, the provided name and surname do not match our records.' });
-            }
-        } else if (patient) {
-            if (patient.emri !== emri || patient.mbiemri !== mbiemri) {
-                return res.status(400).json({ error: 'Sorry, the provided name and surname do not match our records.' });
-            }
+      });
+  
+      if(!room){
+        return res.status(400).json({ error: 'Room not found in the department!' });
+      }
+  
+      const ekziston = await Staff.findOne({
+        where: {
+          nrPersonal: nrPersonal
         }
+      });
+  
+      if(ekziston){
+        return res.status(400).json({ error: 'Staff already exists!' });
+      }
 
-        const newStaff = await Staff.create(req.body);
-        await newStaff.addRooms(room); // Assuming addRooms expects a single room
-        res.json(newStaff); // Send success response only if no error occurred
-    } catch (error) {
-        console.error('Error creating staff:', error);
-        res.status(500).json({ error: 'Failed to create staff' }); // Send error response if an error occurred
+      // const doctor = await Doctor.findOne({
+      //     where: {
+      //         nrPersonal: nrPersonal
+      //     }
+      // });
+
+      // const patient = await Patient.findOne({
+      //     where: {
+      //         nrPersonal: nrPersonal
+      //     }
+      // });
+
+      // if(doctor){
+      //     if (doctor.emri !== emri || doctor.mbiemri !== mbiemri) {
+      //         return res.status(400).json({ error: 'Sorry, the provided name and surname do not match our records.' });
+      //     }
+      // }else if(patient){
+      //     if (patient.emri !== emri || patient.mbiemri !== mbiemri) {
+      //         return res.status(400).json({ error: 'Sorry, the provided name and surname do not match our records.' });
+      //     }
+      // }
+  
+      const newStaff = await Staff.create({
+        emri,
+        mbiemri,
+        nrPersonal,
+        pozita,
+        adresa,
+        nrTel,
+        depID: department.departmentID,
+        dhoma: room.roomID  // Assign the RoomID to dhoma
+      });
+      res.json(newStaff);
+    }catch(error){
+      console.error('Error creating staff:', error);
+      res.status(500).json({ error: 'Failed to create staff' });
     }
 });
+  
+
+        
 
 
 // read (me i pa rows ne tabelen staff)

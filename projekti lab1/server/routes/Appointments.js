@@ -1,65 +1,70 @@
 const express = require('express');
 const router = express.Router();
-const { Appointment, Patient, Doctor, Room } = require('../models');
-
-
-// shikojme a eshte i lire termini me ate ore/date
-const checkRoomAvailability = async (dhomaID,data,ora) => {
-    const termini = await Appointment.findOne({
-        where: {
-            dhomaID: dhomaID,
-            data: data,
-            ora: ora
-        }
-    });
-
-    return !termini;
-};
+const { Appointment, Patient, Doctor, Department, Hospital } = require('../models');
+const moment = require('moment-timezone');
 
 
 // create (insertimi ne tabelen appointments)
 router.post("/", async (req,res) => {
     try{
-        const {appointmentID,data,ora,patientNrPersonal,doctorNrPersonal,dhomaID} = req.body;
+        const {appointmentID,data,ora,patientName,doctorName,hospitalName,departmentName} = req.body;
 
+        const hospital = await Hospital.findOne({
+            where: {
+              emri: hospitalName
+            }
+        });
+      
+        if(!hospital){
+            return res.status(400).json({ error: 'Hospital not found!' });
+        }
+      
+        const department = await Department.findOne({
+            where: {
+                emri: departmentName,
+                hospitalNrRegjistrimit: hospital.nrRegjistrimit
+            }
+        });
+      
+        if(!department){
+            return res.status(400).json({ error: 'Department not found in this hospital!' });
+        }
+
+        const [patientFirstName, patientLastName] = patientName.split(' ');
         const patient = await Patient.findOne({
             where: {
-                nrPersonal: patientNrPersonal
+                emri: patientFirstName,
+                mbiemri: patientLastName,
+                hospitalNrRegjistrimit: hospital.nrRegjistrimit
             }
         });
 
         if(!patient){
-            return res.status(400).json({error: 'Patient not found!'});
+            return res.status(400).json({ error: 'Patient not found!' });
         }
 
+        const [doctorFirstName, doctorLastName] = doctorName.split(' ');
         const doctor = await Doctor.findOne({
             where: {
-                nrPersonal: doctorNrPersonal
+                emri: doctorFirstName,
+                mbiemri: doctorLastName,
+                depID: department.departmentID
             }
         });
 
         if(!doctor){
-            return res.status(400).json({error: 'Doctor not found!'});
+            return res.status(400).json({ error: 'Doctor not found!' });
         }
 
-        const room = await Room.findOne({
-            where: {
-                roomID: dhomaID
-            }
-        });
-
-        if(!room){
-            return res.status(400).json({error: 'Room not found!'});
-        }
-
-        const isRoomAvailable = await checkRoomAvailability(dhomaID,data,ora);
-        
-        if(!isRoomAvailable){
-            return res.status(400).json({error: 'Room is not available at the specified time.'});
-        }
-
-        const newApp = await Appointment.create(req.body);
-        res.json(newApp);
+        const newAppointment = await Appointment.create({
+            appointmentID,
+            data,
+            ora,
+            patientNrPersonal: patient.nrPersonal,
+            doctorNrPersonal: doctor.nrPersonal,
+            departmentID: department.departmentID,
+          });
+        res.json(newAppointment);
     }
     catch(error){
         console.error('Error creating appointment:', error);
@@ -68,40 +73,74 @@ router.post("/", async (req,res) => {
 });
 
 
-//read all appoitments
-// router.get('/', async (req, res) => {
-//     const allAppointments = await Appointment.findAll();
-//     res.json(allAppointments);
-// });
-
-
 // read (me i pa rows ne tabelen appointments (per dashboard))
 router.get('/', async (req, res) => {
     try{
-      const { date } = req.query;
+      const { date, departmentID } = req.query;
       
       let whereCondition = {};
       if(date){
-        whereCondition = { data: date };
+        whereCondition.data = date;
       }
-
-      // Fetch appointments from the database based on the provided date
+      if(departmentID){
+        whereCondition.departmentID = departmentID;
+      }
+  
       const appointments = await Appointment.findAll({
         where: whereCondition,
         include: [
-            { model: Patient, attributes: ['emri', 'mbiemri'] },
-            { model: Doctor, attributes: ['emri', 'mbiemri'],
-            },
-            { model: Room, attributes: ['numri'], }
+          { model: Patient, attributes: ['emri', 'mbiemri'] },
+          { model: Doctor, attributes: ['emri', 'mbiemri'] },
+          { model: Department, attributes: ['emri'] }
         ]
-    });
+      });
   
-      // If appointments are found, send them in the response
       res.json(appointments);
     }catch(error){
-      // If an error occurs during fetching appointments, send an error response
       console.error('Error fetching appointments:', error);
       res.status(500).json({ error: 'An error occurred while fetching appointments' });
+    }
+});
+
+router.get("/availability", async (req, res) => {
+    try{
+        const { date, doctor } = req.query;
+
+        if(!date || !doctor){
+            return res.status(400).json({ error: 'Date and doctor parameters are required' });
+        }
+
+        const existingAppointments = await Appointment.findAll({
+            where: { data: date, doctorNrPersonal: doctor },
+            attributes: ['ora'],
+            raw: true
+        });
+
+        const startTime = moment.tz(`${date}T08:00:00`, 'Europe/Tirane');
+        const endTime = moment.tz(`${date}T16:30:00`, 'Europe/Tirane');
+
+        const timeSlotInterval = 30; // 30 minutes
+
+        const availableTimeSlots = [];
+
+        let currentTime = startTime.clone();
+
+        while(currentTime.isSameOrBefore(endTime)){
+            const formattedTime = currentTime.format('HH:mm');
+
+            const isAvailable = !existingAppointments.find(appt => appt.ora === formattedTime);
+
+            if(isAvailable){
+                availableTimeSlots.push(formattedTime);
+            }
+
+            currentTime.add(timeSlotInterval, 'minutes');
+        }
+
+        res.json({ date, doctor, availableTimeSlots });
+    }catch(error){
+        console.error('Error fetching available time slots:', error);
+        res.status(500).json({ error: 'An error occurred while fetching available time slots' });
     }
 });
 
@@ -109,7 +148,7 @@ router.get('/', async (req, res) => {
 // update (manipulo me te dhena ne tabelen appointments)
 router.put("/:appointmentID", async (req, res) => {
     try{
-        const {data,ora,dhomaID} = req.body;
+        const {data,ora} = req.body;
         const appointmentID = req.params.appointmentID;
 
         const appointment = await Appointment.findOne({
@@ -122,14 +161,8 @@ router.put("/:appointmentID", async (req, res) => {
             return res.status(404).json({error: 'Termini nuk ekziston!'});
         }
 
-        const isRoomAvailable = await checkRoomAvailability(dhomaID,data,ora);
-        
-        if(!isRoomAvailable){
-            return res.status(400).json({error: 'Room is not available at the specified time.'});
-        }
-
         await Appointment.update(
-            {data,ora,dhomaID},
+            {data,ora},
             {where: {
                 appointmentID: appointmentID
             }}

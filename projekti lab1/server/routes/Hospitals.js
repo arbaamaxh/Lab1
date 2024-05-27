@@ -8,6 +8,14 @@ router.use('/', hospitalRelationsRouter);
 router.post("/", async (req,res) => {
     try{
         const {emri,adresa,nrTel} = req.body;
+        
+        const existingHospital = await Hospital.findOne({
+            where: { emri }
+        });
+
+        if(existingHospital){
+            return res.status(400).json({ error: 'Hospital with the same name already exists' });
+        }
 
         const hospital = new Hospital({ emri, adresa, nrTel });
         await hospital.save();

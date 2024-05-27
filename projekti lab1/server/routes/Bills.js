@@ -1,57 +1,97 @@
 const express = require('express');
 const router = express.Router();
-const { Bill, Patient, Hospital } = require('../models');
-
+const { Bill, Patient, Hospital, Service, BillSherbimi } = require('../models');
 
 // create (insertimi ne tabelen bills)
-router.post("/", async (req,res) => {
+router.post("/", async (req, res) => {
     try{
-        const {billID,data,totali,patientNrPersonal,hospitalNrRegjistrimit} = req.body;
-
-        const patient = await Patient.findOne({
-            where: {
-                nrPersonal: patientNrPersonal
-            }
-        });
-
-        if(!patient){
-            return res.status(400).json({error: 'Patient not found!'});
-        }
+        const { sherbimi, data, totali, patientName, hospitalName } = req.body;
 
         const hospital = await Hospital.findOne({
             where: {
-                nrRegjistrimit: hospitalNrRegjistrimit
+                emri: hospitalName
             }
         });
 
         if(!hospital){
-            return res.status(400).json({error: 'Hospital not found!'});
+            return res.status(400).json({ error: 'Hospital not found!' });
         }
 
-        const newBill = await Bill.create(req.body);
+        const [patientFirstName, patientLastName] = patientName.split(' ');
+        const patient = await Patient.findOne({
+            where: {
+                emri: patientFirstName,
+                mbiemri: patientLastName,
+                hospitalNrRegjistrimit: hospital.nrRegjistrimit
+            }
+        });
+
+        if(!patient){
+            return res.status(400).json({ error: 'Patient not found!' });
+        }
+
+        const newBill = await Bill.create({
+            data,
+            totali,
+            patientNrPersonal: patient.nrPersonal,
+            hospitalNrRegjistrimit: hospital.nrRegjistrimit
+        });
+
+        const billSherbimiPromises = [];
+        for(const serviceData of sherbimi){
+            const { emri: serviceName, cmimi: servicePrice } = serviceData;
+
+            let service = await Service.findOne({ where: { emri: serviceName } });
+            if(!service){
+                service = await Service.create({ emri: serviceName, cmimi: servicePrice });
+            }
+
+            billSherbimiPromises.push(BillSherbimi.create({
+                billID: newBill.billID,
+                serviceID: service.serviceID,
+                quantity: 1
+            }));
+        }
+
+        await Promise.all(billSherbimiPromises);
+
         res.json(newBill);
-    }
-    catch(error){
+    }catch(error){
         console.error('Error creating bill:', error);
-        res.status(500).json({error: 'Failed to create bill'});
+        res.status(500).json({ error: 'Failed to create bill' });
     }
 });
 
+
+
 // read (me i pa edhe rows te billit po edhe emrin e pacientit edhe tspitalit)
-router.get('/', async (req, res) => {
-    try{
-        const allBills = await Bill.findAll({
+router.get("/", async (req, res) => {
+    try {
+        const bills = await Bill.findAll({
             include: [
-                { model: Patient, attributes: ['nrPersonal', 'emri', 'mbiemri'] },
-                { model: Hospital, attributes: ['nrRegjistrimit', 'emri'] }
+                {
+                    model: Patient,
+                    attributes: ['emri', 'mbiemri']
+                },
+                {
+                    model: Hospital,
+                    attributes: ['emri']
+                },
+                {
+                    model: Service,
+                    as: 'sherbimi',
+                    through: { attributes: [] },
+                    attributes: ['emri', 'cmimi']
+                }
             ]
         });
-        res.json(allBills);
+        res.json(bills);
     }catch(error){
         console.error('Error fetching bills:', error);
         res.status(500).json({ error: 'Failed to fetch bills' });
     }
 });
+
 
 
 // update (manipulo me te dhena ne tabelen bills)

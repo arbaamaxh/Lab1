@@ -67,7 +67,7 @@ var routes = [
   },
   {
     path: "/tables",
-    name: "Data",
+    name: "Table List",
     rtlName: "قائمة الجدول",
     icon: "tim-icons icon-puzzle-10",
     component: <TableList />,

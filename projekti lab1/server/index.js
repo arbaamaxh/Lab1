@@ -20,7 +20,7 @@ app.use("/hospitals", hospitalRouter);
 const staffRouter = require('./routes/Staff');
 app.use("/staff", staffRouter);
 
-const departmentRouter = require('./routes/departments');
+const departmentRouter = require('./routes/Departments');
 app.use("/departments", departmentRouter);
 
 const roomRouter = require('./routes/Rooms');
@@ -32,8 +32,11 @@ app.use("/appointments", appointmentRouter);
 const prescriptionRouter = require('./routes/prescriptions');
 app.use("/prescriptions", prescriptionRouter);
 
-const billRouter = require('./routes/bills');
+const billRouter = require('./routes/Bills');
 app.use("/bills", billRouter);
+
+const serviceRouter = require('./routes/Services');
+app.use("/services", serviceRouter);
 
 const hospitalRelationsRouter = require('./routes/HospitalRelations');
 app.use("/hospitalRelations", hospitalRelationsRouter);

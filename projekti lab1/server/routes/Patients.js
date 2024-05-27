@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { Patient, Doctor, Staff } = require('../models');
+const { Patient, Doctor, Staff, Hospital } = require('../models');
 
 
 // create (insertimi ne tabelen patients)
 router.post("/", async (req,res) => {
     try{
-        const {emri,mbiemri,nrPersonal,datelindja,gjinia,adresa,nrTel} = req.body;
+        const {emri,mbiemri,nrPersonal,datelindja,gjinia,adresa,nrTel,hospitalName} = req.body;
 
         const patient = await Patient.findOne({
             where: {
@@ -18,30 +18,50 @@ router.post("/", async (req,res) => {
             return res.status(400).json({ error: 'This ID is already assigned to a patient.' });
         }
 
-        const doctor = await Doctor.findOne({
+        // const doctor = await Doctor.findOne({
+        //     where: {
+        //         nrPersonal: nrPersonal
+        //     }
+        // });
+
+        // const staff = await Staff.findOne({
+        //     where: {
+        //         nrPersonal: nrPersonal
+        //     }
+        // });
+
+        // if(doctor){
+        //     if(doctor.emri !== emri || doctor.mbiemri !== mbiemri){
+        //         return res.status(400).json({error: 'Sorry, the provided name and surname do not match our records.'});
+        //     }
+        // }
+        // else if(staff){
+        //     if(staff.emri !== emri || staff.mbiemri !== mbiemri){
+        //         return res.status(400).json({ error:'Sorry, the provided name and surname do not match our records.'});
+        //     }
+        // }
+
+        const hospital = await Hospital.findOne({
             where: {
-                nrPersonal: nrPersonal
+                emri: hospitalName
             }
         });
 
-        const staff = await Staff.findOne({
-            where: {
-                nrPersonal: nrPersonal
-            }
+        if(!hospital){
+            return res.status(400).json({ error: 'Hospital not found!' });
+        }
+
+        const newPatient = await Patient.create({
+            emri,
+            mbiemri,
+            nrPersonal,
+            datelindja,
+            gjinia,
+            adresa,
+            nrTel,
+            hospitalNrRegjistrimit: hospital.nrRegjistrimit
         });
 
-        if(doctor){
-            if(doctor.emri !== emri || doctor.mbiemri !== mbiemri){
-                return res.status(400).json({error: 'Sorry, the provided name and surname do not match our records.'});
-            }
-        }
-        else if(staff){
-            if(staff.emri !== emri || staff.mbiemri !== mbiemri){
-                return res.status(400).json({ error:'Sorry, the provided name and surname do not match our records.'});
-            }
-        }
-
-        const newPatient = await Patient.create(req.body);
         res.json(newPatient);
     }
     catch(error){

@@ -21,7 +21,6 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'CASCADE'
         });
         models.Department.hasMany(Room, { foreignKey: 'depID' });
-        Room.hasMany(models.Appointment, { foreignKey: 'dhomaID' });
     };
 
     return Room;

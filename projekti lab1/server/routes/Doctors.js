@@ -1,41 +1,54 @@
 const express = require('express');
 const router = express.Router();
-const { Doctor, Department, Prescription } = require('../models');
+const { Doctor, Department,  Hospital ,Prescription } = require('../models');
 
 
 // create (insertimi ne tabelen doctors)
 router.post("/", async (req,res) => {
     try{
-        const {emri,mbiemri,nrPersonal,adresa,nrTel,specializimi,departmentName} = req.body;
+        const { emri, mbiemri, nrPersonal, adresa, nrTel, specializimi, hospitalName, departmentName } = req.body;
+
+        const hospital = await Hospital.findOne({
+            where: {
+                emri: hospitalName
+            }
+        });
+
+        if(!hospital){
+            return res.status(400).json({error: 'Hospital not found!'});
+        }
 
         const department = await Department.findOne({
             where: {
+                hospitalNrRegjistrimit: hospital.nrRegjistrimit,
                 emri: departmentName
             }
         });
 
         if(!department){
-            return res.status(400).json({error: 'Department not found!'});
+            return res.status(400).json({error: 'Department not found in this hospital!'});
         }
 
-        const ekziston = await Doctor.findOne({
+        const existingDoctor = await Doctor.findOne({
             where: {
                 nrPersonal: nrPersonal
             }
         });
 
-        if(ekziston){
-            return res.status(400).json({error: 'Doktori ekziston!'});
+        if(existingDoctor){
+            return res.status(400).json({error: 'Doctor with the same ID already in database!'});
         }
 
         const newDoctor = await Doctor.create({
             emri,
             mbiemri,
+            nrPersonal,
             adresa,
             nrTel,
             specializimi,
-            depID: department.departmentID
+            depID: department.departmentID,
         });
+
         res.json(newDoctor);
     }
     catch(error){

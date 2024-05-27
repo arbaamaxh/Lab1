@@ -23,6 +23,7 @@ import { useTableList } from "./TableListHelp";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Select from 'react-select';
+import "assets/css/ModalStyles.css"
 
 // reactstrap components
 import {
@@ -39,10 +40,16 @@ import {
   NavLink,
   TabContent,
   TabPane,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  // ModalFooter,
   Form,
   Input,
   FormGroup,
   Label,
+  Alert,
+  CustomInput,
 } from "reactstrap";
 
 import classnames from 'classnames';
@@ -50,27 +57,38 @@ import classnames from 'classnames';
 
 function Tables(){
     const {
+    hospitalOptions,
+    selectedHospital,
+    selectedDepartment,
+    selectedRoom,
+    selectedPatient,
     successMessage,
     errorMessage,
+    errorMessageModal,
+    setSuccessMessage,
+    setErrorMessage,
 
     hospitals,
     newHospital,
+    hospitalModal,
     editedHospital,
     editingHospitalId,
-    handleDeleteHospital,
+    toggleHospitalModal,
     handleChangeForHospitals,
     handleSubmitForHospitals,
     handleEditForHospitals,
     handleSaveForHospitals,
     handleEditInputChangeForHospitals,
+    handleDeleteHospital,
 
     departmentsForDepartments,
     newDepartment,
+    departmentModal,
     editedDepartment,
     editingDepartmentId,
     selectedHospitalForDepartments,
     activeHospitalTabForDepartments,
-    optionsForDepartments,
+    toggleDepartmentModal,
     handleHospitalSelectForDepartments,
     handleChangeForDepartments,
     handleSubmitForDepartments,
@@ -81,6 +99,8 @@ function Tables(){
 
     doctorsForDoctors,
     newDoctor,
+    doctorModal,
+    specializations,
     editedDoctor,
     editingDoctorId,
     departmentsForDoctors,
@@ -88,49 +108,109 @@ function Tables(){
     selectedDepartmentForDoctors,
     activeHospitalTabForDoctors,
     activeDepartmentTabForDoctors,
-    // optionsForDoctors,
-    // selectedDepartment,
-    // selectedHospital,
+    toggleDoctorModal,
+    setNewDoctor,
     handleHospitalSelectForDoctors,
     handleDepartmentSelectForDoctors,
     handleChangeForDoctors,
+    handleHospitalChangeForDoctors,
+    handleDepartmentChangeForDoctors,
     handleSubmitForDoctors,
     handleEditForDoctors,
     handleEditInputChangeForDoctors,
     handleSaveForDoctors,
-    // handleHospitalChangeForDoctors,
-    // handleDepartmentChangeForDoctors,
     handleDeleteDoctor,
 
     patientsForPatients,
+    newPatient,
+    patientModal,
+    editedPatient,
+    editingPatientId,
     selectedHospitalForPatients,
     activeHospitalTabForPatients,
     handleHospitalSelectForPatients,
+    handleChangeForPatients,
+    handleSubmitForPatients,
+    handleEditForPatients,
+    handleEditInputChangeForPatients,
+    handleSaveForPatients,
+    togglePatientModal,
     handleDeletePatient,
 
     staffForStaff,
+    newStaff,
+    staffModal,
+    editedStaff,
+    editingStaffId,
     departmentsForStaff,
+    roomsForStaff,
     selectedHospitalForStaff,
     selectedDepartmentForStaff,
     activeHospitalTabForStaff,
     activeDepartmentTabForStaff,
+    toggleStaffModal,
     handleHospitalSelectForStaff,
     handleDepartmentSelectForStaff,
+    handleChangeForStaff,
+    handleHospitalChangeForStaff,
+    handleDepartmentChangeForStaff,
+    handleRoomChangeForStaff,
+    handleSubmitForStaff,
+    handleEditForStaff,
+    handleEditInputChangeForStaff,
+    handleSaveForStaff,
     handleDeleteStaff,
 
     bills,
+    patientsForBills,
+    newBill,
+    servicePrices,
+    newService,
+    billModal,
+    editedBill,
+    editingBillId,
+    toggleBillModal,
+    addService,
+    setNewService,
+    handleHospitalChangeForBills,
+    handlePatientChangeForBills,
+    handleChangeForBills,
+    handleSubmitForBills,
+    handleEditForBills,
+    handleEditInputChangeForBills,
+    handleSaveForBills,
     handleDeleteBill,
 
     appointments,
+    appointmentModal,
+    selectedDoctor,
+    editedAppointment,
+    editingAppointmentId,
     departmentsForAppointments,
+    patientsForAppointments,
+    doctorsForAppointments,
     selectedDate,
+    selectedDateForInsert,
+    selectedTime,
+    availableTimeSlots,
     selectedDepartmentForAppointments,
     selectedHospitalForAppointments,
     activeHospitalTabForAppointments,
     activeDepartmentTabForAppointments,
+    toggleAppointmentModal,
+    handleTimeChange,
     handleDateChange,
     handleHospitalSelectForAppointments,
     handleDepartmentSelectForAppointments,
+    handleHospitalChangeForAppointments,
+    handleDepartmentChangeForAppointments,
+    handlePatientChangeForAppointments,
+    handleDoctorChangeForAppointments,
+    handleDateToInsert,
+    handleSubmitForAppointments,
+    handleEditForAppointments,
+    handleEditInputChangeForAppointments,
+    handleSaveForAppointments,
     handleDeleteAppointment,
 
     rooms,
@@ -144,19 +224,16 @@ function Tables(){
     handleDeletePrescription,
   } = useTableList();
 
+  
   return(
     <>
       <div className="content">
-      {successMessage && (
-        <div className="alert alert-success" role="alert">
+        <Alert color="success" isOpen={!!successMessage} toggle={() => setSuccessMessage('')}>
           {successMessage}
-        </div>
-      )}
-      {errorMessage && (
-        <div className="alert alert-danger" role="alert">
+        </Alert>
+        <Alert color="danger" isOpen={!!errorMessage} toggle={() => setErrorMessage('')}>
           {errorMessage}
-        </div>
-      )}
+        </Alert>
         <Row>
           <Col md="12">
             <Card>
@@ -171,7 +248,10 @@ function Tables(){
                       <th>Registration Number</th>
                       <th>Address</th>
                       <th>Phone Number</th>
-                      <th>Action</th>
+                      <th></th>
+                      <th>
+                        <Button onClick={toggleHospitalModal}>Add Hospital</Button>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -228,23 +308,31 @@ function Tables(){
                     ))}
                   </tbody>
                 </Table>
-                <Form onSubmit={handleSubmitForHospitals}>
-                  <FormGroup>
-                    <Label for="emri">Name</Label>
-                    <Input type="text" name="emri" id="emri" value={newHospital.emri} onChange={handleChangeForHospitals} required />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label for="adresa">Address</Label>
-                    <Input type="text" name="adresa" id="adresa" value={newHospital.adresa} onChange={handleChangeForHospitals} required />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label for="nrTel">Phone Number</Label>
-                    <Input type="text" name="nrTel" id="nrTel" value={newHospital.nrTel} onChange={handleChangeForHospitals} required />
-                  </FormGroup>
-                  <div className="text-center">
-                    <Button color="primary" type="submit">Add Hospital</Button>
-                  </div>
-                </Form>
+                <Modal isOpen={hospitalModal} toggle={toggleHospitalModal} className="Modal">
+                  <ModalHeader toggle={toggleHospitalModal} className="ModalHeader">Add Hospital</ModalHeader>
+                  <ModalBody className="ModalBody">
+                    <Alert color="info" isOpen={!!errorMessageModal} toggle={() => setErrorMessage('')}>
+                      {errorMessageModal}
+                    </Alert>
+                    <Form onSubmit={handleSubmitForHospitals}>
+                      <FormGroup>
+                        <Label for="emri">Name</Label>
+                        <Input type="text" name="emri" id="emri" placeholder="Name" value={newHospital.emri} onChange={handleChangeForHospitals} required />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="adresa">Address</Label>
+                        <Input type="text" name="adresa" id="adresa" placeholder="Address" value={newHospital.adresa} onChange={handleChangeForHospitals} required />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="nrTel">Phone Number</Label>
+                        <Input type="text" name="nrTel" id="nrTel" placeholder="Phone Number" value={newHospital.nrTel} onChange={handleChangeForHospitals} required pattern="^\d{5,15}$" title="Phone Number should have between 5-15 numbers."/>
+                      </FormGroup>
+                      <div className="text-center">
+                        <Button color="primary" type="submit">Add Hospital</Button>
+                      </div>
+                    </Form>
+                  </ModalBody>
+                </Modal>
               </CardBody>
             </Card>
           </Col>
@@ -253,7 +341,7 @@ function Tables(){
           {hospitals.map((hospital, index) => (
             <NavItem key={hospital.nrRegjistrimit}>
               <NavLink
-                style={{ color: 'white' }} // Change 'red' to the desired color
+                style={{ color: 'white' }}
                 className={classnames({ active: activeHospitalTabForDepartments === `${index}` })}
                 onClick={() => handleHospitalSelectForDepartments(hospital, `${index}`)}
               >
@@ -279,6 +367,10 @@ function Tables(){
                             <th>Name</th>
                             <th>Location</th>
                             <th>Phone Number</th>
+                            <th></th>
+                            <th>
+                              <Button onClick={toggleDepartmentModal}>Add Department</Button>
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
@@ -335,34 +427,42 @@ function Tables(){
                           ))}
                         </tbody>
                       </Table>
-                      <Form onSubmit={handleSubmitForDepartments}>
-                        <FormGroup>
-                          <Label for="emri">Name</Label>
-                          <Input type="text" name="emri" id="emri" value={newDepartment.emri} onChange={handleChangeForDepartments} required />
-                        </FormGroup>
-                        <FormGroup>
-                          <Label for="lokacioni">Location</Label>
-                          <Input type="text" name="lokacioni" id="lokacioni" value={newDepartment.lokacioni} onChange={handleChangeForDepartments} required />
-                        </FormGroup>
-                        <FormGroup>
-                          <Label for="nrTel">Phone Number</Label>
-                          <Input type="text" name="nrTel" id="nrTel" value={newDepartment.nrTel} onChange={handleChangeForDepartments} required />
-                        </FormGroup>
-                        <FormGroup>
-                          <Label for="hospitalName">Hospital</Label>
-                          <Select
-                            options={optionsForDepartments}
-                            classNamePrefix="custom-select"
-                            placeholder="Select Hospital"
-                            value={optionsForDepartments.find(option => option.value === newDepartment.hospitalName)}
-                            onChange={(selectedOption) => handleChangeForDepartments({ target: { name: 'hospitalName', value: selectedOption.value } })}
-                            required
-                          />
-                        </FormGroup>
-                        <div className="text-center">
-                          <Button color="primary" type="submit">Add Department</Button>
-                        </div>
-                      </Form>
+                      <Modal isOpen={departmentModal} toggle={toggleDepartmentModal} className="Modal">
+                        <ModalHeader toggle={toggleDepartmentModal} className="ModalHeader">Add Department</ModalHeader>
+                        <ModalBody className="ModalBody">
+                          <Alert color="info" isOpen={!!errorMessageModal} toggle={() => setErrorMessage('')}>
+                            {errorMessageModal}
+                          </Alert>
+                         <Form onSubmit={handleSubmitForDepartments}>
+                            <FormGroup>
+                              <Label for="emri">Name</Label>
+                              <Input type="text" name="emri" id="emri" placeholder="Name" value={newDepartment.emri} onChange={handleChangeForDepartments} required />
+                            </FormGroup>
+                            <FormGroup>
+                              <Label for="lokacioni">Location</Label>
+                              <Input type="text" name="lokacioni" id="lokacioni" placeholder="Location" value={newDepartment.lokacioni} onChange={handleChangeForDepartments} required />
+                            </FormGroup>
+                            <FormGroup>
+                              <Label for="nrTel">Phone Number</Label>
+                              <Input type="text" name="nrTel" id="nrTel" placeholder="Phone Number" value={newDepartment.nrTel} onChange={handleChangeForDepartments} required pattern="^\d{5,15}$" title="Phone Number should have between 5-15 numbers." />
+                            </FormGroup>
+                            <FormGroup>
+                              <Label for="hospitalName">Hospital</Label>
+                              <Select
+                                options={hospitalOptions}
+                                classNamePrefix="custom-select"
+                                placeholder="Select Hospital"
+                                value={hospitalOptions.find(option => option.value === newDepartment.hospitalName)}
+                                onChange={(selectedOption) => handleChangeForDepartments({ target: { name: 'hospitalName', value: selectedOption.value } })}
+                                required
+                              />
+                            </FormGroup>
+                            <div className="text-center">
+                              <Button color="primary" type="submit">Add Department</Button>
+                            </div>
+                          </Form>
+                        </ModalBody>
+                      </Modal>
                     </CardBody>
                   </Card>
                 )}
@@ -374,7 +474,7 @@ function Tables(){
           {hospitals.map((hospital, index) => (
             <NavItem key={hospital.nrRegjistrimit}>
               <NavLink
-                style={{ color: 'white' }} // Change 'red' to the desired color
+                style={{ color: 'white' }}
                 className={classnames({ active: activeHospitalTabForDoctors === `${index}` })}
                 onClick={() => handleHospitalSelectForDoctors(hospital, `${index}`)}
               >
@@ -389,7 +489,7 @@ function Tables(){
               {departmentsForDoctors.map((department, index) => (
                 <NavItem key={department.departmentID}>
                   <NavLink
-                    style={{ color: 'white' }} // Change 'red' to the desired color
+                    style={{ color: 'white' }}
                     className={classnames({ active: activeDepartmentTabForDoctors === `${index}` })}
                     onClick={() => handleDepartmentSelectForDoctors(department, `${index}`)}
                   >
@@ -417,146 +517,175 @@ function Tables(){
                                 <th>Address</th>
                                 <th>Phone Number</th>
                                 <th>Specialization</th>
+                                <th>
+                                  <Button onClick={toggleDoctorModal}>Add Doctor</Button>
+                               </th>
                               </tr>
                             </thead>
                             <tbody>
                               {doctorsForDoctors.map(doctor => (
                                 <tr key={doctor.nrRegjistrimit}>
-                                <td>
-                                  {editingDoctorId === doctor.nrPersonal ? (
-                                    <Input
-                                      type="text"
-                                      name="emri"
-                                      value={editedDoctor.emri}
-                                      onChange={handleEditInputChangeForDoctors}
-                                    />
-                                  ) : (
-                                    doctor.emri
-                                  )}
-                                </td>
-                                <td>
-                                  {editingDoctorId === doctor.nrPersonal ? (
-                                    <Input
-                                      type="text"
-                                      name="mbiemri"
-                                      value={editedDoctor.mbiemri}
-                                      onChange={handleEditInputChangeForDoctors}
-                                    />
-                                  ) : (
-                                    doctor.mbiemri
-                                  )}
-                                </td>
-                                <td>{doctor.nrPersonal}</td>
-                                <td>
-                                  {editingDoctorId === doctor.nrPersonal ? (
-                                    <Input
-                                      type="text"
-                                      name="adresa"
-                                      value={editedDoctor.adresa}
-                                      onChange={handleEditInputChangeForDoctors}
-                                    />
-                                  ) : (
-                                    doctor.adresa
-                                  )}
-                                </td>
-                                <td>
-                                  {editingDoctorId === doctor.nrPersonal ? (
-                                    <Input
-                                      type="text"
-                                      name="nrTel"
-                                      value={editedDoctor.nrTel}
-                                      onChange={handleEditInputChangeForDoctors}
-                                    />
-                                  ) : (
-                                    doctor.nrTel
-                                  )}
-                                </td>
-                                <td>
-                                  {editingDoctorId === doctor.nrPersonal ? (
-                                    <Input
-                                      type="text"
-                                      name="specializimi"
-                                      value={editedDoctor.specializimi}
-                                      onChange={handleEditInputChangeForDoctors}
-                                    />
-                                  ) : (
-                                    doctor.specializimi
-                                  )}
-                                </td>
-                                <td>
-                                  {editingDoctorId === doctor.nrPersonal ? (
-                                    <Button color="success" onClick={handleSaveForDoctors}>Save</Button>
-                                  ) : (
-                                    <Button color="info" onClick={() => handleEditForDoctors(doctor.nrPersonal)}>Edit</Button>
-                                  )}
-                                </td>
                                   <td>
-                                    <Button color="danger" onClick={() => handleDeleteDoctor(doctor.nrPersonal)}>Delete</Button>
+                                    {editingDoctorId === doctor.nrPersonal ? (
+                                      <Input
+                                        type="text"
+                                        name="emri"
+                                        value={editedDoctor.emri}
+                                        onChange={handleEditInputChangeForDoctors}
+                                      />
+                                    ) : (
+                                      doctor.emri
+                                    )}
+                                  </td>
+                                  <td>
+                                    {editingDoctorId === doctor.nrPersonal ? (
+                                      <Input
+                                        type="text"
+                                        name="mbiemri"
+                                        value={editedDoctor.mbiemri}
+                                        onChange={handleEditInputChangeForDoctors}
+                                      />
+                                    ) : (
+                                      doctor.mbiemri
+                                    )}
+                                  </td>
+                                  <td>{doctor.nrPersonal}</td>
+                                  <td>
+                                    {editingDoctorId === doctor.nrPersonal ? (
+                                      <Input
+                                        type="text"
+                                        name="adresa"
+                                        value={editedDoctor.adresa}
+                                        onChange={handleEditInputChangeForDoctors}
+                                      />
+                                    ) : (
+                                      doctor.adresa
+                                    )}
+                                  </td>
+                                  <td>
+                                    {editingDoctorId === doctor.nrPersonal ? (
+                                      <Input
+                                        type="text"
+                                        name="nrTel"
+                                        value={editedDoctor.nrTel}
+                                        onChange={handleEditInputChangeForDoctors}
+                                      />
+                                    ) : (
+                                      doctor.nrTel
+                                    )}
+                                  </td>
+                                  <td>
+                                    {editingDoctorId === doctor.nrPersonal ? (
+                                      <Input
+                                        type="text"
+                                        name="specializimi"
+                                        value={editedDoctor.specializimi}
+                                        onChange={handleEditInputChangeForDoctors}
+                                      />
+                                    ) : (
+                                      doctor.specializimi
+                                    )}
+                                  </td>
+                                  <td>
+                                    {editingDoctorId === doctor.nrPersonal ? (
+                                      <Button color="success" onClick={handleSaveForDoctors} style={{marginBottom:"10px", width:"130px", marginLeft:"10px"}}>Save</Button>
+                                    ) : (
+                                      <Button color="info" onClick={() => handleEditForDoctors(doctor.nrPersonal)} style={{marginBottom:"10px", width:"130px", marginLeft:"10px"}}>Edit</Button>
+                                    )}
+                                    <Button color="danger" onClick={() => handleDeleteDoctor(doctor.nrPersonal)} style={{marginBottom:"10px", width:"130px", marginLeft:"10px"}}>Delete</Button>
                                   </td>
                                 </tr>
                                 ))}
                             </tbody>
                           </Table>
-                            <Form onSubmit={handleSubmitForDoctors}>
-                              <FormGroup>
-                                <Label for="emri">Name</Label>
-                                <Input type="text" name="emri" id="emri" value={newDoctor.emri} onChange={handleChangeForDoctors} required />
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="mbiemri">Surname</Label>
-                                <Input type="text" name="mbiemri" id="mbiemri" value={newDoctor.mbiemri} onChange={handleChangeForDoctors} required />
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="adresa">Address</Label>
-                                <Input type="text" name="adresa" id="adresa" value={newDoctor.adresa} onChange={handleChangeForDoctors} required />
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="nrTel">Phone Number</Label>
-                                <Input type="text" name="nrTel" id="nrTel" value={newDoctor.nrTel} onChange={handleChangeForDoctors} required />
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="specializimi">Specialization</Label>
-                                <Input type="text" name="specializimi" id="specializimi" value={newDoctor.specializimi} onChange={handleChangeForDoctors} required />
-                              </FormGroup>
-                              {/* <FormGroup>
-                                <Label for="hospital">Select Hospital</Label>
-                                <Input 
-                                  type="select" 
-                                  name="hospital" 
-                                  id="hospital" 
-                                  value={selectedHospital || ''} 
-                                  onChange={handleHospitalChangeForDoctors} 
-                                  required 
-                                >
-                                  <option value="">Select Hospital</option>
-                                  {hospitals.map(hospital => (
-                                    <option key={hospital.nrRegjistrimit} value={hospital.nrRegjistrimit}>{hospital.emri}</option>
-                                  ))}
-                                </Input>
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="department">Select Department</Label>
-                                <Input 
-                                  type="select" 
-                                  name="department" 
-                                  id="department" 
-                                  value={selectedDepartment || ''} 
-                                  onChange={handleDepartmentChangeForDoctors} 
-                                  required 
-                                  disabled={!selectedHospital}
-                                >
-                                  <option value="">Select Department</option>
-                                  {departmentsForDoctors
-                                    .filter(dep => dep.hospitalNrRegjistrimit === selectedHospital)
-                                    .map(department => (
-                                      <option key={department.departmentID} value={department.departmentID}>{department.emri}</option>
-                                    ))}
-                                </Input>
-                              </FormGroup> */}
-                              <div className="text-center">
-                                <Button color="primary" type="submit">Add Doctor</Button>
-                              </div>
-                            </Form>
+                          <Modal isOpen={doctorModal} toggle={toggleDoctorModal} className="Modal">
+                            <ModalHeader toggle={toggleDoctorModal} className="ModalHeader">Add Doctor</ModalHeader>
+                            <ModalBody className="ModalBody">
+                              <Alert color="info" isOpen={!!errorMessageModal} toggle={() => setErrorMessage('')}>
+                                {errorMessageModal}
+                              </Alert>
+                              <Form onSubmit={handleSubmitForDoctors}>
+                                <Row>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="emri">Name</Label>
+                                      <Input type="text" name="emri" id="emri" placeholder="Name" value={newDoctor.emri} onChange={handleChangeForDoctors} required pattern="^[A-Z][a-zA-Z\s]*$" title="Name must start with capital letter"/>
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="mbiemri">Surname</Label>
+                                      <Input type="text" name="mbiemri" id="mbiemri" placeholder="Surname" value={newDoctor.mbiemri} onChange={handleChangeForDoctors} required pattern="^[A-Z][a-zA-Z\s]*$" title="Surname must start with capital letter"/>
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="nrPersonal">Personal ID</Label>
+                                      <Input type="text" name="nrPersonal" id="nrPersonal" placeholder="Personal ID" value={newDoctor.nrPersonal} onChange={handleChangeForDoctors} required pattern="^\d{10}$" title="Personal ID should have exactly 10 numbers" />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="adresa">Address</Label>
+                                      <Input type="text" name="adresa" id="adresa" placeholder="Address" value={newDoctor.adresa} onChange={handleChangeForDoctors} required />
+                                    </FormGroup>
+                                  </Col>
+                                </Row>
+                                <Row>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="nrTel">Phone Number</Label>
+                                      <Input type="text" name="nrTel" id="nrTel" placeholder="Phone Number" value={newDoctor.nrTel} onChange={handleChangeForDoctors} required pattern="^\d{5,15}$" title="Phone Number should have between 5-15 numbers." />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="hospital">Hospital</Label>
+                                      <Select
+                                        options={hospitals.map(h => ({ value: h.nrRegjistrimit, label: h.emri }))}
+                                        classNamePrefix="custom-select"
+                                        placeholder="Select Hospital"
+                                        value={selectedHospital}
+                                        onChange={handleHospitalChangeForDoctors}
+                                        required
+                                      />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="department">Department</Label>
+                                      <Select
+                                        options={departmentsForDoctors.map(d => ({ value: d.departmentID, label: d.emri }))}
+                                        classNamePrefix="custom-select"
+                                        placeholder="Select Department"
+                                        value={selectedDepartment ? { value: selectedDepartment.departmentID, label: selectedDepartment.emri } : null}
+                                        onChange={handleDepartmentChangeForDoctors}
+                                        isDisabled={!selectedHospital}
+                                        required
+                                      />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="specializimi">Specialization</Label>
+                                      <Select
+                                        options={specializations.map(spec => ({ value: spec, label: spec }))}
+                                        classNamePrefix="custom-select"
+                                        placeholder="Select Specialization"
+                                        value={newDoctor.specializimi ? { value: newDoctor.specializimi, label: newDoctor.specializimi } : null}
+                                        onChange={(selectedOption) => setNewDoctor({ ...newDoctor, specializimi: selectedOption.value })}
+                                        isDisabled={!selectedDepartment}
+                                        required
+                                      />
+                                    </FormGroup>
+                                  </Col>
+                                </Row>
+                                <div className="text-center">
+                                  <Button color="primary" type="submit">Add Doctor</Button>
+                                </div>
+                              </Form>
+                            </ModalBody>
+                          </Modal>
                         </CardBody>
                       </Card>
                     )}
@@ -570,7 +699,7 @@ function Tables(){
           {hospitals.map((hospital, index) => (
             <NavItem key={hospital.nrRegjistrimit}>
               <NavLink
-                style={{ color: 'white' }} // Change 'red' to the desired color
+                style={{ color: 'white' }}
                 className={classnames({ active: activeHospitalTabForPatients === `${index}` })}
                 onClick={() => handleHospitalSelectForPatients(hospital, `${index}`)}
               >
@@ -599,25 +728,192 @@ function Tables(){
                             <th>Gender</th>
                             <th>Address</th>
                             <th>Phone Number</th>
+                            <th>
+                              <Button onClick={togglePatientModal}>Add Patient</Button>
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
                           {patientsForPatients.map((patient) => (
                             <tr key={patient.nrPersonal}>
                               <td>{patient.nrPersonal}</td>
-                              <td>{patient.emri}</td>
-                              <td>{patient.mbiemri}</td>
-                              <td>{patient.datelindja}</td>
-                              <td>{patient.gjinia}</td>
-                              <td>{patient.adresa}</td>
-                              <td>{patient.nrTel}</td>
                               <td>
-                                <Button color="danger" onClick={() => handleDeletePatient(patient.nrPersonal)}>Delete</Button>
+                                {editingPatientId === patient.nrPersonal ? (
+                                  <Input
+                                    type="text"
+                                    name="emri"
+                                    value={editedPatient.emri}
+                                    onChange={handleEditInputChangeForPatients}
+                                  />
+                                ) : (
+                                  patient.emri
+                                )}
+                              </td>
+                              <td>
+                                {editingPatientId === patient.nrPersonal ? (
+                                  <Input
+                                    type="text"
+                                    name="mbiemri"
+                                    value={editedPatient.mbiemri}
+                                    onChange={handleEditInputChangeForPatients}
+                                  />
+                                ) : (
+                                  patient.mbiemri
+                                )}
+                              </td>
+                              <td>
+                                {editingPatientId === patient.nrPersonal ? (
+                                  <Input
+                                    type="text"
+                                    name="datelindja"
+                                    value={editedPatient.datelindja}
+                                    onChange={handleEditInputChangeForPatients}
+                                  />
+                                ) : (
+                                  patient.datelindja
+                                )}
+                              </td>
+                              <td>
+                                {editingPatientId === patient.nrPersonal ? (
+                                  <Input
+                                    type="text"
+                                    name="gjinia"
+                                    value={editedPatient.gjinia}
+                                    onChange={handleEditInputChangeForPatients}
+                                  />
+                                ) : (
+                                  patient.gjinia
+                                )}
+                              </td>
+                              <td>
+                                {editingPatientId === patient.nrPersonal ? (
+                                  <Input
+                                    type="text"
+                                    name="adresa"
+                                    value={editedPatient.adresa}
+                                    onChange={handleEditInputChangeForPatients}
+                                  />
+                                ) : (
+                                  patient.adresa
+                                )}
+                              </td>
+                              <td>
+                                {editingPatientId === patient.nrPersonal ? (
+                                  <Input
+                                    type="text"
+                                    name="nrTel"
+                                    value={editedPatient.nrTel}
+                                    onChange={handleEditInputChangeForPatients}
+                                  />
+                                ) : (
+                                  patient.nrTel
+                                )}
+                              </td>
+                              <td>
+                                {editingPatientId === patient.nrPersonal ? (
+                                  <Button color="success" onClick={handleSaveForPatients} style={{marginBottom:"10px", width:"100px", marginLeft:"10px"}}>Save</Button>
+                                ) : (
+                                  <Button color="info" onClick={() => handleEditForPatients(patient.nrPersonal)} style={{marginBottom:"10px", width:"130px", marginLeft:"10px"}}>Edit</Button>
+                                )}
+                                <Button color="danger" onClick={() => handleDeletePatient(patient.nrPersonal)} style={{marginBottom:"10px", width:"130px", marginLeft:"10px", fontSize:"smaller"}}>Delete</Button>
                               </td>
                             </tr>
                           ))}
                         </tbody>
                       </Table>
+                      <Modal isOpen={patientModal} toggle={togglePatientModal} className="Modal">
+                        <ModalHeader toggle={togglePatientModal} className="ModalHeader">Add Patient</ModalHeader>
+                        <ModalBody className="ModalBody">
+                          <Alert color="info" isOpen={!!errorMessageModal} toggle={() => setErrorMessage('')}>
+                            {errorMessageModal}
+                          </Alert>
+                          <Form onSubmit={handleSubmitForPatients}>
+                            <Row>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="emri">Name</Label>
+                                  <Input type="text" name="emri" id="emri" placeholder="Name" value={newPatient.emri} onChange={handleChangeForPatients} required />
+                                </FormGroup>
+                              </Col>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="mbiemri">Surname</Label>
+                                  <Input type="text" name="mbiemri" id="mbiemri" placeholder="Surname" value={newPatient.mbiemri} onChange={handleChangeForPatients} required />
+                                </FormGroup>
+                              </Col>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="nrPersonal">Personal ID</Label>
+                                  <Input type="text" name="nrPersonal" id="nrPersonal" placeholder="Personal ID" value={newPatient.nrPersonal} onChange={handleChangeForPatients} required />
+                                </FormGroup>
+                              </Col>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="datelindja">Birthday</Label>
+                                  <Input type="text" name="datelindja" id="datelindja" placeholder="Birthday" value={newPatient.datelindja} onChange={handleChangeForPatients} required />
+                                </FormGroup>
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="gjinia">Gender</Label>
+                                  <div>
+                                    <CustomInput
+                                      type="radio"
+                                      id="genderMale"
+                                      name="gjinia"
+                                      label="Male"
+                                      value="Male"
+                                      checked={newPatient.gjinia === 'Male'}
+                                      onChange={handleChangeForPatients}
+                                      required
+                                    />
+                                    <CustomInput
+                                      type="radio"
+                                      id="genderFemale"
+                                      name="gjinia"
+                                      label="Female"
+                                      value="Female"
+                                      checked={newPatient.gjinia === 'Female'}
+                                      onChange={handleChangeForPatients}
+                                      required
+                                    />
+                                  </div>
+                                </FormGroup>
+                              </Col>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="adresa">Address</Label>
+                                  <Input type="text" name="adresa" id="adresa" placeholder="Address" value={newPatient.adresa} onChange={handleChangeForPatients} required />
+                                </FormGroup>
+                              </Col>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="nrTel">Phone Number</Label>
+                                  <Input type="text" name="nrTel" id="nrTel" placeholder="Phone Number" value={newPatient.nrTel} onChange={handleChangeForPatients} required />
+                                </FormGroup>
+                              </Col>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="hospitalName">Hospital</Label>
+                                  <Select
+                                    options={hospitalOptions}
+                                    classNamePrefix="custom-select"
+                                    placeholder="Select Hospital"
+                                    value={hospitalOptions.find(option => option.value === newPatient.hospitalName)}
+                                    onChange={(selectedOption) => handleChangeForPatients({ target: { name: 'hospitalName', value: selectedOption.value } })}
+                                    required
+                                  />
+                                </FormGroup>
+                              </Col>
+                            </Row>
+                            <div className="text-center">
+                              <Button color="primary" type="submit">Add Patient</Button>
+                            </div>
+                          </Form>
+                        </ModalBody>
+                      </Modal>
                     </CardBody>
                   </Card>
                 )}
@@ -629,7 +925,7 @@ function Tables(){
           {hospitals.map((hospital, index) => (
             <NavItem key={hospital.nrRegjistrimit}>
               <NavLink
-                style={{ color: 'white' }} // Change 'red' to the desired color
+                style={{ color: 'white' }}
                 className={classnames({ active: activeHospitalTabForStaff === `${index}` })}
                 onClick={() => handleHospitalSelectForStaff(hospital, `${index}`)}
               >
@@ -644,7 +940,7 @@ function Tables(){
               {departmentsForStaff.map((department, index) => (
                 <NavItem key={department.departmentID}>
                   <NavLink
-                    style={{ color: 'white' }} // Change 'red' to the desired color
+                    style={{ color: 'white' }}
                     className={classnames({ active: activeDepartmentTabForStaff === `${index}` })}
                     onClick={() => handleDepartmentSelectForStaff(department, `${index}`)}
                   >
@@ -672,24 +968,179 @@ function Tables(){
                               <th>Job Position</th>
                               <th>Address</th>
                               <th>Phone Number</th>
+                              <th>
+                                <Button onClick={toggleStaffModal}>Add Staff</Button>
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
                             {staffForStaff.map((staff) => (
                               <tr key={staff.nrPersonal}>
                                 <td>{staff.nrPersonal}</td>
-                                <td>{staff.emri}</td>
-                                <td>{staff.mbiemri}</td>
-                                <td>{staff.pozita}</td>
-                                <td>{staff.adresa}</td>
-                                <td>{staff.nrTel}</td>
-                                <td>
-                                  <Button color="danger" onClick={() => handleDeleteStaff(staff.nrPersonal)}>Delete</Button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
+                                  <td>
+                                    {editingStaffId === staff.nrPersonal ? (
+                                      <Input
+                                        type="text"
+                                        name="emri"
+                                        value={editedStaff.emri}
+                                        onChange={handleEditInputChangeForStaff}
+                                      />
+                                    ) : (
+                                      staff.emri
+                                    )}
+                                  </td>
+                                  <td>
+                                    {editingStaffId === staff.nrPersonal ? (
+                                      <Input
+                                        type="text"
+                                        name="mbiemri"
+                                        value={editedStaff.mbiemri}
+                                        onChange={handleEditInputChangeForStaff}
+                                      />
+                                    ) : (
+                                      staff.mbiemri
+                                    )}
+                                  </td>
+                                  <td>
+                                    {editingStaffId === staff.nrPersonal ? (
+                                      <Input
+                                        type="text"
+                                        name="pozita"
+                                        value={editedStaff.pozita}
+                                        onChange={handleEditInputChangeForStaff}
+                                      />
+                                    ) : (
+                                      staff.pozita
+                                    )}
+                                  </td>
+                                  <td>
+                                    {editingStaffId === staff.nrPersonal ? (
+                                      <Input
+                                        type="text"
+                                        name="adresa"
+                                        value={editedStaff.adresa}
+                                        onChange={handleEditInputChangeForStaff}
+                                      />
+                                    ) : (
+                                      staff.adresa
+                                    )}
+                                  </td>
+                                  <td>
+                                    {editingStaffId === staff.nrPersonal ? (
+                                      <Input
+                                        type="text"
+                                        name="nrTel"
+                                        value={editedStaff.nrTel}
+                                        onChange={handleEditInputChangeForStaff}
+                                      />
+                                    ) : (
+                                      staff.nrTel
+                                    )}
+                                  </td>
+                                  <td>
+                                    {editingStaffId === staff.nrPersonal ? (
+                                      <Button color="success" onClick={handleSaveForStaff} style={{marginBottom:"10px", width:"130px", marginLeft:"10px"}}>Save</Button>
+                                    ) : (
+                                      <Button color="info" onClick={() => handleEditForStaff(staff.nrPersonal)} style={{marginBottom:"10px", width:"130px", marginLeft:"10px"}}>Edit</Button>
+                                    )}
+                                    <Button color="danger" onClick={() => handleDeleteStaff(staff.nrPersonal)} style={{marginBottom:"10px", width:"130px", marginLeft:"10px"}}>Delete</Button>
+                                  </td>
+                                </tr>
+                                ))}
+                            </tbody>
                           </Table>
+                          <Modal isOpen={staffModal} toggle={toggleStaffModal} className="Modal">
+                            <ModalHeader toggle={toggleStaffModal} className="ModalHeader">Add Staff</ModalHeader>
+                            <ModalBody className="ModalBody">
+                              <Alert color="info" isOpen={!!errorMessageModal} toggle={() => setErrorMessage('')}>
+                                {errorMessageModal}
+                              </Alert>
+                              <Form onSubmit={handleSubmitForStaff}>
+                                <FormGroup>
+                                  <Label for="nrPersonal">Personal ID</Label>
+                                  <Input type="text" name="nrPersonal" id="nrPersonal" placeholder="Personal ID" value={newStaff.nrPersonal} onChange={handleChangeForStaff} required pattern="^\d{10}$" title="Personal ID should have exactly 10 numbers" />
+                                </FormGroup>
+                                <Row>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="emri">Name</Label>
+                                      <Input type="text" name="emri" id="emri" placeholder="Name" value={newStaff.emri} onChange={handleChangeForStaff} required pattern="^[A-Z][a-zA-Z\s]*$" title="Name must start with capital letter"/>
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="mbiemri">Surname</Label>
+                                      <Input type="text" name="mbiemri" id="mbiemri" placeholder="Surname" value={newStaff.mbiemri} onChange={handleChangeForStaff} required pattern="^[A-Z][a-zA-Z\s]*$" title="Surname must start with capital letter"/>
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="pozita">Job Position</Label>
+                                      <Input type="text" name="pozita" id="pozita" placeholder="Job Position" value={newStaff.pozita} onChange={handleChangeForStaff} required />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="adresa">Address</Label>
+                                      <Input type="text" name="adresa" id="adresa" placeholder="Address" value={newStaff.adresa} onChange={handleChangeForStaff} required />
+                                    </FormGroup>
+                                  </Col>
+                                </Row>
+                                <Row>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="nrTel">Phone Number</Label>
+                                      <Input type="text" name="nrTel" id="nrTel" placeholder="Phone Number" value={newStaff.nrTel} onChange={handleChangeForStaff} required pattern="^\d{5,15}$" title="Phone Number should have between 5-15 numbers." />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="hospital">Hospital</Label>
+                                      <Select
+                                        options={hospitals.map(h => ({ value: h.nrRegjistrimit, label: h.emri }))}
+                                        classNamePrefix="custom-select"
+                                        placeholder="Select Hospital"
+                                        value={selectedHospital}
+                                        onChange={handleHospitalChangeForStaff}
+                                        required
+                                      />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="department">Department</Label>
+                                      <Select
+                                        options={departmentsForStaff.map(d => ({ value: d.departmentID, label: d.emri }))}
+                                        classNamePrefix="custom-select"
+                                        placeholder="Select Department"
+                                        value={selectedDepartment}
+                                        onChange={handleDepartmentChangeForStaff}
+                                        isDisabled={!selectedHospital}
+                                        required
+                                      />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col md={6}>
+                                    <FormGroup>
+                                      <Label for="dhoma">Room</Label>
+                                      <Select
+                                        options={roomsForStaff.map(r => ({ value: r.roomID, label: r.numri }))}
+                                        classNamePrefix="custom-select"
+                                        placeholder="Select Room"
+                                        value={selectedRoom}
+                                        onChange={handleRoomChangeForStaff}
+                                        isDisabled={!selectedDepartment}
+                                        required
+                                      />
+                                    </FormGroup>
+                                  </Col>
+                                </Row>
+                                <div className="text-center">
+                                  <Button color="primary" type="submit">Add Staff</Button>
+                                </div>
+                              </Form>
+                            </ModalBody>
+                          </Modal>
                         </CardBody>
                       </Card>
                     )}
@@ -710,38 +1161,137 @@ function Tables(){
                   <thead className="text-primary">
                     <tr>
                       <th>Bill ID</th>
+                      <th>Services</th>
                       <th>Date</th>
                       <th>Total</th>
                       <th>Patient Name</th>
                       <th>Hospital Name</th>
+                      <th>
+                        <Button onClick={toggleBillModal}>Add Bill</Button>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {bills.map(bill => (
-                      <tr key={bill.billID}>
-                        <td>{bill.billID}</td>
-                        <td>{bill.data}</td>
-                        <td>{bill.totali}</td>
-                        <td>{bill.Patient.emri} {bill.Patient.mbiemri}</td>
-                        <td>{bill.Hospital.emri}</td>
-                        <td>
-                          <Button color="danger" onClick={() => handleDeleteBill(bill.billID)}>Delete</Button>
-                        </td>
-                      </tr>
+                      <React.Fragment key={bill.billID}>
+                        <tr key={bill.billID}>
+                          <td>{bill.billID}</td>
+                          <td>
+                            <ul style={{ listStyleType: 'none', padding: 0 }}>
+                              {bill.sherbimi && bill.sherbimi.map((service, index) => (
+                                <li key={index} style={{fontSize:"small"}}>{service.emri}:{service.cmimi}€</li>
+                              ))}
+                            </ul>
+                          </td>
+                          <td>
+                            {editingBillId === bill.billID ? (
+                              <Input
+                                type="text"
+                                name="data"
+                                value={editedBill.data}
+                                onChange={handleEditInputChangeForBills}
+                              />
+                            ) : (
+                              bill.data
+                            )}
+                          </td>
+                          <td>{bill.totali}€</td>
+                          <td>{bill.Patient.emri} {bill.Patient.mbiemri}</td>
+                          <td>{bill.Hospital.emri}</td>
+                          <td>
+                            {editingBillId === bill.billID ? (
+                              <Button color="success" onClick={handleSaveForBills}>Save</Button>
+                            ) : (
+                              <Button color="info" onClick={() => handleEditForBills(bill.billID)}>Edit</Button>
+                            )}
+                          </td>
+                          <td>
+                            <Button color="danger" onClick={() => handleDeleteBill(bill.billID)}>Delete</Button>
+                          </td>
+                        </tr>
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </Table>
+                <Modal isOpen={billModal} toggle={toggleBillModal} className="Modal">
+                  <ModalHeader toggle={toggleBillModal} className="ModalHeader">Add Bill</ModalHeader>
+                  <ModalBody className="ModalBody">
+                    <Alert color="info" isOpen={!!errorMessageModal} toggle={() => setErrorMessage('')}>
+                      {errorMessageModal}
+                    </Alert>
+                    <Form onSubmit={handleSubmitForBills}>
+                      <FormGroup>
+                        <Label for="sherbimi">Services</Label>
+                        <Select
+                          options={Object.keys(servicePrices).map(service => ({ value: service, label: service }))}
+                          value={newService}
+                          onChange={(selectedOption) => setNewService(selectedOption.value)}
+                          placeholder="Select Service"
+                        />
+                        <Button onClick={addService}>Add Service</Button>
+                        <Table>
+                          <thead>
+                            <tr>
+                              <th>Service</th>
+                              <th>Price</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {newBill.sherbimi.map((service, index) => (
+                              <tr key={index}>
+                                <td>{service.emri}</td>
+                                <td>{service.cmimi}€</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </Table>
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="data">Date</Label>
+                        <Input type="text" name="data" id="data" placeholder="Date" value={newBill.data} onChange={handleChangeForBills} required />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="totali">Total</Label>
+                        <Input type="text" name="totali" id="totali" placeholder="Total" value={newBill.totali} onChange={handleChangeForBills} required />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="hospital">Hospital</Label>
+                        <Select
+                          options={hospitals.map(h => ({ value: h.nrRegjistrimit, label: h.emri }))}
+                          classNamePrefix="custom-select"
+                          placeholder="Select Hospital"
+                          value={selectedHospital}
+                          onChange={handleHospitalChangeForBills}
+                          required
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="patientName">Patient</Label>
+                        <Select
+                          options={patientsForBills.map(patient => ({ value: patient.nrPersonal, label: `${patient.emri} ${patient.mbiemri}` }))}
+                          classNamePrefix="custom-select"
+                          placeholder="Select Patient"
+                          value={selectedPatient ? { value: selectedPatient.nrPersonal, label: `${selectedPatient.emri} ${selectedPatient.mbiemri}` } : null}
+                          onChange={handlePatientChangeForBills}
+                          isDisabled={!selectedHospital}
+                          required
+                        />
+                      </FormGroup>
+                      <div className="text-center">
+                        <Button color="primary" type="submit">Add Bill</Button>
+                      </div>
+                    </Form>
+                  </ModalBody>
+                </Modal>
               </CardBody>
             </Card>
           </Col>
         </Row>
-
-
         <Nav tabs>
           {hospitals.map((hospital, index) => (
             <NavItem key={hospital.nrRegjistrimit}>
               <NavLink
-                style={{ color: 'white' }} // Change 'red' to the desired color
+                style={{ color: 'white' }}
                 className={classnames({ active: activeHospitalTabForAppointments === `${index}` })}
                 onClick={() => handleHospitalSelectForAppointments(hospital, `${index}`)}
               >
@@ -756,7 +1306,7 @@ function Tables(){
               {departmentsForAppointments.map((department, index) => (
                 <NavItem key={department.departmentID}>
                   <NavLink
-                    style={{ color: 'white' }} // Change 'red' to the desired color
+                    style={{ color: 'white' }}
                     className={classnames({ active: activeDepartmentTabForAppointments === `${index}` })}
                     onClick={() => handleDepartmentSelectForAppointments(department, `${index}`)}
                   >
@@ -790,25 +1340,139 @@ function Tables(){
                                 <th>Time</th>
                                 <th>Patient Name</th>
                                 <th>Doctor Name</th>
-                                <th>Room</th>
+                                <th>
+                                 <Button onClick={toggleAppointmentModal}>Add Appointment</Button>
+                                </th>
                               </tr>
                             </thead>
                             <tbody>
                               {appointments.map((appointment) => (
                                 <tr key={appointment.appointmentID}>
                                   <td>{appointment.appointmentID}</td>
-                                  <td>{appointment.data}</td>
-                                  <td>{appointment.ora.split(':').slice(0, 2).join(':')}</td>
+                                  <td>
+                                    {editingAppointmentId === appointment.appointmentID ? (
+                                      <Input
+                                        type="text"
+                                        name="data"
+                                        value={editedAppointment.data}
+                                        onChange={handleEditInputChangeForAppointments}
+                                      />
+                                    ) : (
+                                      appointment.data
+                                    )}
+                                  </td>
+                                  <td>
+                                    {editingAppointmentId === appointment.appointmentID ? (
+                                      <Input
+                                        type="text"
+                                        name="ora"
+                                        value={editedAppointment.ora}
+                                        onChange={handleEditInputChangeForAppointments}
+                                      />
+                                    ) : (
+                                      appointment.ora
+                                    )}
+                                  </td>
                                   <td>{appointment.Patient.emri} {appointment.Patient.mbiemri}</td>
                                   <td>{appointment.Doctor.emri} {appointment.Doctor.mbiemri}</td>
-                                  <td>{appointment.Room.numri}</td>
                                   <td>
-                                    <Button color="danger" onClick={() => handleDeleteAppointment(appointment.appointmentID)}>Delete</Button>
+                                    {editingAppointmentId === appointment.appointmentID ? (
+                                      <Button color="success" onClick={handleSaveForAppointments}>Save</Button>
+                                    ) : (
+                                      <Button color="info" onClick={() => handleEditForAppointments(appointment.appointmentID)}>Edit</Button>
+                                    )}
+                                  </td>
+                                  <td>
+                                    <Button color="danger" onClick={() => handleDeleteAppointment(appointment.appointmentID)} style={{marginLeft:"-60px"}}>Delete</Button>
                                   </td>
                                 </tr>
-                              ))}
+                                ))}
                             </tbody>
                           </Table>
+                          <Modal isOpen={appointmentModal} toggle={toggleAppointmentModal} className="Modal">
+                            <ModalHeader toggle={toggleAppointmentModal} className="ModalHeader">Add Appointment</ModalHeader>
+                            <ModalBody className="ModalBody">
+                              <Alert color="info" isOpen={!!errorMessageModal} toggle={() => setErrorMessage('')}>
+                                {errorMessageModal}
+                              </Alert>
+                              <Form onSubmit={handleSubmitForAppointments}>
+                                <FormGroup>
+                                  <Label for="hospital">Hospital</Label>
+                                  <Select
+                                    options={hospitals.map(h => ({ value: h.nrRegjistrimit, label: h.emri }))}
+                                    classNamePrefix="custom-select"
+                                    placeholder="Select Hospital"
+                                    value={selectedHospital}
+                                    onChange={handleHospitalChangeForAppointments}
+                                    required
+                                  />
+                                </FormGroup>
+                                <FormGroup>
+                                  <Label for="department">Department</Label>
+                                  <Select
+                                    options={departmentsForAppointments.map(d => ({ value: d.departmentID, label: d.emri }))}
+                                    classNamePrefix="custom-select"
+                                    placeholder="Select Department"
+                                    value={selectedDepartment}
+                                    onChange={handleDepartmentChangeForAppointments}
+                                    isDisabled={!selectedHospital}
+                                    required
+                                  />
+                                </FormGroup>
+                                <FormGroup>
+                                  <Label for="doctorName">Doctor</Label>
+                                  <Select
+                                    options={doctorsForAppointments.map(doctor => ({ value: doctor.nrPersonal, label: `${doctor.emri} ${doctor.mbiemri}` }))}
+                                    classNamePrefix="custom-select"
+                                    placeholder="Select Doctor"
+                                    value={selectedDoctor ? { value: selectedDoctor.nrPersonal, label: `${selectedDoctor.emri} ${selectedDoctor.mbiemri}` } : null}
+                                    onChange={handleDoctorChangeForAppointments}
+                                    isDisabled={!selectedDepartment}
+                                    required
+                                  />
+                                </FormGroup>
+                                <FormGroup>
+                                  <Label for="patientName">Patient</Label>
+                                  <Select
+                                    options={patientsForAppointments.map(patient => ({ value: patient.nrPersonal, label: `${patient.emri} ${patient.mbiemri}` }))}
+                                    classNamePrefix="custom-select"
+                                    placeholder="Select Patient"
+                                    value={selectedPatient ? { value: selectedPatient.nrPersonal, label: `${selectedPatient.emri} ${selectedPatient.mbiemri}` } : null}
+                                    onChange={handlePatientChangeForAppointments}
+                                    isDisabled={!selectedHospital}
+                                    required
+                                  />
+                                </FormGroup>
+                                <FormGroup>
+                                  <Label for="data">Date</Label>
+                                  <FormGroup>
+                                    <DatePicker
+                                      placeholderText="Select Date"
+                                      selected={selectedDateForInsert}
+                                      onChange={handleDateToInsert}
+                                      dateFormat="yyyy-MM-dd"
+                                      className="form-control"
+                                    />
+                                  </FormGroup>
+                                </FormGroup>
+                                <FormGroup>
+                                  <Label for="ora">Time</Label>
+                                  <Select
+                                    options={availableTimeSlots.map(time => ({ value: time, label: time }))}
+                                    classNamePrefix="custom-select"
+                                    placeholder="Select Time"
+                                    value={selectedTime}
+                                    onChange={handleTimeChange}
+                                    required
+                                    isDisabled={!selectedDateForInsert || !selectedDoctor}
+                                  />
+                                </FormGroup>
+                                <div className="text-center">
+                                  <Button color="primary" type="submit">Add Appointment</Button>
+                                </div>
+                              </Form>
+                            </ModalBody>
+                          </Modal>
                         </CardBody>
                       </Card>
                     )}
@@ -818,7 +1482,6 @@ function Tables(){
             </TabContent>
           </TabPane>
         </TabContent>
-
         <Row>
           <Col md="12">
             <Card>
@@ -853,12 +1516,11 @@ function Tables(){
             </Card>
           </Col>
         </Row>
-
         <Nav tabs>
           {doctorsForPrescriptions.map((doctor, index) => (
             <NavItem key={doctor.nrPersonal}>
               <NavLink
-                style={{ color: 'white' }} // Change 'red' to the desired color
+                style={{ color: 'white' }}
                 className={classnames({ active: activeDoctorTabForPrescriptions === `${index}` })}
                 onClick={() => handleDoctorSelectForPrescriptions(doctor, `${index}`)}
               >

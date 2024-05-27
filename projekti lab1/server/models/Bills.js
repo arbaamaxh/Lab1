@@ -13,7 +13,9 @@ module.exports = (sequelize, DataTypes) => {
         totali: {
             type: DataTypes.DOUBLE,
             allowNull: false,
-        }
+        },
+    }, {
+        timestamps: true,
     });
 
     Bill.associate = (models) => {
@@ -30,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false
             },
             onDelete: 'CASCADE'
+        });
+        Bill.belongsToMany(models.Service, {
+            through: models.BillSherbimi,
+            as: 'sherbimi',
+            foreignKey: 'billID',
         });
     };
 

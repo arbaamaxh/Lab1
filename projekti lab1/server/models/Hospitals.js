@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         emri: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true,
         },
         nrRegjistrimit: {
             type: DataTypes.INTEGER,

@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true
         },
         data: {
-            type: DataTypes.DATEONLY, // Change to DATEONLY to store only date without time
+            type: DataTypes.DATEONLY,
             allowNull: false,
             validate: {
                 isDate: true
@@ -17,11 +17,28 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TIME,
             allowNull: false,
             validate: {
-                is: /^([01]\d|2[0-3]):([0-5]\d)$/
+                is: /^([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-5]\d)$/
             }
         },
     }, {
-        timestamps: true // Adds createdAt and updatedAt fields
+        timestamps: true,
+        hooks: {
+            beforeCreate: (appointment) => {
+                appointment.ora = appointment.ora.slice(0, 5);
+            },
+            beforeUpdate: (appointment) => {
+                appointment.ora = appointment.ora.slice(0, 5);
+            },
+            afterFind: (appointments) => {
+                if(Array.isArray(appointments)){
+                    appointments.forEach(appointment => {
+                        appointment.ora = appointment.ora.slice(0, 5);
+                    });
+                }else if(appointments){
+                    appointments.ora = appointments.ora.slice(0, 5);
+                }
+            }
+        }
     });
 
     Appointment.associate = (models) => {
@@ -39,9 +56,9 @@ module.exports = (sequelize, DataTypes) => {
             },
             onDelete: 'CASCADE'
         });
-        Appointment.belongsTo(models.Room, {
+        Appointment.belongsTo(models.Department, {
             foreignKey: {
-                name: 'dhomaID',
+                name: 'departmentID',
                 allowNull: false
             },
             onDelete: 'CASCADE'
