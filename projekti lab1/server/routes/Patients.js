@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { Patient, Doctor, Staff, Hospital } = require('../models');
+const { Patient, Hospital } = require('../models');
 
 
 // create (insertimi ne tabelen patients)
 router.post("/", async (req,res) => {
     try{
-        const {emri,mbiemri,nrPersonal,datelindja,gjinia,adresa,nrTel,hospitalName} = req.body;
+        const {emri,mbiemri,nrPersonal,datelindja,gjinia,adresa,nrTel,hospitalId} = req.body;
 
         const patient = await Patient.findOne({
             where: {
@@ -43,7 +43,7 @@ router.post("/", async (req,res) => {
 
         const hospital = await Hospital.findOne({
             where: {
-                emri: hospitalName
+                nrRegjistrimit: hospitalId
             }
         });
 

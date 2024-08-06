@@ -3,17 +3,17 @@ const router = express.Router();
 const { Department, Room, Doctor, Hospital } = require('../models');
 
 // create (insertimi ne tabelen departments)
-router.post("/", async (req,res) => {
-    try{
-        const { emri, lokacioni, nrTel, hospitalName } = req.body;
+router.post("/", async (req, res) => {
+    try {
+        const { emri, lokacioni, nrTel, hospitalId } = req.body;
 
         const hospital = await Hospital.findOne({
             where: {
-                emri: hospitalName
+                nrRegjistrimit: hospitalId
             }
         });
 
-        if(!hospital){
+        if (!hospital) {
             return res.status(400).json({ error: 'Hospital not found!' });
         }
 
@@ -25,7 +25,7 @@ router.post("/", async (req,res) => {
         });
 
         res.json(newDep);
-    }catch(error){
+    } catch (error) {
         console.error('Error creating department:', error);
         res.status(500).json({ error: 'Failed to create department' });
     }
