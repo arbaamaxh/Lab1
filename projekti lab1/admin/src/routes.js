@@ -21,7 +21,7 @@ import DepartmentData from "views/DepartmentData";
 import DoctorData from "views/DoctorData";
 import PatientData from "views/PatientData";
 import Rtl from "views/Rtl.js";
-import Typography from "views/Typography.js";
+import BillData from "views/BillData";
 import StaffData from "views/StaffData";
 
 var routes = [
@@ -74,11 +74,11 @@ var routes = [
     layout: "/admin",
   },
   {
-    path: "/typography",
-    name: "Typography",
+    path: "/bills",
+    name: "Bills",
     rtlName: "طباعة",
     icon: "tim-icons icon-align-center",
-    component: <Typography />,
+    component: <BillData />,
     layout: "/admin",
   },
   {

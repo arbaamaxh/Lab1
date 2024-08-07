@@ -1,10 +1,10 @@
 import React from 'react';
-import HospitalList from '../components/Hospital/HospitalList';
+import BillList from '../components/Bill/BillList';
 
 const Hospitals = () => {
   return (
     <div className="content">
-      <HospitalList />
+      <BillList />
     </div>
   );
 };
