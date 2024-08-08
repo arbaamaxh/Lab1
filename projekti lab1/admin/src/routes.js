@@ -23,6 +23,7 @@ import PatientData from "views/PatientData";
 import Rtl from "views/Rtl.js";
 import BillData from "views/BillData";
 import StaffData from "views/StaffData";
+import AppointmentData from "views/AppointmentData";
 
 var routes = [
   {
@@ -79,6 +80,14 @@ var routes = [
     rtlName: "طباعة",
     icon: "tim-icons icon-align-center",
     component: <BillData />,
+    layout: "/admin",
+  },
+  {
+    path: "/appointments",
+    name: "Appointments",
+    rtlName: "قائمة الجدول",
+    icon: "tim-icons icon-puzzle-10",
+    component: <AppointmentData />,
     layout: "/admin",
   },
   {
