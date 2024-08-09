@@ -6,11 +6,22 @@ const { Room, Department, Hospital } = require('../models');
 // create (insertimi ne tabelen room)
 router.post("/", async (req,res) => {
     try{
-        const {roomID,numri,depID} = req.body;
+        const {roomID,numri,hospitalName,departmentName} = req.body;
+
+        const hospital = await Hospital.findOne({
+            where: {
+                emri: hospitalName
+            }
+        });
+
+        if(!hospital){
+            return res.status(400).json({error: 'Hospital not found!'});
+        }
 
         const department = await Department.findOne({
             where: {
-                departmentID: depID
+                hospitalNrRegjistrimit: hospital.nrRegjistrimit,
+                emri: departmentName
             }
         });
 
@@ -18,7 +29,10 @@ router.post("/", async (req,res) => {
             return res.status(400).json({error: 'Department not found!'});
         }
 
-        const newRoom = await Room.create(req.body);
+        const newRoom = await Room.create({
+            numri,
+            depID: department.departmentID,
+        });
         res.json(newRoom);
     }
     catch(error){
@@ -71,7 +85,7 @@ router.put("/:roomID", async (req, res) => {
         }
 
         await Room.update(
-            {numri,depID},
+            {numri},
             {where: {
                 roomID: roomID
             }}

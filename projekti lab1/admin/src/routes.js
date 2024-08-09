@@ -24,6 +24,7 @@ import Rtl from "views/Rtl.js";
 import BillData from "views/BillData";
 import StaffData from "views/StaffData";
 import AppointmentData from "views/AppointmentData";
+import RoomData from "views/RoomData";
 
 var routes = [
   {
@@ -88,6 +89,14 @@ var routes = [
     rtlName: "قائمة الجدول",
     icon: "tim-icons icon-puzzle-10",
     component: <AppointmentData />,
+    layout: "/admin",
+  },
+  {
+    path: "/rooms",
+    name: "Rooms",
+    rtlName: "لوحة القيادة",
+    icon: "tim-icons icon-chart-pie-36",
+    component: <RoomData />,
     layout: "/admin",
   },
   {
