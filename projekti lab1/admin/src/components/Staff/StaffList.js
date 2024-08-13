@@ -38,6 +38,7 @@ const StaffList = () => {
         handleSubmit,
         handleEdit,
         handleEditInputChange,
+        handleCancelEdit,
         handleSave,
         handleDeleteStaff,
         setSuccessMessage,
@@ -171,11 +172,16 @@ const StaffList = () => {
                                                                 </td>
                                                                 <td>
                                                                     {editingStaffId === staff.nrPersonal ? (
-                                                                        <Button color="success" onClick={handleSave} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Save</Button>
+                                                                        <>
+                                                                            <Button color="success" onClick={handleSave} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Save</Button>
+                                                                            <Button color="secondary" onClick={handleCancelEdit} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px", fontSize: "small" }}>Cancel</Button>
+                                                                        </>
                                                                     ) : (
-                                                                        <Button color="info" onClick={() => handleEdit(staff.nrPersonal)} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Edit</Button>
+                                                                        <>
+                                                                            <Button color="info" onClick={() => handleEdit(staff.nrPersonal)} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Edit</Button>
+                                                                            <Button color="danger" onClick={() => handleDeleteStaff(staff.nrPersonal)} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Delete</Button>
+                                                                        </>
                                                                     )}
-                                                                    <Button color="danger" onClick={() => handleDeleteStaff(staff.nrPersonal)} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Delete</Button>
                                                                 </td>
                                                             </tr>
                                                         ))}

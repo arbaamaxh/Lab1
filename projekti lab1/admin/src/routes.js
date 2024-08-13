@@ -20,11 +20,11 @@ import HospitalData from "views/HospitalData";
 import DepartmentData from "views/DepartmentData";
 import DoctorData from "views/DoctorData";
 import PatientData from "views/PatientData";
-import Rtl from "views/Rtl.js";
 import BillData from "views/BillData";
 import StaffData from "views/StaffData";
 import AppointmentData from "views/AppointmentData";
 import RoomData from "views/RoomData";
+import PrescriptionData from "views/PrescriptionData";
 
 var routes = [
   {
@@ -100,12 +100,12 @@ var routes = [
     layout: "/admin",
   },
   {
-    path: "/rtl-support",
-    name: "RTL Support",
-    rtlName: "ار تي ال",
-    icon: "tim-icons icon-world",
-    component: <Rtl />,
-    layout: "/rtl",
+    path: "/prescriptions",
+    name: "Prescriptions",
+    rtlName: "قائمة الجدول",
+    icon: "tim-icons icon-puzzle-10",
+    component: <PrescriptionData />,
+    layout: "/admin",
   },
 ];
 export default routes;

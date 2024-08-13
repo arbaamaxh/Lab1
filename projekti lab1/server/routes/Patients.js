@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Patient, Hospital } = require('../models');
+const { Patient, Hospital, Prescription } = require('../models');
 
 
 // create (insertimi ne tabelen patients)
@@ -75,6 +75,40 @@ router.post("/", async (req,res) => {
 router.get('/', async (req, res) => {
     const allPatients = await Patient.findAll();
     res.json(allPatients);
+});
+
+
+//get prescriptions by a patient
+router.get('/:nrPersonal/prescriptions', async (req, res) => {
+    try{
+        const { nrPersonal } = req.params;
+        const prescriptions = await Prescription.findAll({
+            where: { patientNrPersonal: nrPersonal },
+            
+        });
+        res.json(prescriptions);
+    }catch(err){
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get patient details by personal number
+router.get('/:nrPersonal', async (req, res) => {
+    try {
+        const { nrPersonal } = req.params;
+        const patient = await Patient.findOne({
+            where: { nrPersonal: nrPersonal },
+            attributes: ['emri', 'mbiemri'], // Fetch only the name and surname
+        });
+
+        if (!patient) {
+            return res.status(404).json({ error: 'Patient not found!' });
+        }
+
+        res.json(patient);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 

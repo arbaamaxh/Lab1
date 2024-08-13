@@ -47,6 +47,7 @@ const AppointmentList = () => {
         handleSubmit,
         handleEdit,
         handleEditInputChange,
+        handleCancelEdit,
         handleSave,
         handleDeleteAppointment,
         setSuccessMessage,
@@ -115,6 +116,7 @@ const AppointmentList = () => {
                                                             <th>Time</th>
                                                             <th>Patient Name</th>
                                                             <th>Doctor Name</th>
+                                                            <th></th>
                                                             <th>
                                                                 <Button onClick={toggleAppointmentModal}>Add Appointment</Button>
                                                             </th>
@@ -158,7 +160,13 @@ const AppointmentList = () => {
                                                                     )}
                                                                 </td>
                                                                 <td>
-                                                                    <Button color="danger" onClick={() => handleDeleteAppointment(appointment.appointmentID)} style={{ marginLeft: "-60px" }}>Delete</Button>
+                                                                    {editingAppointmentId === appointment.appointmentID ? (
+                                                                        <>
+                                                                            <Button color="secondary" onClick={handleCancelEdit} style={{ marginRight: "10px", fontSize: "small" }}>Cancel</Button>
+                                                                        </>
+                                                                    ) : (
+                                                                        <Button color="danger" onClick={() => handleDeleteAppointment(appointment.appointmentID)}>Delete</Button>
+                                                                    )}
                                                                 </td>
                                                             </tr>
                                                         ))}

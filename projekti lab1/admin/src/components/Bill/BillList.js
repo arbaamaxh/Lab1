@@ -28,6 +28,7 @@ const BillList = () => {
         handleSubmit,
         handleEdit,
         handleEditInputChange,
+        handleCancelEdit,
         handleSave,
         handleDeleteBill,
         setSuccessMessage,
@@ -99,7 +100,13 @@ const BillList = () => {
                                                     )}
                                                 </td>
                                                 <td>
-                                                    <Button color="danger" onClick={() => handleDeleteBill(bill.billID)}>Delete</Button>
+                                                    {editingBillId === bill.billID ? (
+                                                        <>
+                                                            <Button color="secondary" onClick={handleCancelEdit} style={{ marginRight: "10px", fontSize: "small" }}>Cancel</Button>
+                                                        </>
+                                                    ) : (
+                                                        <Button color="danger" onClick={() => handleDeleteBill(bill.billID)}>Delete</Button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         </React.Fragment>

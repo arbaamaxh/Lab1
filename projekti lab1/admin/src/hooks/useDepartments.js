@@ -12,6 +12,8 @@ export const useDepartments = () => {
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [activeHospitalTab, setActiveHospitalTab] = useState('0');
   
+  
+  //insert new department in database
   const [newDepartment, setNewDepartment] = useState({ emri: '', lokacioni: '', nrTel: '', hospitalId: '' });
   const [departmentModal, setDepartmentModal] = useState(false);
   const [editingDepartmentId, setEditingDepartmentId] = useState(null);

@@ -18,16 +18,6 @@ router.post("/", async (req,res) => {
             return res.status(400).json({error: 'Patient not found!'});
         }
 
-        const ekzistonRaporti = await Prescription.findOne({
-            where: {
-                patientNrPersonal: patientNrPersonal
-            }
-        });
-
-        if(ekzistonRaporti){
-            return res.status(400).json({error: 'A prescription already exists for this patient.'});
-        }
-
         const doctor = await Doctor.findOne({
             where: {
                 nrPersonal: doctorNrPersonal

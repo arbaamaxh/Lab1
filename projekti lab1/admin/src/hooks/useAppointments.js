@@ -268,6 +268,10 @@ export const useAppointments = () => {
         }));
     };
 
+    const handleCancelEdit = () => {
+        setEditingAppointmentId(null);
+      };
+
     const handleSave = async () => {
         try {
             const response = await axios.put(`http://localhost:3001/appointments/${editingAppointmentId}`, editedAppointment);
@@ -382,6 +386,7 @@ export const useAppointments = () => {
         handleSubmit,
         handleEdit,
         handleEditInputChange,
+        handleCancelEdit,
         handleSave,
         handleDeleteAppointment,
         setSuccessMessage,

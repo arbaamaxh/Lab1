@@ -157,6 +157,10 @@ export const useStaff = () => {
     }));
   };
 
+  const handleCancelEdit = () => {
+    setEditingStaffId(null);
+  };
+
   const handleSave = async () => {
     try {
       const response = await axios.put(`http://localhost:3001/staff/${editingStaffId}`, editedStaff);
@@ -250,6 +254,7 @@ export const useStaff = () => {
     handleSubmit,
     handleEdit,
     handleEditInputChange,
+    handleCancelEdit,
     handleSave,
     handleDeleteStaff,
     setSuccessMessage,

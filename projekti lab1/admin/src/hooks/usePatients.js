@@ -157,11 +157,9 @@ export const usePatients = () => {
     };
 
     useEffect(() => {
-        //display hospitals
         axios.get("http://localhost:3001/hospitals/")
           .then(response => {
             setHospitals(response.data);
-            // Set initial tabs here
             if(response.data.length > 0){
               handleHospitalSelect(response.data[0], "0");
             }

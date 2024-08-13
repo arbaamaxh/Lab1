@@ -176,6 +176,10 @@ export const useBills = () => {
         }));
     };
 
+    const handleCancelEdit = () => {
+        setEditingBillId(null);
+      };
+
     const handleSave = async () => {
         try {
             const response = await axios.put(`http://localhost:3001/bills/${editingBillId}`, editedBill);
@@ -264,6 +268,7 @@ export const useBills = () => {
         handleSubmit,
         handleEdit,
         handleEditInputChange,
+        handleCancelEdit,
         handleSave,
         handleDeleteBill,
         setHospitals,

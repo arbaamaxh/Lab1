@@ -63,7 +63,6 @@ router.post("/", async (req, res) => {
 });
 
 
-
 // read (me i pa edhe rows te billit po edhe emrin e pacientit edhe tspitalit)
 router.get("/", async (req, res) => {
     try {
@@ -91,7 +90,6 @@ router.get("/", async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch bills' });
     }
 });
-
 
 
 // update (manipulo me te dhena ne tabelen bills)
