@@ -1,93 +1,104 @@
 const express = require('express');
-const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const { Hospital } = require('../models');
+const router = express.Router();
 const hospitalRelationsRouter = require('./HospitalRelations');
 router.use('/', hospitalRelationsRouter);
 
-// create (insertimi ne tabelen hospitals)
-router.post("/", async (req,res) => {
-    try{
-        const {emri,adresa,nrTel} = req.body;
-        
-        const existingHospital = await Hospital.findOne({
-            where: { emri }
-        });
-
-        if(existingHospital){
-            return res.status(400).json({ error: 'Hospital with the same name already exists' });
-        }
-
-        const hospital = new Hospital({ emri, adresa, nrTel });
-        await hospital.save();
-        res.status(201).json({ message: 'Hospital created successfully' });
-    }
-    catch(error){
-        console.error('Error creating hospital:', error);
-        res.status(500).json({error: 'Failed to create hospital'});
-    }
+// Set up multer for file uploads
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      // Change this to the absolute path where you want to save the files
+      cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+      // Generate a unique filename
+      cb(null, Date.now() + path.extname(file.originalname));
+    },
+  }),
 });
 
-// read (me i pa rows ne tabelen hospitals)
+router.post("/", upload.single('img'), async (req, res) => {
+  try {
+    const { emri, adresa, nrTel } = req.body;
+    const imageUrl = req.file ? req.file.path : ''; // This path is relative to your project root
+
+    const existingHospital = await Hospital.findOne({ where: { emri } });
+
+    if (existingHospital) {
+      return res.status(400).json({ error: 'Hospital with the same name already exists' });
+    }
+
+    const hospital = new Hospital({ emri, adresa, nrTel, imageUrl });
+    await hospital.save();
+    res.status(201).json({ message: 'Hospital created successfully' });
+  } catch (error) {
+    console.error('Error creating hospital:', error.message);
+    res.status(500).json({ error: 'Failed to create hospital' });
+  }
+});
+
+// Read (fetch all hospitals)
 router.get('/', async (req, res) => {
+  try {
     const allHospitals = await Hospital.findAll();
     res.json(allHospitals);
+  } catch (error) {
+    console.error('Error fetching hospitals:', error);
+    res.status(500).json({ error: 'Failed to fetch hospitals' });
+  }
 });
 
-// update (manipulo me te dhena ne tabelen hospitals)
-router.put("/:nrRegjistrimit", async (req, res) => {
-    try{
-        const {emri,adresa,nrTel} = req.body;
-        const nrRegjistrimit = req.params.nrRegjistrimit;
+// Update (update hospital data)
+router.put("/:nrRegjistrimit", upload.single('img'), async (req, res) => {
+  try {
+    const { emri, adresa, nrTel } = req.body;
+    const nrRegjistrimit = req.params.nrRegjistrimit;
 
-        const hospitals = await Hospital.findOne({
-            where: {
-                nrRegjistrimit: nrRegjistrimit
-            }
-        });
+    const hospital = await Hospital.findOne({
+      where: { nrRegjistrimit }
+    });
 
-        if(!hospitals){
-            return res.status(404).json({error: 'Spitali nuk ekziston!'});
-        }
-
-        await Hospital.update(
-            {emri,adresa,nrTel},
-            {where: {
-                nrRegjistrimit: nrRegjistrimit
-            }}
-        );
-
-        res.status(200).json({message: 'Hospital updated successfully!'});
+    if (!hospital) {
+      return res.status(404).json({ error: 'Hospital does not exist' });
     }
-    catch(error){
-        console.error('Error updating hospital:', error);
-        res.status(500).json({error: 'Failed to update hospital'});
-    }
+
+    const imageUrl = req.file ? req.file.path : hospital.imageUrl;
+
+    await Hospital.update(
+      { emri, adresa, nrTel, imageUrl },
+      { where: { nrRegjistrimit } }
+    );
+
+    res.status(200).json({ message: 'Hospital updated successfully!' });
+  } catch (error) {
+    console.error('Error updating hospital:', error);
+    res.status(500).json({ error: 'Failed to update hospital' });
+  }
 });
 
-
-// delete (fshirja e nje spitali sipas nrRegjistrimit te tij)
+// Delete (delete a hospital)
 router.delete("/:nrRegjistrimit", async (req, res) => {
-    try{
-        const nrRegjistrimit = req.params.nrRegjistrimit;
+  try {
+    const nrRegjistrimit = req.params.nrRegjistrimit;
 
-        const hospital = await Hospital.findOne({
-            where: {
-                nrRegjistrimit: nrRegjistrimit
-            }
-        });
+    const hospital = await Hospital.findOne({
+      where: { nrRegjistrimit }
+    });
 
-        if(!hospital){
-            return res.status(404).json({error: 'Spitali nuk ekziston!'});
-        }
-
-        await hospital.destroy();
-
-        res.status(200).json({message: 'Hospital deleted successfully!'});
+    if (!hospital) {
+      return res.status(404).json({ error: 'Hospital does not exist' });
     }
-    catch(error){
-        console.error('Error deleting hospital:', error);
-        res.status(500).json({error: 'Failed to delete hospital'});
-    }
+
+    await hospital.destroy();
+
+    res.status(200).json({ message: 'Hospital deleted successfully!' });
+  } catch (error) {
+    console.error('Error deleting hospital:', error);
+    res.status(500).json({ error: 'Failed to delete hospital' });
+  }
 });
 
 module.exports = router;

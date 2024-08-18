@@ -6,24 +6,26 @@ import HospitalModal from './HospitalModal';
 const HospitalList = () => {
     const {
         hospitals,
+        newHospital,
+        hospitalModal,
         editingHospitalId,
         editedHospital,
-        hospitalModal,
-        newHospital,
         successMessage,
         errorMessage,
         errorMessageModal,
-        setSuccessMessage,
-        setErrorMessage,
-        setErrorMessageModal,
         toggleHospitalModal,
+        handleFileChange,
+        handleEditFileChange,
+        handleChange,
+        handleSubmit,
+        handleEdit,
         handleEditInputChange,
         handleCancelEdit,
         handleSave,
-        handleEdit,
         handleDeleteHospital,
-        handleChange,
-        handleSubmit
+        setSuccessMessage,
+        setErrorMessage,
+        setErrorMessageModal
     } = useHospitals();
 
     return (
@@ -48,6 +50,7 @@ const HospitalList = () => {
                                         <th>Registration Number</th>
                                         <th>Address</th>
                                         <th>Phone Number</th>
+                                        <th>Image</th>
                                         <th></th>
                                         <th>
                                             <Button onClick={toggleHospitalModal}>Add Hospital</Button>
@@ -96,6 +99,31 @@ const HospitalList = () => {
                                             </td>
                                             <td>
                                                 {editingHospitalId === hospital.nrRegjistrimit ? (
+                                                    <>
+                                                        <Input
+                                                            type="file"
+                                                            name="img"
+                                                            onChange={handleEditFileChange}
+                                                        />
+                                                        {hospital.imageUrl && (
+                                                            <img
+                                                                src={`http://localhost:3001/${hospital.imageUrl}`}
+                                                                alt={hospital.emri}
+                                                                width="100"
+                                                                style={{ marginTop: "10px" }}
+                                                            />
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <img
+                                                        src={`http://localhost:3001/${hospital.imageUrl}`}
+                                                        alt={hospital.emri}
+                                                        width="100"
+                                                    />
+                                                )}
+                                            </td>
+                                            <td>
+                                                {editingHospitalId === hospital.nrRegjistrimit ? (
                                                     <Button color="success" onClick={handleSave}>Save</Button>
                                                 ) : (
                                                     <Button color="info" onClick={() => handleEdit(hospital.nrRegjistrimit)}>Edit</Button>
@@ -119,6 +147,7 @@ const HospitalList = () => {
                                 toggle={toggleHospitalModal}
                                 newHospital={newHospital}
                                 handleChange={handleChange}
+                                handleFileChange={handleFileChange}
                                 handleSubmit={handleSubmit}
                                 errorMessageModal={errorMessageModal}
                                 setErrorMessageModal={setErrorMessageModal}

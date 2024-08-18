@@ -7,10 +7,9 @@ export const useHospitals = () => {
   const [errorMessageModal, setErrorMessageModal] = useState(null);
 
   const [hospitals, setHospitals] = useState([]);
-
-  //insert new hospital into database
-  const [newHospital, setNewHospital] = useState({ emri: "", adresa: "", nrTel: "" });
+  const [newHospital, setNewHospital] = useState({ emri: "", adresa: "", nrTel: "", imageUrl: "" });
   const [hospitalModal, setHospitalModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const toggleHospitalModal = () => setHospitalModal(!hospitalModal);
 
@@ -28,6 +27,14 @@ export const useHospitals = () => {
     fetchHospitals();
   }, []);
 
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleEditFileChange = (e) => {
+    setSelectedEditFile(e.target.files[0]);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewHospital({ ...newHospital, [name]: value });
@@ -35,24 +42,24 @@ export const useHospitals = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    formData.append('emri', newHospital.emri);
+    formData.append('adresa', newHospital.adresa);
+    formData.append('nrTel', newHospital.nrTel);
+    if (selectedFile) {
+      formData.append('img', selectedFile);
+    }
+  
     try {
-      const response = await fetch("http://localhost:3001/hospitals", {
-        method: "POST",
+      const response = await axios.post("http://localhost:3001/hospitals", formData, {
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newHospital),
+          'Content-Type': 'multipart/form-data'
+        }
       });
-      if (response.ok) {
+      if (response.status === 201) {
         fetchHospitals();
-        setNewHospital({ emri: "", adresa: "", nrTel: "" });
+        setNewHospital({ emri: "", adresa: "", nrTel: "", imageUrl: "" });
         toggleHospitalModal();
-      } else if (response.status === 400) {
-        const responseData = await response.json();
-        setErrorMessageModal(`Failed to insert hospital: ${responseData.error}`);
-        setTimeout(() => {
-          setErrorMessageModal(null);
-        }, 3000);
       } else {
         console.error("Failed to insert hospital");
         setErrorMessageModal("Failed to insert hospital: Unknown error occurred");
@@ -63,17 +70,18 @@ export const useHospitals = () => {
     } catch (error) {
       console.error("Error inserting hospital:", error);
     }
-  };
+  };  
 
-  //edit a hospital
+  // Handle editing, saving, and deleting hospitals (unchanged)
+  const [selectedEditFile, setSelectedEditFile] = useState(null);
   const [editingHospitalId, setEditingHospitalId] = useState(null);
   const [editedHospital, setEditedHospital] = useState({
     emri: "",
     adresa: "",
-    nrTel: ""
+    nrTel: "",
+    imageUrl: "",
   });
 
-  //me tleju me editu faqja
   const handleEdit = (hospitalId) => {
     setEditingHospitalId(hospitalId);
     const hospitalToEdit = hospitals.find(hospital => hospital.nrRegjistrimit === hospitalId);
@@ -95,17 +103,24 @@ export const useHospitals = () => {
   };
 
   const handleSave = async () => {
+    const formData = new FormData();
+    formData.append('emri', editedHospital.emri);
+    formData.append('adresa', editedHospital.adresa);
+    formData.append('nrTel', editedHospital.nrTel);
+    if (selectedEditFile) {
+      formData.append('img', selectedEditFile);
+    }
+  
     try {
-      const response = await axios.put(`http://localhost:3001/hospitals/${editingHospitalId}`, editedHospital);
+      const response = await axios.put(`http://localhost:3001/hospitals/${editingHospitalId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       if (response.status === 200) {
-        const updatedHospitals = hospitals.map(hospital => {
-          if (hospital.nrRegjistrimit === editingHospitalId) {
-            return editedHospital;
-          }
-          return hospital;
-        });
-        setHospitals(updatedHospitals);
+        fetchHospitals();
         setEditingHospitalId(null);
+        setSelectedEditFile(null);
         setSuccessMessage('Hospital updated successfully');
         setTimeout(() => {
           setSuccessMessage(null);
@@ -121,7 +136,6 @@ export const useHospitals = () => {
     }
   };
 
-  //delete a hospital
   const handleDeleteHospital = async (hospitalID) => {
     try {
       await axios.delete(`http://localhost:3001/hospitals/${hospitalID}`);
@@ -143,12 +157,16 @@ export const useHospitals = () => {
     hospitals,
     newHospital,
     hospitalModal,
+    selectedFile,
+    selectedEditFile,
     editingHospitalId,
     editedHospital,
     successMessage,
     errorMessage,
     errorMessageModal,
     toggleHospitalModal,
+    handleFileChange,
+    handleEditFileChange,
     handleChange,
     handleSubmit,
     handleEdit,

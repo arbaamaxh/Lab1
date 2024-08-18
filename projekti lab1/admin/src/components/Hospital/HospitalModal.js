@@ -10,6 +10,7 @@ const HospitalModal = ({
   handleSubmit,
   errorMessageModal,
   setErrorMessageModal,
+  handleFileChange,
 }) => (
   <Modal isOpen={isOpen} toggle={toggle} className="Modal">
     <ModalHeader toggle={toggle} className="ModalHeader">Add Hospital</ModalHeader>
@@ -29,6 +30,10 @@ const HospitalModal = ({
         <FormGroup>
           <Label for="nrTel">Phone Number</Label>
           <Input type="text" name="nrTel" id="nrTel" value={newHospital.nrTel} onChange={handleChange} required pattern="^\d{5,15}$" title="Phone Number should have between 5-15 numbers." />
+        </FormGroup>
+        <FormGroup>
+          <Label for="img">Image</Label>
+          <Input type="file" name="img" id="img" onChange={handleFileChange} />
         </FormGroup>
         <Button type="submit">Add Hospital</Button>
       </Form>
