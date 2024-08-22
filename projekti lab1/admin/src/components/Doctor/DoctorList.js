@@ -18,6 +18,7 @@ const DoctorList = () => {
         departments,
         selectedHospital,
         selectedDepartment,
+        selectedImageName,
         activeHospitalTab,
         activeDepartmentTab,
         successMessage,
@@ -33,9 +34,11 @@ const DoctorList = () => {
         handleChange,
         handleHospitalChange,
         handleDepartmentChange,
+        handleFileChange,
         handleSubmit,
         handleEdit,
         handleEditInputChange,
+        handleEditFileChange,
         handleCancelEdit,
         handleSave,
         handleDeleteDoctor,
@@ -99,6 +102,7 @@ const DoctorList = () => {
                                                             <th>Address</th>
                                                             <th>Phone Number</th>
                                                             <th>Specialization</th>
+                                                            <th>Image</th>
                                                             <th>
                                                                 <Button onClick={toggleDoctorModal}>Add Doctor</Button>
                                                             </th>
@@ -171,6 +175,31 @@ const DoctorList = () => {
                                                                 <td>
                                                                     {editingDoctorId === doctor.nrPersonal ? (
                                                                         <>
+                                                                            <Input
+                                                                                type="file"
+                                                                                name="img"
+                                                                                onChange={handleEditFileChange}
+                                                                            />
+                                                                            {doctor.imageUrl && (
+                                                                                <img
+                                                                                    src={`http://localhost:3001/${doctor.imageUrl}`}
+                                                                                    alt={doctor.emri}
+                                                                                    width="100"
+                                                                                    style={{ marginTop: "10px" }}
+                                                                                />
+                                                                            )}
+                                                                        </>
+                                                                    ) : (
+                                                                        <img
+                                                                            src={`http://localhost:3001/${doctor.imageUrl}`}
+                                                                            alt={doctor.emri}
+                                                                            width="100"
+                                                                        />
+                                                                    )}
+                                                                </td>
+                                                                <td>
+                                                                    {editingDoctorId === doctor.nrPersonal ? (
+                                                                        <>
                                                                             <Button color="success" onClick={handleSave} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Save</Button>
                                                                             <Button color="secondary" onClick={handleCancelEdit} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px", fontSize: "small" }}>Cancel</Button>
                                                                         </>
@@ -193,6 +222,7 @@ const DoctorList = () => {
                                                     handleSubmit={handleSubmit}
                                                     handleHospitalChange={handleHospitalChange}
                                                     handleDepartmentChange={handleDepartmentChange}
+                                                    handleFileChange={handleFileChange}
                                                     errorMessageModal={errorMessageModal}
                                                     setErrorMessageModal={setErrorMessageModal}
                                                     hospitals={hospitals}
@@ -201,6 +231,7 @@ const DoctorList = () => {
                                                     setNewDoctor={setNewDoctor}
                                                     selectedHospital={selectedHospitalModal}
                                                     selectedDepartment={selectedDepartmentModal}
+                                                    selectedImageName={selectedImageName}
                                                 />
                                             </CardBody>
                                         </Card>

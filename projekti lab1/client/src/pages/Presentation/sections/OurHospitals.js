@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -21,38 +21,17 @@ const OurHospitals = () => {
     editingHospitalId,
     newHospital,
     showAddHospitalForm,
+    formErrors,
     setEditingHospitalId,
     handleEdit,
     handleImageChange,
     handleEditInputChange,
     handleSave,
     handleDelete,
-    handleAddHospital,
     handleAddInputChange,
     setShowAddHospitalForm,
+    handleAddHospitalClick,
   } = useHospitals();
-
-  const [formErrors, setFormErrors] = useState({});
-
-  const validateForm = () => {
-    const errors = {};
-    if (!newHospital.emri) errors.emri = "Name is required.";
-    if (!newHospital.adresa) errors.adresa = "Address is required.";
-    if (!newHospital.nrTel) errors.nrTel = "Phone Number is required.";
-    if (newHospital.nrTel && !/^\d{5,15}$/.test(newHospital.nrTel))
-      errors.nrTel = "Phone Number should have between 5-15 numbers.";
-    return errors;
-  };
-
-  const handleAddHospitalClick = () => {
-    const errors = validateForm();
-    if (Object.keys(errors).length === 0) {
-      handleAddHospital();
-      setFormErrors({});
-    } else {
-      setFormErrors(errors);
-    }
-  };
 
   return (
     <>

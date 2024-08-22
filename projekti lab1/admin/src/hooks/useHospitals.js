@@ -9,7 +9,7 @@ export const useHospitals = () => {
   const [hospitals, setHospitals] = useState([]);
   const [newHospital, setNewHospital] = useState({ emri: "", adresa: "", nrTel: "", imageUrl: "" });
   const [hospitalModal, setHospitalModal] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedImageName, setSelectedImageName] = useState('');
 
   const toggleHospitalModal = () => setHospitalModal(!hospitalModal);
 
@@ -27,12 +27,20 @@ export const useHospitals = () => {
     fetchHospitals();
   }, []);
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setNewHospital({ ...newHospital, img: e.target.files[0] });
+    }
   };
 
-  const handleEditFileChange = (e) => {
-    setSelectedEditFile(e.target.files[0]);
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedImageName(file.name);
+    } else {
+      setSelectedImageName('');
+    }
+    handleImageChange(event);
   };
 
   const handleChange = (e) => {
@@ -46,8 +54,8 @@ export const useHospitals = () => {
     formData.append('emri', newHospital.emri);
     formData.append('adresa', newHospital.adresa);
     formData.append('nrTel', newHospital.nrTel);
-    if (selectedFile) {
-      formData.append('img', selectedFile);
+    if (newHospital.img) {
+      formData.append('img', newHospital.img);
     }
   
     try {
@@ -90,6 +98,10 @@ export const useHospitals = () => {
     }
   };
 
+  const handleEditFileChange = (e) => {
+    setSelectedEditFile(e.target.files[0]);
+  };
+  
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
     setEditedHospital(prevState => ({
@@ -157,7 +169,7 @@ export const useHospitals = () => {
     hospitals,
     newHospital,
     hospitalModal,
-    selectedFile,
+    selectedImageName,
     selectedEditFile,
     editingHospitalId,
     editedHospital,

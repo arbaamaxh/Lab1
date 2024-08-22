@@ -4,20 +4,8 @@ import axios from "axios";
 export const useHospitals = () => {
   const [hospitals, setHospitals] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [editingHospitalId, setEditingHospitalId] = useState(null);
-  const [editedHospital, setEditedHospital] = useState({
-    emri: "",
-    adresa: "",
-    nrTel: "",
-    imageUrl: "",
-  });
-  const [newHospital, setNewHospital] = useState({
-    emri: "",
-    adresa: "",
-    nrTel: "",
-  });
-  const [showAddHospitalForm, setShowAddHospitalForm] = useState(false);
 
+  //display
   const fetchHospitals = async () => {
     try {
       const response = await axios.get("http://localhost:3001/hospitals");
@@ -31,28 +19,35 @@ export const useHospitals = () => {
     fetchHospitals();
   }, []);
 
-  const handleEdit = (hospital) => {
-    setEditingHospitalId(hospital.nrRegjistrimit);
-    setEditedHospital(hospital);
-  };
+  //add hospital
+  const [formErrors, setFormErrors] = useState({});
+  const [showAddHospitalForm, setShowAddHospitalForm] = useState(false);
+  const [newHospital, setNewHospital] = useState({
+    emri: "",
+    adresa: "",
+    nrTel: "",
+  });
 
-  const handleImageChange = (e, type) => {
-    if (type === "new") {
-      setSelectedImage(e.target.files[0]);
-    } else {
-      setEditedHospital((prevState) => ({
-        ...prevState,
-        image: e.target.files[0],
-      }));
+  const validateForm = () => {
+    const errors = {};
+    if (!newHospital.emri) errors.emri = "Name is required.";
+    if (!newHospital.adresa) errors.adresa = "Address is required.";
+    if (!newHospital.nrTel.trim()) {
+      errors.nrTel = "Phone Number is required.";
+    } else if (!newHospital.nrTel.match(/^\d{5,15}$/)) {
+      errors.nrTel = "Phone Number should have between 5 and 15 digits.";
     }
+    return errors;
   };
 
-  const handleEditInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditedHospital((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+  const handleAddHospitalClick = () => {
+    const errors = validateForm();
+    if (Object.keys(errors).length === 0) {
+      handleAddHospital();
+      setFormErrors({});
+    } else {
+      setFormErrors(errors);
+    }
   };
 
   const handleAddInputChange = (e) => {
@@ -91,6 +86,39 @@ export const useHospitals = () => {
     }
   };
 
+  //edit
+  const [editingHospitalId, setEditingHospitalId] = useState(null);
+  const [editedHospital, setEditedHospital] = useState({
+    emri: "",
+    adresa: "",
+    nrTel: "",
+    imageUrl: "",
+  });
+
+  const handleImageChange = (e, type) => {
+    if (type === "new") {
+      setSelectedImage(e.target.files[0]);
+    } else {
+      setEditedHospital((prevState) => ({
+        ...prevState,
+        image: e.target.files[0],
+      }));
+    }
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedHospital((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleEdit = (hospital) => {
+    setEditingHospitalId(hospital.nrRegjistrimit);
+    setEditedHospital(hospital);
+  };
+
   const handleSave = async () => {
     const formData = new FormData();
     formData.append("emri", editedHospital.emri);
@@ -114,10 +142,11 @@ export const useHospitals = () => {
     }
   };
 
+  //delete
   const handleDelete = async (hospitalId) => {
     try {
       await axios.delete(`http://localhost:3001/hospitals/${hospitalId}`);
-      fetchHospitals(); // Refresh the hospital list after deletion
+      fetchHospitals();
     } catch (error) {
       console.error("Error deleting hospital:", error);
     }
@@ -129,6 +158,7 @@ export const useHospitals = () => {
     editingHospitalId,
     newHospital,
     showAddHospitalForm,
+    formErrors,
     setEditingHospitalId,
     handleEdit,
     handleImageChange,
@@ -138,5 +168,6 @@ export const useHospitals = () => {
     handleAddHospital,
     handleAddInputChange,
     setShowAddHospitalForm,
+    handleAddHospitalClick,
   };
 };

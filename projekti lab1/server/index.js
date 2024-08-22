@@ -14,7 +14,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const patientRouter = require('./routes/patients');
 app.use("/patients", patientRouter);
 
-const doctorRouter = require('./routes/doctors');
+const doctorRouter = require('./routes/Doctors');
 app.use("/doctors", doctorRouter);
 
 const hospitalRouter = require('./routes/Hospitals');

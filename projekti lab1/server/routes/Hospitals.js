@@ -23,7 +23,7 @@ const upload = multer({
 router.post("/", upload.single('img'), async (req, res) => {
   try {
     const { emri, adresa, nrTel } = req.body;
-    const imageUrl = req.file ? req.file.path : ''; // This path is relative to your project root
+    const imageUrl = req.file ? req.file.path : '';
 
     const existingHospital = await Hospital.findOne({ where: { emri } });
 
@@ -68,7 +68,7 @@ router.put("/:nrRegjistrimit", upload.single('img'), async (req, res) => {
     const imageUrl = req.file ? req.file.path : hospital.imageUrl;
 
     await Hospital.update(
-      { emri, adresa, nrTel, imageUrl },
+      { emri,adresa,nrTel,imageUrl },
       { where: { nrRegjistrimit } }
     );
 

@@ -17,10 +17,10 @@ export const useDoctors = () => {
   const handleHospitalSelect = async (hospital, tab) => {
     setSelectedHospital(hospital);
     setActiveHospitalTab(tab);
-    try{
+    try {
       const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/departments`);
       setDepartments(response.data);
-    }catch(error){
+    } catch (error) {
       console.error('Error fetching departments:', error);
     }
   };
@@ -28,10 +28,10 @@ export const useDoctors = () => {
   const handleDepartmentSelect = async (department, tab) => {
     setSelectedDepartment(department);
     setActiveDepartmentTab(tab);
-    try{
+    try {
       const response = await axios.get(`http://localhost:3001/hospitals/${selectedHospital.nrRegjistrimit}/departments/${department.departmentID}/doctors`);
       setDoctors(response.data);
-    }catch(error){
+    } catch (error) {
       console.error('Error fetching doctors:', error);
     }
   };
@@ -43,6 +43,7 @@ export const useDoctors = () => {
   const [doctorModal, setDoctorModal] = useState(false);
   const [specializations, setSpecializations] = useState([]);
   const [modalDepartments, setModalDepartments] = useState([]);
+  const [selectedImageName, setSelectedImageName] = useState('');
 
   const toggleDoctorModal = () => setDoctorModal(!doctorModal);
 
@@ -53,12 +54,12 @@ export const useDoctors = () => {
     setSpecializations([]);
 
     try {
-        const response = await axios.get(`http://localhost:3001/hospitals/${selectedOption.value}/departments`);
-        setModalDepartments(response.data);
+      const response = await axios.get(`http://localhost:3001/hospitals/${selectedOption.value}/departments`);
+      setModalDepartments(response.data);
     } catch (error) {
-        console.error('Error fetching departments:', error);
+      console.error('Error fetching departments:', error);
     }
-};
+  };
 
   const handleDepartmentChange = (selectedOption) => {
     const selectedDept = modalDepartments.find(d => d.departmentID === selectedOption.value);
@@ -66,34 +67,50 @@ export const useDoctors = () => {
     setNewDoctor({ ...newDoctor, depID: selectedOption.value, specializimi: '' });
 
     let filteredSpecializations = [];
-    if(selectedDept.emri === "Emergjenca"){
+    if (selectedDept.emri === "Emergjenca") {
       filteredSpecializations = ["Mjek i Pergjithshem", "Radiolog"];
-    }else if(selectedDept.emri === "Neurologjia"){
+    } else if (selectedDept.emri === "Neurologjia") {
       filteredSpecializations = ["Neurolog", "Neurokirurg"];
-    }else if(selectedDept.emri === "Kardiologjia"){
+    } else if (selectedDept.emri === "Kardiologjia") {
       filteredSpecializations = ["Kardiolog", "Kardiokirurg"];
-    }else if(selectedDept.emri === "Pediatria"){
+    } else if (selectedDept.emri === "Pediatria") {
       filteredSpecializations = ["Pediater", "Psikolog Pediatrik", "Kirurg Pediater"];
-    }else if(selectedDept.emri === "Psikiatria"){
+    } else if (selectedDept.emri === "Psikiatria") {
       filteredSpecializations = ["Psikiater"];
-    }else if(selectedDept.emri === "Pulmologjia"){
+    } else if (selectedDept.emri === "Pulmologjia") {
       filteredSpecializations = ["Pulmolog", "Pulmokirurg"];
-    }else if(selectedDept.emri === "Gjinekologjia"){
+    } else if (selectedDept.emri === "Gjinekologjia") {
       filteredSpecializations = ["Gjinekolog", "Neonatolog"];
-    }else if(selectedDept.emri === "Dermatologjia"){
+    } else if (selectedDept.emri === "Dermatologjia") {
       filteredSpecializations = ["Dermatolog"];
-    }else if(selectedDept.emri === "Otorinolaringologjia"){
+    } else if (selectedDept.emri === "Otorinolaringologjia") {
       filteredSpecializations = ["Otorinolaringolog"];
-    }else if(selectedDept.emri === "Interno"){
+    } else if (selectedDept.emri === "Interno") {
       filteredSpecializations = ["Internist Abdominal"];
-    }else if(selectedDept.emri === "Oftalmologjia"){
+    } else if (selectedDept.emri === "Oftalmologjia") {
       filteredSpecializations = ["Oftalmolog", "Oftalmokirurg"];
-    }else if(selectedDept.emri === "Ortopedia"){
+    } else if (selectedDept.emri === "Ortopedia") {
       filteredSpecializations = ["Ortoped", "Kirurg Ortoped"];
-    }else if(selectedDept.emri === "Radiologjia"){
+    } else if (selectedDept.emri === "Radiologjia") {
       filteredSpecializations = ["Radiologjia"];
     }
     setSpecializations(filteredSpecializations);
+  };
+
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setNewDoctor({ ...newDoctor, img: e.target.files[0] });
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedImageName(file.name);
+    } else {
+      setSelectedImageName('');
+    }
+    handleImageChange(event);
   };
 
   const handleChange = (e) => {
@@ -105,25 +122,31 @@ export const useDoctors = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const doctorWithDepartment = {
-      ...newDoctor,
-      depID: selectedDepartmentModal.depID,
-      hospitalName: selectedHospitalModal.label,
-      departmentName: modalDepartments.find(d => d.departmentID === newDoctor.depID)?.emri
-    };
+    const formData = new FormData();
+
+    formData.append('emri', newDoctor.emri);
+    formData.append('mbiemri', newDoctor.mbiemri);
+    formData.append('nrPersonal', newDoctor.nrPersonal);
+    formData.append('adresa', newDoctor.adresa);
+    formData.append('nrTel', newDoctor.nrTel);
+    formData.append('specializimi', newDoctor.specializimi);
+    formData.append('hospitalName', selectedHospitalModal.label);
+    formData.append('departmentName', modalDepartments.find(d => d.departmentID === newDoctor.depID)?.emri);
+
+    if (newDoctor.img) {
+      formData.append('img', newDoctor.img);
+    }
+
     try {
       const response = await fetch("http://localhost:3001/doctors", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(doctorWithDepartment),
+        body: formData,  // Use FormData for multipart/form-data
       });
-  
+
       if (response.ok) {
         toggleDoctorModal();
         handleDepartmentSelect(selectedDepartment, activeDepartmentTab);
-        setNewDoctor({ emri: "", mbiemri: "", nrPersonal: "", adresa: "", nrTel: "", specializimi: "", depID: "" });
+        setNewDoctor({ emri: "", mbiemri: "", nrPersonal: "", adresa: "", nrTel: "", specializimi: "", depID: "", img: null });
         setSelectedHospitalModal(null);
         setSelectedDepartmentModal(null);
       } else if (response.status === 400) {
@@ -138,20 +161,22 @@ export const useDoctors = () => {
         setTimeout(() => {
           setErrorMessageModal(null);
         }, 3000);
-      }  
+      }
     } catch (error) {
       console.error("Error inserting doctor:", error);
     }
   };
-  
+
   //edit a doctor
+  const [selectedEditFile, setSelectedEditFile] = useState(null);
   const [editingDoctorId, setEditingDoctorId] = useState(null);
   const [editedDoctor, setEditedDoctor] = useState({
     emri: "",
     mbiemri: "",
     adresa: "",
     nrTel: "",
-    specializimi: ""
+    specializimi: "",
+    imageUrl: ""
   });
 
   //me tleju me editu faqja
@@ -159,7 +184,11 @@ export const useDoctors = () => {
     const doctor = doctors.find(doc => doc.nrPersonal === nrPersonal);
     setEditedDoctor(doctor);
     setEditingDoctorId(nrPersonal);
-  };  
+  };
+
+  const handleEditFileChange = (e) => {
+    setSelectedEditFile(e.target.files[0]);
+  };
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
@@ -174,21 +203,36 @@ export const useDoctors = () => {
   };
 
   const handleSave = async () => {
-    try{
-      const response = await axios.put(`http://localhost:3001/doctors/${editingDoctorId}`, editedDoctor);
-      if(response.status === 200){
+    const formData = new FormData();
+    formData.append('emri', editedDoctor.emri);
+    formData.append('mbiemri', editedDoctor.mbiemri);
+    formData.append('adresa', editedDoctor.adresa);
+    formData.append('nrTel', editedDoctor.nrTel);
+    formData.append('specializimi', editedDoctor.specializimi);
+    if (selectedEditFile) {
+      formData.append('img', selectedEditFile);
+    }
+
+    try {
+      const response = await axios.put(`http://localhost:3001/doctors/${editingDoctorId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      if (response.status === 200) {
         handleHospitalSelect(selectedHospital, activeHospitalTab);
         handleDepartmentSelect(selectedDepartment, activeDepartmentTab);
         setEditingDoctorId(null);
+        setSelectedEditFile(null);
         setSuccessMessage('Doctor updated successfully');
         setTimeout(() => {
           setSuccessMessage(null);
         }, 3000);
-      }else{
+      } else {
         setErrorMessage('Failed to update doctor');
         setEditingDoctorId(null);
       }
-    }catch(error){
+    } catch (error) {
       console.error('Error updating doctor:', error);
       setErrorMessage('An error occurred while updating the doctor');
       setEditingDoctorId(null);
@@ -197,14 +241,14 @@ export const useDoctors = () => {
 
   //delete a doctor
   const handleDeleteDoctor = async (nrPersonal) => {
-    try{
+    try {
       await axios.delete(`http://localhost:3001/doctors/${nrPersonal}`);
       setDoctors(doctors.filter(doctor => doctor.nrPersonal !== nrPersonal));
       setSuccessMessage('Doctor deleted successfully');
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
-    }catch(error){
+    } catch (error) {
       console.error('Error deleting doctor:', error);
       setErrorMessage('An error occurred while deleting the doctor');
       setTimeout(() => {
@@ -217,7 +261,7 @@ export const useDoctors = () => {
     axios.get("http://localhost:3001/hospitals/")
       .then(response => {
         setHospitals(response.data);
-        if(response.data.length > 0){
+        if (response.data.length > 0) {
           handleHospitalSelect(response.data[0], "0");
         }
       })
@@ -227,7 +271,7 @@ export const useDoctors = () => {
   }, []);
 
   useEffect(() => {
-    if(departments.length > 0){
+    if (departments.length > 0) {
       handleDepartmentSelect(departments[0], "0");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -244,6 +288,8 @@ export const useDoctors = () => {
     departments,
     selectedHospital,
     selectedDepartment,
+    selectedImageName,
+    selectedEditFile,
     activeHospitalTab,
     activeDepartmentTab,
     successMessage,
@@ -259,9 +305,11 @@ export const useDoctors = () => {
     handleChange,
     handleHospitalChange,
     handleDepartmentChange,
+    handleFileChange,
     handleSubmit,
     handleEdit,
     handleEditInputChange,
+    handleEditFileChange,
     handleCancelEdit,
     handleSave,
     handleDeleteDoctor,

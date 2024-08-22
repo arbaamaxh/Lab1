@@ -44,7 +44,17 @@ export default [
       {
         image: docImage,
         name: "Our Doctors",
-        count: 11,
+        count: 12,
+        link: "/sections/OurDoctors",
+        component: (
+          <Link to="/sections/OurDoctors">
+            <div>
+              <img src={docImage} alt="Our Doctors" />
+              <h2>Our Doctors</h2>
+              <p>12 doctors</p>
+            </div>
+          </Link>
+        ),
       },
       {
         image: pricingImage,

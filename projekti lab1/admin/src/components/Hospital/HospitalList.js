@@ -8,6 +8,7 @@ const HospitalList = () => {
         hospitals,
         newHospital,
         hospitalModal,
+        selectedImageName,
         editingHospitalId,
         editedHospital,
         successMessage,
@@ -146,6 +147,7 @@ const HospitalList = () => {
                                 isOpen={hospitalModal}
                                 toggle={toggleHospitalModal}
                                 newHospital={newHospital}
+                                selectedImageName={selectedImageName}
                                 handleChange={handleChange}
                                 handleFileChange={handleFileChange}
                                 handleSubmit={handleSubmit}

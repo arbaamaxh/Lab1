@@ -1,11 +1,14 @@
 import React from 'react';
 import { Modal, ModalHeader, ModalBody, Form, FormGroup, Label, Input, Button, Alert } from 'reactstrap';
 import "assets/css/ModalStyles.css";
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import { IconButton } from '@mui/material';
 
 const HospitalModal = ({
   isOpen,
   toggle,
   newHospital,
+  selectedImageName,
   handleChange,
   handleSubmit,
   errorMessageModal,
@@ -32,8 +35,21 @@ const HospitalModal = ({
           <Input type="text" name="nrTel" id="nrTel" value={newHospital.nrTel} onChange={handleChange} required pattern="^\d{5,15}$" title="Phone Number should have between 5-15 numbers." />
         </FormGroup>
         <FormGroup>
-          <Label for="img">Image</Label>
-          <Input type="file" name="img" id="img" onChange={handleFileChange} />
+          <Label for="imageUrl">Hospital's Image</Label>
+          <input
+            accept="image/*"
+            style={{ display: 'none' }}
+            id="raised-button-file"
+            type="file"
+            onChange={handleFileChange}
+          />
+          <label htmlFor="raised-button-file">
+            <IconButton color="primary" component="span">
+              <PhotoCamera />
+            </IconButton>
+            <span>Select Image</span>
+          </label>
+          {selectedImageName && <div style={{ marginTop: '10px' }}>{selectedImageName}</div>}
         </FormGroup>
         <Button type="submit">Add Hospital</Button>
       </Form>

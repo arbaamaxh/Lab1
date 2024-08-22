@@ -1,12 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const { Doctor, Department,  Hospital ,Prescription } = require('../models');
+const multer = require('multer');
+const path = require('path');
 
+const upload = multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+      },
+      filename: (req, file, cb) => {
+        // Generate a unique filename
+        cb(null, Date.now() + path.extname(file.originalname));
+      },
+    }),
+  });
 
 // create (insertimi ne tabelen doctors)
-router.post("/", async (req,res) => {
+router.post("/", upload.single('img'),async (req,res) => {
     try{
         const { emri, mbiemri, nrPersonal, adresa, nrTel, specializimi, hospitalName, departmentName } = req.body;
+        const imageUrl = req.file ? req.file.path : '';
 
         const hospital = await Hospital.findOne({
             where: {
@@ -47,6 +61,7 @@ router.post("/", async (req,res) => {
             nrTel,
             specializimi,
             depID: department.departmentID,
+            imageUrl
         });
 
         res.json(newDoctor);
@@ -66,14 +81,14 @@ router.get('/', async (req, res) => {
 
 
 // update (manipulo me te dhena ne tabelen doctors)
-router.put("/:nrPersonal", async (req, res) => {
+router.put("/:nrPersonal", upload.single('img'), async (req, res) => {
     try{
         const {emri,mbiemri,adresa,nrTel,specializimi,depID} = req.body;
         const nrPersonal = req.params.nrPersonal;
 
         const doctor = await Doctor.findOne({
             where: {
-                nrPersonal: nrPersonal
+                nrPersonal
             }
         });
 
@@ -81,10 +96,12 @@ router.put("/:nrPersonal", async (req, res) => {
             return res.status(404).json({error: 'Doktori nuk ekziston!'});
         }
 
+        const imageUrl = req.file ? req.file.path : doctor.imageUrl;
+
         await Doctor.update(
-            {emri,mbiemri,adresa,nrTel,specializimi,depID},
+            { emri,mbiemri,adresa,nrTel,specializimi,depID,imageUrl },
             {where: {
-                nrPersonal: nrPersonal
+                nrPersonal
             }}
         );
 

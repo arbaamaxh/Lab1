@@ -5,19 +5,8 @@ export const useDepartments = () => {
   const [hospitals, setHospitals] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
-  const [newDepartment, setNewDepartment] = useState({
-    emri: "",
-    lokacioni: "",
-    nrTel: "",
-  });
-  const [showAddDepartmentForm, setShowAddDepartmentForm] = useState(false);
-  const [editingDepartmentId, setEditingDepartmentId] = useState(null);
-  const [editedDepartment, setEditedDepartment] = useState({
-    emri: "",
-    lokacioni: "",
-    nrTel: "",
-  });
 
+  //display departments
   useEffect(() => {
     const fetchHospitals = async () => {
       try {
@@ -53,21 +42,35 @@ export const useDepartments = () => {
     }
   }, [selectedHospital]);
 
-  const handleHospitalChange = (hospital) => {
-    setSelectedHospital(hospital);
+  //add
+  const [formErrors, setFormErrors] = useState({});
+  const [showAddDepartmentForm, setShowAddDepartmentForm] = useState(false);
+  const [newDepartment, setNewDepartment] = useState({
+    emri: "",
+    lokacioni: "",
+    nrTel: "",
+  });
+
+  const validateForm = () => {
+    const errors = {};
+    if (!newDepartment.emri) errors.emri = "Department Name is required.";
+    if (!newDepartment.lokacioni) errors.lokacioni = "Location is required.";
+    if (!newDepartment.nrTel.trim()) {
+      errors.nrTel = "Phone Number is required.";
+    } else if (!newDepartment.nrTel.match(/^\d{5,15}$/)) {
+      errors.nrTel = "Phone Number should have between 5 and 15 digits.";
+    }
+    return errors;
   };
 
-  const handleEdit = (department) => {
-    setEditingDepartmentId(department.departmentID);
-    setEditedDepartment(department);
-  };
-
-  const handleEditInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditedDepartment((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+  const handleAddDepartmentClick = () => {
+    const errors = validateForm();
+    if (Object.keys(errors).length === 0) {
+      handleAddDepartment();
+      setFormErrors({});
+    } else {
+      setFormErrors(errors);
+    }
   };
 
   const handleAddInputChange = (e) => {
@@ -98,6 +101,31 @@ export const useDepartments = () => {
     }
   };
 
+  //edit
+  const [editingDepartmentId, setEditingDepartmentId] = useState(null);
+  const [editedDepartment, setEditedDepartment] = useState({
+    emri: "",
+    lokacioni: "",
+    nrTel: "",
+  });
+
+  const handleHospitalChange = (hospital) => {
+    setSelectedHospital(hospital);
+  };
+
+  const handleEdit = (department) => {
+    setEditingDepartmentId(department.departmentID);
+    setEditedDepartment(department);
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedDepartment((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
   const handleSave = async () => {
     try {
       await axios.put(`http://localhost:3001/departments/${editingDepartmentId}`, editedDepartment);
@@ -108,6 +136,7 @@ export const useDepartments = () => {
     }
   };
 
+  //delete
   const handleDelete = async (departmentID) => {
     try {
       await axios.delete(`http://localhost:3001/departments/${departmentID}`);
@@ -125,6 +154,7 @@ export const useDepartments = () => {
     showAddDepartmentForm,
     editingDepartmentId,
     editedDepartment,
+    formErrors,
     setEditingDepartmentId,
     handleEditInputChange,
     handleEdit,
@@ -134,5 +164,6 @@ export const useDepartments = () => {
     handleAddDepartment,
     handleAddInputChange,
     setShowAddDepartmentForm,
+    handleAddDepartmentClick,
   };
 };

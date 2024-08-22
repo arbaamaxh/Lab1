@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -23,38 +23,17 @@ const OurDepartments = () => {
     showAddDepartmentForm,
     editingDepartmentId,
     editedDepartment,
+    formErrors,
     setEditingDepartmentId,
     handleEditInputChange,
     handleEdit,
     handleSave,
     handleDelete,
     handleHospitalChange,
-    handleAddDepartment,
     handleAddInputChange,
     setShowAddDepartmentForm,
+    handleAddDepartmentClick,
   } = useDepartments();
-
-  const [formErrors, setFormErrors] = useState({});
-
-  const validateForm = () => {
-    const errors = {};
-    if (!newDepartment.emri) errors.emri = "Department Name is required.";
-    if (!newDepartment.lokacioni) errors.lokacioni = "Location is required.";
-    if (!newDepartment.nrTel) errors.nrTel = "Phone Number is required.";
-    if (newDepartment.nrTel && !/^\d{5,15}$/.test(newDepartment.nrTel))
-      errors.nrTel = "Phone Number should have between 5-15 numbers.";
-    return errors;
-  };
-
-  const handleAddDepartmentClick = () => {
-    const errors = validateForm();
-    if (Object.keys(errors).length === 0) {
-      handleAddDepartment();
-      setFormErrors({});
-    } else {
-      setFormErrors(errors);
-    }
-  };
 
   return (
     <>
