@@ -14,6 +14,7 @@ const DoctorModal = ({
     handleDepartmentChange,
     handleFileChange,
     errorMessageModal,
+    imageError,
     setErrorMessageModal,
     hospitals,
     departments,
@@ -22,6 +23,7 @@ const DoctorModal = ({
     selectedHospital,
     selectedDepartment,
     selectedImageName,
+    onSubmit,
 }) => {
 
     return (
@@ -63,6 +65,37 @@ const DoctorModal = ({
                             <FormGroup>
                                 <Label for="nrTel">Phone Number</Label>
                                 <Input type="text" name="nrTel" id="nrTel" placeholder="Phone Number" value={newDoctor.nrTel} onChange={handleChange} required pattern="^\d{5,15}$" title="Phone Number should have between 5-15 numbers." />
+                            </FormGroup>
+                        </Col>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Label for="email">Email</Label>
+                                <Input
+                                    type="email"
+                                    name="email"
+                                    id="email"
+                                    placeholder="Email"
+                                    value={newDoctor.email}
+                                    onChange={handleChange}
+                                    required
+                                    pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                                    title="Please enter a valid email address"
+                                />
+                            </FormGroup>
+                        </Col>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Label for="password">Password</Label>
+                                <Input
+                                    type="password"
+                                    name="password"
+                                    id="password"
+                                    placeholder="Password"
+                                    value={newDoctor.password}
+                                    onChange={handleChange}
+                                    required
+                                    pattern="^(?=.*\d)[A-Za-z\d]{8,16}$"
+                                    title="Password must be 8-16 characters long and include at least one number" />
                             </FormGroup>
                         </Col>
                         <Col md={6}>
@@ -117,6 +150,7 @@ const DoctorModal = ({
                                     id="raised-button-file"
                                     type="file"
                                     onChange={handleFileChange}
+                                    required
                                 />
                                 <label htmlFor="raised-button-file">
                                     <IconButton color="primary" component="span">

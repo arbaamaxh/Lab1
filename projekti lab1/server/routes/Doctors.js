@@ -19,7 +19,7 @@ const upload = multer({
 // create (insertimi ne tabelen doctors)
 router.post("/", upload.single('img'),async (req,res) => {
     try{
-        const { emri, mbiemri, nrPersonal, adresa, nrTel, specializimi, hospitalName, departmentName } = req.body;
+        const { emri,mbiemri,nrPersonal,adresa,nrTel,specializimi,email,password,hospitalName,departmentName } = req.body;
         const imageUrl = req.file ? req.file.path : '';
 
         const hospital = await Hospital.findOne({
@@ -53,6 +53,14 @@ router.post("/", upload.single('img'),async (req,res) => {
             return res.status(400).json({error: 'Doctor with the same ID already in database!'});
         }
 
+        const doctorEmail = await Doctor.findOne({
+            where: { email: email }
+        });
+        
+        if (doctorEmail && doctorEmail.nrPersonal !== nrPersonal) {
+            return res.status(400).json({ error: 'Email is already in use.' });
+        }
+
         const newDoctor = await Doctor.create({
             emri,
             mbiemri,
@@ -60,6 +68,8 @@ router.post("/", upload.single('img'),async (req,res) => {
             adresa,
             nrTel,
             specializimi,
+            email,
+            password,
             depID: department.departmentID,
             imageUrl
         });
@@ -83,7 +93,7 @@ router.get('/', async (req, res) => {
 // update (manipulo me te dhena ne tabelen doctors)
 router.put("/:nrPersonal", upload.single('img'), async (req, res) => {
     try{
-        const {emri,mbiemri,adresa,nrTel,specializimi,depID} = req.body;
+        const {emri,mbiemri,adresa,nrTel,specializimi,email,password,depID} = req.body;
         const nrPersonal = req.params.nrPersonal;
 
         const doctor = await Doctor.findOne({
@@ -96,10 +106,18 @@ router.put("/:nrPersonal", upload.single('img'), async (req, res) => {
             return res.status(404).json({error: 'Doktori nuk ekziston!'});
         }
 
+        const doctorEmail = await Doctor.findOne({
+            where: { email: email }
+        });
+
+        if (doctorEmail && doctorEmail.nrPersonal !== nrPersonal) {
+            return res.status(400).json({ error: 'Email is already in use.' });
+        }
+
         const imageUrl = req.file ? req.file.path : doctor.imageUrl;
 
         await Doctor.update(
-            { emri,mbiemri,adresa,nrTel,specializimi,depID,imageUrl },
+            { emri,mbiemri,adresa,nrTel,specializimi,email,password,imageUrl,depID },
             {where: {
                 nrPersonal
             }}

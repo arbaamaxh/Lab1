@@ -24,6 +24,7 @@ const DoctorList = () => {
         successMessage,
         errorMessage,
         errorMessageModal,
+        imageError,
         selectedHospitalModal,
         selectedDepartmentModal,
         modalDepartments,
@@ -35,6 +36,7 @@ const DoctorList = () => {
         handleHospitalChange,
         handleDepartmentChange,
         handleFileChange,
+        onSubmit,
         handleSubmit,
         handleEdit,
         handleEditInputChange,
@@ -102,6 +104,8 @@ const DoctorList = () => {
                                                             <th>Address</th>
                                                             <th>Phone Number</th>
                                                             <th>Specialization</th>
+                                                            <th>Email</th>
+                                                            <th>Password</th>
                                                             <th>Image</th>
                                                             <th>
                                                                 <Button onClick={toggleDoctorModal}>Add Doctor</Button>
@@ -174,6 +178,30 @@ const DoctorList = () => {
                                                                 </td>
                                                                 <td>
                                                                     {editingDoctorId === doctor.nrPersonal ? (
+                                                                        <Input
+                                                                            type="text"
+                                                                            name="email"
+                                                                            value={editedDoctor.email}
+                                                                            onChange={handleEditInputChange}
+                                                                        />
+                                                                    ) : (
+                                                                        doctor.email
+                                                                    )}
+                                                                </td>
+                                                                <td>
+                                                                    {editingDoctorId === doctor.nrPersonal ? (
+                                                                        <Input
+                                                                            type="text"
+                                                                            name="password"
+                                                                            value={editedDoctor.password}
+                                                                            onChange={handleEditInputChange}
+                                                                        />
+                                                                    ) : (
+                                                                        doctor.password
+                                                                    )}
+                                                                </td>
+                                                                <td>
+                                                                    {editingDoctorId === doctor.nrPersonal ? (
                                                                         <>
                                                                             <Input
                                                                                 type="file"
@@ -224,6 +252,7 @@ const DoctorList = () => {
                                                     handleDepartmentChange={handleDepartmentChange}
                                                     handleFileChange={handleFileChange}
                                                     errorMessageModal={errorMessageModal}
+                                                    imageError={imageError}
                                                     setErrorMessageModal={setErrorMessageModal}
                                                     hospitals={hospitals}
                                                     departments={modalDepartments}
@@ -232,6 +261,7 @@ const DoctorList = () => {
                                                     selectedHospital={selectedHospitalModal}
                                                     selectedDepartment={selectedDepartmentModal}
                                                     selectedImageName={selectedImageName}
+                                                    onSubmit={onSubmit}
                                                 />
                                             </CardBody>
                                         </Card>

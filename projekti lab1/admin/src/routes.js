@@ -25,6 +25,7 @@ import StaffData from "views/StaffData";
 import AppointmentData from "views/AppointmentData";
 import RoomData from "views/RoomData";
 import PrescriptionData from "views/PrescriptionData";
+import AdministratorData from "views/AdministratorData";
 
 var routes = [
   {
@@ -73,6 +74,14 @@ var routes = [
     rtlName: "ملف تعريفي للمستخدم",
     icon: "tim-icons icon-single-02",
     component: <StaffData />,
+    layout: "/admin",
+  },
+  {
+    path: "/administrators",
+    name: "Administrators",
+    rtlName: "الرموز",
+    icon: "tim-icons icon-atom",
+    component: <AdministratorData />,
     layout: "/admin",
   },
   {

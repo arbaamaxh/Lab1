@@ -4,9 +4,9 @@ const { Patient, Hospital, Prescription } = require('../models');
 
 
 // create (insertimi ne tabelen patients)
-router.post("/", async (req,res) => {
-    try{
-        const {emri,mbiemri,nrPersonal,datelindja,gjinia,adresa,nrTel,hospitalId} = req.body;
+router.post("/", async (req, res) => {
+    try {
+        const { emri, mbiemri, nrPersonal, datelindja, gjinia, adresa, nrTel, email, password, hospitalId } = req.body;
 
         const patient = await Patient.findOne({
             where: {
@@ -14,8 +14,16 @@ router.post("/", async (req,res) => {
             }
         });
 
-        if(patient){
+        if (patient) {
             return res.status(400).json({ error: 'This ID is already assigned to a patient.' });
+        }
+
+        const patientEmail = await Patient.findOne({
+            where: { email: email }
+        });
+
+        if (patientEmail && patientEmail.nrPersonal !== nrPersonal) {
+            return res.status(400).json({ error: 'Email is already in use.' });
         }
 
         // const doctor = await Doctor.findOne({
@@ -47,7 +55,7 @@ router.post("/", async (req,res) => {
             }
         });
 
-        if(!hospital){
+        if (!hospital) {
             return res.status(400).json({ error: 'Hospital not found!' });
         }
 
@@ -59,14 +67,16 @@ router.post("/", async (req,res) => {
             gjinia,
             adresa,
             nrTel,
-            hospitalNrRegjistrimit: hospital.nrRegjistrimit
+            email,
+            password,
+            hospitalNrRegjistrimit: hospital.nrRegjistrimit,
         });
 
         res.json(newPatient);
     }
-    catch(error){
+    catch (error) {
         console.error('Error creating patient:', error);
-        res.status(500).json({error: 'Failed to create patient'});
+        res.status(500).json({ error: 'Failed to create patient' });
     }
 });
 
@@ -80,14 +90,14 @@ router.get('/', async (req, res) => {
 
 //get prescriptions by a patient
 router.get('/:nrPersonal/prescriptions', async (req, res) => {
-    try{
+    try {
         const { nrPersonal } = req.params;
         const prescriptions = await Prescription.findAll({
             where: { patientNrPersonal: nrPersonal },
-            
+
         });
         res.json(prescriptions);
-    }catch(err){
+    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
@@ -98,7 +108,7 @@ router.get('/:nrPersonal', async (req, res) => {
         const { nrPersonal } = req.params;
         const patient = await Patient.findOne({
             where: { nrPersonal: nrPersonal },
-            attributes: ['emri', 'mbiemri'], // Fetch only the name and surname
+            attributes: ['emri', 'mbiemri'],
         });
 
         if (!patient) {
@@ -114,8 +124,8 @@ router.get('/:nrPersonal', async (req, res) => {
 
 // update (manipulo me te dhena ne tabelen patients)
 router.put("/:nrPersonal", async (req, res) => {
-    try{
-        const {emri,mbiemri,datelindja,gjinia,adresa,nrTel} = req.body;
+    try {
+        const { emri, mbiemri, datelindja, gjinia, adresa, nrTel, email, password } = req.body;
         const nrPersonal = req.params.nrPersonal;
 
         const patient = await Patient.findOne({
@@ -124,29 +134,39 @@ router.put("/:nrPersonal", async (req, res) => {
             }
         });
 
-        if(!patient){
-            return res.status(404).json({error: 'Pacienti nuk ekziston!'});
+        if (!patient) {
+            return res.status(404).json({ error: 'Pacienti nuk ekziston!' });
+        }
+
+        const patientEmail = await Patient.findOne({
+            where: { email: email }
+        });
+
+        if (patientEmail && patientEmail.nrPersonal !== nrPersonal) {
+            return res.status(400).json({ error: 'Email is already in use.' });
         }
 
         await Patient.update(
-            {emri,mbiemri,datelindja,gjinia,adresa,nrTel},
-            {where: {
-                nrPersonal: nrPersonal
-            }}
+            { emri, mbiemri, datelindja, gjinia, adresa, nrTel, email, password },
+            {
+                where: {
+                    nrPersonal: nrPersonal
+                }
+            }
         );
 
-        res.status(200).json({message: 'Patient updated successfully!'});
+        res.status(200).json({ message: 'Patient updated successfully!' });
     }
-    catch(error){
+    catch (error) {
         console.error('Error updating patient:', error);
-        res.status(500).json({error: 'Failed to update patient'});
+        res.status(500).json({ error: 'Failed to update patient' });
     }
 });
 
 
 // delete (fshirja e nje pacienti sipas nrPersonal te tij)
 router.delete("/:nrPersonal", async (req, res) => {
-    try{
+    try {
         const nrPersonal = req.params.nrPersonal;
 
         const patient = await Patient.findOne({
@@ -155,17 +175,17 @@ router.delete("/:nrPersonal", async (req, res) => {
             }
         });
 
-        if(!patient){
-            return res.status(404).json({error: 'Pacienti nuk ekziston!'});
+        if (!patient) {
+            return res.status(404).json({ error: 'Pacienti nuk ekziston!' });
         }
 
         await patient.destroy();
 
-        res.status(200).json({message: 'Patient deleted successfully!'});
+        res.status(200).json({ message: 'Patient deleted successfully!' });
     }
-    catch(error){
+    catch (error) {
         console.error('Error deleting patient:', error);
-        res.status(500).json({error: 'Failed to delete patient'});
+        res.status(500).json({ error: 'Failed to delete patient' });
     }
 });
 

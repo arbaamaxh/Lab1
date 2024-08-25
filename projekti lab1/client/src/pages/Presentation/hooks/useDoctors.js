@@ -123,6 +123,8 @@ export const useDoctors = () => {
     adresa: "",
     nrTel: "",
     specializimi: "",
+    email: "",
+    password: "",
     hospitalName: "",
     departmentName: "",
     imageUrl: null,
@@ -152,6 +154,16 @@ export const useDoctors = () => {
     }
     if (!newDoctor.adresa.trim()) {
       errors.adresa = "Address is required.";
+    }
+    if (!newDoctor.email.trim()) {
+      errors.email = "Email is required.";
+    } else if (!newDoctor.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      errors.email = "Please enter a valid email address.";
+    }
+    if (!newDoctor.password.trim()) {
+      errors.password = "Password is required.";
+    } else if (!newDoctor.password.match(/^(?=.*\d)[A-Za-z\d]{8,16}$/)) {
+      errors.password = "Password must be 8-16 characters long and include at least one number.";
     }
     if (!newDoctor.specializimi.trim()) {
       errors.specializimi = "Specialization is required.";
@@ -210,6 +222,8 @@ export const useDoctors = () => {
     if (newDoctor.imageUrl) {
       formData.append("img", newDoctor.imageUrl);
     }
+    formData.append("email", newDoctor.email);
+    formData.append("password", newDoctor.password);
 
     try {
       await axios.post("http://localhost:3001/doctors", formData, {
@@ -225,6 +239,8 @@ export const useDoctors = () => {
         adresa: "",
         nrTel: "",
         specializimi: "",
+        email: "",
+        password: "",
         hospitalName: "",
         departmentName: "",
         imageUrl: null,

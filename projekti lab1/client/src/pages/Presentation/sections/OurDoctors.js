@@ -134,6 +134,28 @@ const OurDoctors = () => {
                       error={Boolean(formErrors.nrTel)}
                       helperText={formErrors.nrTel}
                     />
+                    <TextField
+                      label="Email"
+                      name="email"
+                      value={newDoctor.email}
+                      onChange={handleNewDoctorInputChange}
+                      fullWidth
+                      margin="normal"
+                      required
+                      error={Boolean(formErrors.email)}
+                      helperText={formErrors.email}
+                    />
+                    <TextField
+                      label="Password"
+                      name="password"
+                      value={newDoctor.password}
+                      onChange={handleNewDoctorInputChange}
+                      fullWidth
+                      margin="normal"
+                      required
+                      error={Boolean(formErrors.password)}
+                      helperText={formErrors.password}
+                    />
                     <Autocomplete
                       options={specializations.map((spec) => ({ value: spec, label: spec }))}
                       getOptionLabel={(option) => option.label}
@@ -156,7 +178,6 @@ const OurDoctors = () => {
                         {formErrors.specializimi}
                       </Typography>
                     )}
-
                     <input
                       type="file"
                       name="img"
@@ -218,6 +239,22 @@ const OurDoctors = () => {
                             label="Phone Number"
                             name="nrTel"
                             value={editedDoctor.nrTel || ""}
+                            onChange={handleEditInputChange}
+                            fullWidth
+                            margin="normal"
+                          />
+                          <TextField
+                            label="Email"
+                            name="email"
+                            value={editedDoctor.email || ""}
+                            onChange={handleEditInputChange}
+                            fullWidth
+                            margin="normal"
+                          />
+                          <TextField
+                            label="Password"
+                            name="password"
+                            value={editedDoctor.password || ""}
                             onChange={handleEditInputChange}
                             fullWidth
                             margin="normal"

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Department, Doctor, Patient, Staff, Room, Appointment } = require('../models');
+const { Department, Doctor, Patient, Staff, Room, Appointment, Administrator } = require('../models');
 
 //get departments in a hospital
 router.get('/:nrRegjistrimit/departments', async (req, res) => {
@@ -76,6 +76,18 @@ router.get('/:nrRegjistrimit/departments/:departmentID/staffs', async (req, res)
     }catch(err){
         console.error('Error fetching staff member:', err);
         res.status(500).json({ error: 'Failed to fetch staff member' });
+    }
+});
+
+
+//get admins in a hospital
+router.get('/:nrRegjistrimit/administrators', async (req, res) => {
+    try{
+        const { nrRegjistrimit } = req.params;
+        const admins = await Administrator.findAll({ where: { hospitalNrRegjistrimit: nrRegjistrimit } });
+        res.json(admins);
+    }catch(err){
+        res.status(500).json({ error: err.message });
     }
 });
 

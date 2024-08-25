@@ -37,13 +37,14 @@ export const useDoctors = () => {
   };
 
   //insert a doctor in database
-  const [newDoctor, setNewDoctor] = useState({ emri: '', mbiemri: '', nrPersonal: '', adresa: '', nrTel: '', specializimi: '', depID: '' });
+  const [newDoctor, setNewDoctor] = useState({ emri: '', mbiemri: '', nrPersonal: '', adresa: '', nrTel: '', specializimi: '', depID: '', email: '', password: '' });
   const [selectedHospitalModal, setSelectedHospitalModal] = useState(null);
   const [selectedDepartmentModal, setSelectedDepartmentModal] = useState(null);
   const [doctorModal, setDoctorModal] = useState(false);
   const [specializations, setSpecializations] = useState([]);
   const [modalDepartments, setModalDepartments] = useState([]);
   const [selectedImageName, setSelectedImageName] = useState('');
+  const [imageError, setImageError] = useState('');
 
   const toggleDoctorModal = () => setDoctorModal(!doctorModal);
 
@@ -99,7 +100,7 @@ export const useDoctors = () => {
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setNewDoctor({ ...newDoctor, img: e.target.files[0] });
+      setNewDoctor({ ...newDoctor, imageUrl: e.target.files[0] });
     }
   };
 
@@ -111,6 +112,16 @@ export const useDoctors = () => {
       setSelectedImageName('');
     }
     handleImageChange(event);
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (!selectedImageName) {
+      setImageError('Please select an image.');
+      return;
+    }
+    setImageError('');
+    handleSubmit(e);
   };
 
   const handleChange = (e) => {
@@ -130,11 +141,13 @@ export const useDoctors = () => {
     formData.append('adresa', newDoctor.adresa);
     formData.append('nrTel', newDoctor.nrTel);
     formData.append('specializimi', newDoctor.specializimi);
+    formData.append('email', newDoctor.email);
+    formData.append('password', newDoctor.password);
     formData.append('hospitalName', selectedHospitalModal.label);
     formData.append('departmentName', modalDepartments.find(d => d.departmentID === newDoctor.depID)?.emri);
 
-    if (newDoctor.img) {
-      formData.append('img', newDoctor.img);
+    if (newDoctor.imageUrl) {
+      formData.append('img', newDoctor.imageUrl);
     }
 
     try {
@@ -146,7 +159,7 @@ export const useDoctors = () => {
       if (response.ok) {
         toggleDoctorModal();
         handleDepartmentSelect(selectedDepartment, activeDepartmentTab);
-        setNewDoctor({ emri: "", mbiemri: "", nrPersonal: "", adresa: "", nrTel: "", specializimi: "", depID: "", img: null });
+        setNewDoctor({ emri: "", mbiemri: "", nrPersonal: "", adresa: "", nrTel: "", specializimi: "", depID: "", imageUrl: null, email: "", password: "" });
         setSelectedHospitalModal(null);
         setSelectedDepartmentModal(null);
       } else if (response.status === 400) {
@@ -176,7 +189,9 @@ export const useDoctors = () => {
     adresa: "",
     nrTel: "",
     specializimi: "",
-    imageUrl: ""
+    imageUrl: "",
+    email: "",
+    password: "",
   });
 
   //me tleju me editu faqja
@@ -209,6 +224,8 @@ export const useDoctors = () => {
     formData.append('adresa', editedDoctor.adresa);
     formData.append('nrTel', editedDoctor.nrTel);
     formData.append('specializimi', editedDoctor.specializimi);
+    formData.append('email', editedDoctor.email);
+    formData.append('password', editedDoctor.password);
     if (selectedEditFile) {
       formData.append('img', selectedEditFile);
     }
@@ -229,12 +246,25 @@ export const useDoctors = () => {
           setSuccessMessage(null);
         }, 3000);
       } else {
-        setErrorMessage('Failed to update doctor');
+        const errorMessage = response.data.error || 'Failed to update patient: Unknown error occurred';
+        setErrorMessage(errorMessage);
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 3000);
         setEditingDoctorId(null);
       }
     } catch (error) {
-      console.error('Error updating doctor:', error);
-      setErrorMessage('An error occurred while updating the doctor');
+      if (error.response && error.response.data && error.response.data.error) {
+        setErrorMessage(`Failed to update doctor: ${error.response.data.error}`);
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 3000);
+      } else {
+        setErrorMessage('An error occurred while updating the doctor');
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 3000);
+      }
       setEditingDoctorId(null);
     }
   };
@@ -295,6 +325,7 @@ export const useDoctors = () => {
     successMessage,
     errorMessage,
     errorMessageModal,
+    imageError,
     selectedHospitalModal,
     selectedDepartmentModal,
     modalDepartments,
@@ -306,6 +337,7 @@ export const useDoctors = () => {
     handleHospitalChange,
     handleDepartmentChange,
     handleFileChange,
+    onSubmit,
     handleSubmit,
     handleEdit,
     handleEditInputChange,

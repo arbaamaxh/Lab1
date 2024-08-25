@@ -3,17 +3,17 @@ import {
     Table, Button, Input, Alert, Nav, NavItem, NavLink, TabContent, TabPane, Row, Col, Card, CardBody, CardHeader, CardTitle
 } from 'reactstrap';
 import classnames from 'classnames';
-import { usePatients } from '../../hooks/usePatients';
-import PatientModal from './PatientModal';
+import { useAdmins } from '../../hooks/useAdmins';
+import AdminModal from './AdminModal';
 
-const PatientList = () => {
+const AdminList = () => {
     const {
         hospitals,
-        patients,
-        newPatient,
-        patientModal,
-        editedPatient,
-        editingPatientId,
+        admins,
+        newAdmin,
+        adminModal,
+        editedAdmin,
+        editingAdminId,
         selectedHospital,
         activeHospitalTab,
         hospitalOptions,
@@ -28,12 +28,12 @@ const PatientList = () => {
         handleEditInputChange,
         handleCancelEdit,
         handleSave,
-        togglePatientModal,
-        handleDeletePatient,
+        toggleAdminModal,
+        handleDeleteAdmin,
         setSuccessMessage,
         setErrorMessage,
         setErrorMessageModal,
-    } = usePatients();
+    } = useAdmins();
 
     return (
         <>
@@ -63,7 +63,7 @@ const PatientList = () => {
                             {selectedHospital && (
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle tag="h4">Patients in {selectedHospital.emri}</CardTitle>
+                                        <CardTitle tag="h4">Administrators in {selectedHospital.emri}</CardTitle>
                                     </CardHeader>
                                     <CardBody>
                                         <Table>
@@ -73,126 +73,113 @@ const PatientList = () => {
                                                     <th>Name</th>
                                                     <th>Surname</th>
                                                     <th>Birthday</th>
-                                                    <th>Gender</th>
                                                     <th>Address</th>
                                                     <th>Phone Number</th>
                                                     <th>Email</th>
                                                     <th>Password</th>
                                                     <th>
-                                                        <Button onClick={togglePatientModal}>Add Patient</Button>
+                                                        <Button onClick={toggleAdminModal}>Add Administrator</Button>
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {patients.map((patient) => (
-                                                    <tr key={patient.nrPersonal}>
-                                                        <td>{patient.nrPersonal}</td>
+                                                {admins.map((admin) => (
+                                                    <tr key={admin.nrPersonal}>
+                                                        <td>{admin.nrPersonal}</td>
                                                         <td>
-                                                            {editingPatientId === patient.nrPersonal ? (
+                                                            {editingAdminId === admin.nrPersonal ? (
                                                                 <Input
                                                                     type="text"
                                                                     name="emri"
-                                                                    value={editedPatient.emri}
+                                                                    value={editedAdmin.emri}
                                                                     onChange={handleEditInputChange}
                                                                 />
                                                             ) : (
-                                                                patient.emri
+                                                                admin.emri
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {editingPatientId === patient.nrPersonal ? (
+                                                            {editingAdminId === admin.nrPersonal ? (
                                                                 <Input
                                                                     type="text"
                                                                     name="mbiemri"
-                                                                    value={editedPatient.mbiemri}
+                                                                    value={editedAdmin.mbiemri}
                                                                     onChange={handleEditInputChange}
                                                                 />
                                                             ) : (
-                                                                patient.mbiemri
+                                                                admin.mbiemri
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {editingPatientId === patient.nrPersonal ? (
+                                                            {editingAdminId === admin.nrPersonal ? (
                                                                 <Input
                                                                     type="text"
                                                                     name="datelindja"
-                                                                    value={editedPatient.datelindja}
+                                                                    value={editedAdmin.datelindja}
                                                                     onChange={handleEditInputChange}
                                                                 />
                                                             ) : (
-                                                                patient.datelindja
+                                                                admin.datelindja
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {editingPatientId === patient.nrPersonal ? (
-                                                                <Input
-                                                                    type="text"
-                                                                    name="gjinia"
-                                                                    value={editedPatient.gjinia}
-                                                                    onChange={handleEditInputChange}
-                                                                />
-                                                            ) : (
-                                                                patient.gjinia
-                                                            )}
-                                                        </td>
-                                                        <td>
-                                                            {editingPatientId === patient.nrPersonal ? (
+                                                            {editingAdminId === admin.nrPersonal ? (
                                                                 <Input
                                                                     type="text"
                                                                     name="adresa"
-                                                                    value={editedPatient.adresa}
+                                                                    value={editedAdmin.adresa}
                                                                     onChange={handleEditInputChange}
                                                                 />
                                                             ) : (
-                                                                patient.adresa
+                                                                admin.adresa
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {editingPatientId === patient.nrPersonal ? (
+                                                            {editingAdminId === admin.nrPersonal ? (
                                                                 <Input
                                                                     type="text"
                                                                     name="nrTel"
-                                                                    value={editedPatient.nrTel}
+                                                                    value={editedAdmin.nrTel}
                                                                     onChange={handleEditInputChange}
                                                                 />
                                                             ) : (
-                                                                patient.nrTel
+                                                                admin.nrTel
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {editingPatientId === patient.nrPersonal ? (
+                                                            {editingAdminId === admin.nrPersonal ? (
                                                                 <Input
                                                                     type="text"
                                                                     name="email"
-                                                                    value={editedPatient.email}
+                                                                    value={editedAdmin.email}
                                                                     onChange={handleEditInputChange}
                                                                 />
                                                             ) : (
-                                                                patient.email
+                                                                admin.email
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {editingPatientId === patient.nrPersonal ? (
+                                                            {editingAdminId === admin.nrPersonal ? (
                                                                 <Input
                                                                     type="text"
                                                                     name="password"
-                                                                    value={editedPatient.password}
+                                                                    value={editedAdmin.password}
                                                                     onChange={handleEditInputChange}
                                                                 />
                                                             ) : (
-                                                                patient.password
+                                                                admin.password
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {editingPatientId === patient.nrPersonal ? (
+                                                            {editingAdminId === admin.nrPersonal ? (
                                                                 <>
                                                                     <Button color="success" onClick={handleSave} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Save</Button>
                                                                     <Button color="secondary" onClick={handleCancelEdit} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px", fontSize: "small" }}>Cancel</Button>
                                                                 </>
                                                             ) : (
                                                                 <>
-                                                                    <Button color="info" onClick={() => handleEdit(patient.nrPersonal)} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Edit</Button>
-                                                                    <Button color="danger" onClick={() => handleDeletePatient(patient.nrPersonal)} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Delete</Button>
+                                                                    <Button color="info" onClick={() => handleEdit(admin.nrPersonal)} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Edit</Button>
+                                                                    <Button color="danger" onClick={() => handleDeleteAdmin(admin.nrPersonal)} style={{ marginBottom: "10px", width: "130px", marginLeft: "10px" }}>Delete</Button>
                                                                 </>
                                                             )}
                                                         </td>
@@ -200,10 +187,10 @@ const PatientList = () => {
                                                 ))}
                                             </tbody>
                                         </Table>
-                                        <PatientModal
-                                            isOpen={patientModal}
-                                            toggle={togglePatientModal}
-                                            newPatient={newPatient}
+                                        <AdminModal
+                                            isOpen={adminModal}
+                                            toggle={toggleAdminModal}
+                                            newAdmin={newAdmin}
                                             handleChange={handleChange}
                                             handleSubmit={handleSubmit}
                                             handleHospitalChange={handleHospitalChange}
@@ -222,4 +209,4 @@ const PatientList = () => {
     );
 };
 
-export default PatientList;
+export default AdminList;

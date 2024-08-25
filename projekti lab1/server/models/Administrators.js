@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const Patient = sequelize.define("Patient", {
+    const Administrator = sequelize.define("Administrator", {
         emri: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -15,10 +15,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         datelindja: {
             type: DataTypes.STRING,
-            allowNull: false,
-        },
-        gjinia: {
-            type: DataTypes.CHAR,
             allowNull: false,
         },
         adresa: {
@@ -40,8 +36,8 @@ module.exports = (sequelize, DataTypes) => {
         },
     });
 
-    Patient.associate = (models) => {
-        Patient.belongsTo(models.Hospital, {
+    Administrator.associate = (models) => {
+        Administrator.belongsTo(models.Hospital, {
             foreignKey: {
                 name: 'hospitalNrRegjistrimit',
                 allowNull: false
@@ -50,5 +46,5 @@ module.exports = (sequelize, DataTypes) => {
         });
     };
 
-    return Patient;
+    return Administrator;
 };

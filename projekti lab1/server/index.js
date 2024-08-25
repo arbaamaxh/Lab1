@@ -11,7 +11,7 @@ const db = require('./models');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // routers
-const patientRouter = require('./routes/patients');
+const patientRouter = require('./routes/Patients');
 app.use("/patients", patientRouter);
 
 const doctorRouter = require('./routes/Doctors');
@@ -37,6 +37,9 @@ app.use("/prescriptions", prescriptionRouter);
 
 const billRouter = require('./routes/Bills');
 app.use("/bills", billRouter);
+
+const adminRouter = require('./routes/Administrators');
+app.use("/administrators", adminRouter);
 
 const serviceRouter = require('./routes/Services');
 app.use("/services", serviceRouter);
