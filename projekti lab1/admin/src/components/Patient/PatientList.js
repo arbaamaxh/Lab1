@@ -180,7 +180,11 @@ const PatientList = () => {
                                                                     onChange={handleEditInputChange}
                                                                 />
                                                             ) : (
-                                                                patient.password
+                                                                <Input
+                                                                    type="text"
+                                                                    value="••••••••"
+                                                                    readOnly
+                                                                />
                                                             )}
                                                         </td>
                                                         <td>

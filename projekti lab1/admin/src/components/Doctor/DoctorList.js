@@ -197,7 +197,11 @@ const DoctorList = () => {
                                                                             onChange={handleEditInputChange}
                                                                         />
                                                                     ) : (
-                                                                        doctor.password
+                                                                        <Input
+                                                                            type="text"
+                                                                            value="••••••••"
+                                                                            readOnly
+                                                                        />
                                                                     )}
                                                                 </td>
                                                                 <td>

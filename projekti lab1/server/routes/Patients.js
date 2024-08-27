@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Patient, Hospital, Prescription } = require('../models');
-
+const bcrypt = require("bcrypt");
 
 // create (insertimi ne tabelen patients)
 router.post("/", async (req, res) => {
@@ -59,6 +59,8 @@ router.post("/", async (req, res) => {
             return res.status(400).json({ error: 'Hospital not found!' });
         }
 
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newPatient = await Patient.create({
             emri,
             mbiemri,
@@ -68,7 +70,7 @@ router.post("/", async (req, res) => {
             adresa,
             nrTel,
             email,
-            password,
+            password: hashedPassword,
             hospitalNrRegjistrimit: hospital.nrRegjistrimit,
         });
 
@@ -146,14 +148,24 @@ router.put("/:nrPersonal", async (req, res) => {
             return res.status(400).json({ error: 'Email is already in use.' });
         }
 
-        await Patient.update(
-            { emri, mbiemri, datelindja, gjinia, adresa, nrTel, email, password },
-            {
-                where: {
-                    nrPersonal: nrPersonal
-                }
-            }
-        );
+        const updatedData = {
+            emri,
+            mbiemri,
+            datelindja,
+            gjinia,
+            adresa,
+            nrTel,
+            email,
+        };
+
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updatedData.password = hashedPassword;
+        }
+
+        await Patient.update(updatedData, {
+            where: { nrPersonal }
+        });
 
         res.status(200).json({ message: 'Patient updated successfully!' });
     }

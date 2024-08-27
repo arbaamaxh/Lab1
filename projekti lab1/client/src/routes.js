@@ -46,6 +46,7 @@ import Icon from "@mui/material/Icon";
 import AboutUs from "layouts/pages/landing-pages/about-us";
 import ContactUs from "layouts/pages/landing-pages/contact-us";
 import SignIn from "layouts/pages/authentication/sign-in";
+import SignUp from "layouts/pages/authentication/sign-in/sign-up";
 
 // Sections
 import PageHeaders from "layouts/sections/page-sections/page-headers";
@@ -98,6 +99,11 @@ const routes = [
             name: "sign in",
             route: "/pages/authentication/sign-in",
             component: <SignIn />,
+          },
+          {
+            name: "sign up",
+            route: "/pages/authentication/sign-in/sign-up",
+            component: <SignUp />,
           },
         ],
       },

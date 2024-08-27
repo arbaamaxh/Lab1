@@ -167,7 +167,11 @@ const AdminList = () => {
                                                                     onChange={handleEditInputChange}
                                                                 />
                                                             ) : (
-                                                                admin.password
+                                                                <Input
+                                                                    type="text"
+                                                                    value="••••••••"
+                                                                    readOnly
+                                                                />
                                                             )}
                                                         </td>
                                                         <td>

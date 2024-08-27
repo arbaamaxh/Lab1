@@ -3,6 +3,7 @@ const router = express.Router();
 const { Doctor, Department,  Hospital ,Prescription } = require('../models');
 const multer = require('multer');
 const path = require('path');
+const bcrypt = require("bcrypt");
 
 const upload = multer({
     storage: multer.diskStorage({
@@ -61,6 +62,8 @@ router.post("/", upload.single('img'),async (req,res) => {
             return res.status(400).json({ error: 'Email is already in use.' });
         }
 
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newDoctor = await Doctor.create({
             emri,
             mbiemri,
@@ -69,7 +72,7 @@ router.post("/", upload.single('img'),async (req,res) => {
             nrTel,
             specializimi,
             email,
-            password,
+            password: hashedPassword,
             depID: department.departmentID,
             imageUrl
         });
@@ -116,14 +119,27 @@ router.put("/:nrPersonal", upload.single('img'), async (req, res) => {
 
         const imageUrl = req.file ? req.file.path : doctor.imageUrl;
 
-        await Doctor.update(
-            { emri,mbiemri,adresa,nrTel,specializimi,email,password,imageUrl,depID },
-            {where: {
-                nrPersonal
-            }}
-        );
+        const updatedData = {
+            emri,
+            mbiemri,
+            adresa,
+            nrTel,
+            specializimi,
+            email,
+            imageUrl,
+            depID
+        };
 
-        res.status(200).json({message: 'Doctor updated successfully!'});
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updatedData.password = hashedPassword;
+        }
+
+        await Doctor.update(updatedData, {
+            where: { nrPersonal }
+        });
+
+        res.status(200).json({ message: 'Doctor updated successfully!' });
     }
     catch(error){
         console.error('Error updating doctor:', error);

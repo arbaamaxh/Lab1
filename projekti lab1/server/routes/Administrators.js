@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Administrator, Hospital } = require('../models');
-
+const bcrypt = require("bcrypt");
 
 // create (insertimi ne tabelen admins)
 router.post("/", async (req, res) => {
@@ -36,6 +36,8 @@ router.post("/", async (req, res) => {
             return res.status(400).json({ error: 'Hospital not found!' });
         }
 
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newAdmin = await Administrator.create({
             emri,
             mbiemri,
@@ -44,7 +46,7 @@ router.post("/", async (req, res) => {
             adresa,
             nrTel,
             email,
-            password,
+            password: hashedPassword,
             hospitalNrRegjistrimit: hospital.nrRegjistrimit,
         });
 
@@ -108,14 +110,23 @@ router.put("/:nrPersonal", async (req, res) => {
             return res.status(400).json({ error: 'Email is already in use.' });
         }
 
-        await Administrator.update(
-            { emri, mbiemri, datelindja, adresa, nrTel, email, password },
-            {
-                where: {
-                    nrPersonal: nrPersonal
-                }
-            }
-        );
+        const updatedData = {
+            emri,
+            mbiemri,
+            datelindja,
+            adresa,
+            nrTel,
+            email,
+        };
+
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updatedData.password = hashedPassword;
+        }
+
+        await Administrator.update(updatedData, {
+            where: { nrPersonal }
+        });
 
         res.status(200).json({ message: 'Administrator updated successfully!' });
     }
