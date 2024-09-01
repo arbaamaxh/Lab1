@@ -12,9 +12,12 @@ import DefaultNavbar from "examples/Navbars/DefaultNavbar";
 import DefaultFooter from "examples/Footers/DefaultFooter";
 import routes from "routes";
 import footerRoutes from "footer.routes";
+import PropTypes from "prop-types";
 import { useHospitals } from "../hooks/useHospitals";
+import { useUser } from "context/UserContext";
 
 const OurHospitals = () => {
+  const { user } = useUser();
   const {
     hospitals,
     editedHospital,
@@ -33,21 +36,28 @@ const OurHospitals = () => {
     handleAddHospitalClick,
   } = useHospitals();
 
+  const role = user ? user.role : "guest";
   return (
     <>
+      {role === "admin" && <div>Admin Content</div>}
+      {role === "doctor" && <div>Doctor Content</div>}
+      {role === "patient" && <div>Patient Content</div>}
+      {role === "guest" && <div>Guest Content</div>}
       <DefaultNavbar routes={routes} sticky />
       <MKBox sx={{ paddingTop: "100px" }}>
         <Container>
-          <Button
-            color="primary"
-            variant="contained"
-            sx={{ marginBottom: 2, color: "#fff" }}
-            onClick={() => setShowAddHospitalForm(!showAddHospitalForm)}
-          >
-            {showAddHospitalForm ? "Cancel" : "Add New Hospital"}
-          </Button>
+          {role === "admin" && (
+            <Button
+              color="primary"
+              variant="contained"
+              sx={{ marginBottom: 2, color: "#fff" }}
+              onClick={() => setShowAddHospitalForm(!showAddHospitalForm)}
+            >
+              {showAddHospitalForm ? "Cancel" : "Add New Hospital"}
+            </Button>
+          )}
           <Grid container spacing={3}>
-            {showAddHospitalForm && (
+            {showAddHospitalForm && role === "admin" && (
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <Card sx={{ maxWidth: 345 }}>
                   <CardContent>
@@ -163,13 +173,17 @@ const OurHospitals = () => {
                           <Typography variant="body2" color="text.secondary">
                             {hospital.nrTel}
                           </Typography>
-                          <Button onClick={() => handleEdit(hospital)}>Edit</Button>
-                          <Button
-                            onClick={() => handleDelete(hospital.nrRegjistrimit)}
-                            style={{ marginLeft: "10px" }}
-                          >
-                            Delete
-                          </Button>
+                          {role === "admin" && (
+                            <>
+                              <Button onClick={() => handleEdit(hospital)}>Edit</Button>
+                              <Button
+                                onClick={() => handleDelete(hospital.nrRegjistrimit)}
+                                style={{ marginLeft: "10px" }}
+                              >
+                                Delete
+                              </Button>
+                            </>
+                          )}
                         </>
                       )}
                     </CardContent>
@@ -191,6 +205,12 @@ const OurHospitals = () => {
       </MKBox>
     </>
   );
+};
+
+OurHospitals.propTypes = {
+  user: PropTypes.shape({
+    role: PropTypes.string,
+  }),
 };
 
 export default OurHospitals;

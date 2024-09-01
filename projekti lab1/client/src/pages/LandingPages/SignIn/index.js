@@ -13,21 +13,26 @@ import MKButton from "components/MKButton";
 import DefaultNavbar from "examples/Navbars/DefaultNavbar";
 import SimpleFooter from "examples/Footers/SimpleFooter";
 import routes from "routes";
-import bgImage from "assets/images/bg-sign-in-basic.jpeg";
+import bgImage from "assets/images/bg-presentation.jpg";
 import axios from "axios";
+import { useUser } from "context/UserContext"; // Import the custom hook
+import { jwtDecode } from "jwt-decode";
 
 function SignInBasic() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState(""); // State to handle errors
+  const [isLoading, setIsLoading] = useState(false); // State for loading
 
+  const { setUser } = useUser();
   const navigate = useNavigate();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const response = await axios.post("http://localhost:3001/signin", {
         email,
@@ -35,6 +40,16 @@ function SignInBasic() {
       });
 
       if (response.data.success) {
+        const decodedToken = jwtDecode(response.data.token);
+        const userData = {
+          id: decodedToken.id,
+          role: decodedToken.role,
+          email: decodedToken.email,
+          emri: decodedToken.emri,
+          mbiemri: decodedToken.mbiemri,
+          nrTel: decodedToken.nrTel,
+        };
+        setUser(userData);
         if (rememberMe) {
           localStorage.setItem("token", response.data.token);
         } else {
@@ -47,6 +62,8 @@ function SignInBasic() {
     } catch (err) {
       setError("An error occurred during sign in.");
       console.error("Sign-in error:", err); // Log the error for debugging
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -111,6 +128,9 @@ function SignInBasic() {
                       fullWidth
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      required
+                      error={!email.includes("@")} // Basic email validation
+                      helperText={!email.includes("@") ? "Invalid email address" : ""}
                     />
                   </MKBox>
                   <MKBox mb={2}>
@@ -120,6 +140,7 @@ function SignInBasic() {
                       fullWidth
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      required
                     />
                   </MKBox>
                   <MKBox display="flex" alignItems="center" ml={-1}>
@@ -134,14 +155,20 @@ function SignInBasic() {
                       &nbsp;&nbsp;Remember me
                     </MKTypography>
                   </MKBox>
-                  {error && ( // Display error message
+                  {error && (
                     <MKTypography variant="body2" color="error" mt={2}>
                       {error}
                     </MKTypography>
                   )}
                   <MKBox mt={4} mb={1}>
-                    <MKButton type="submit" variant="gradient" color="info" fullWidth>
-                      sign in
+                    <MKButton
+                      type="submit"
+                      variant="gradient"
+                      color="info"
+                      fullWidth
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Signing in..." : "Sign in"}
                     </MKButton>
                   </MKBox>
                   <MKBox mt={3} mb={1} textAlign="center">

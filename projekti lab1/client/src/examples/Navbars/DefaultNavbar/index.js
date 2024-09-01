@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 
 // react-router components
 import { Link } from "react-router-dom";
@@ -43,6 +43,10 @@ import DefaultNavbarMobile from "examples/Navbars/DefaultNavbar/DefaultNavbarMob
 // Material Kit 2 React base styles
 import breakpoints from "assets/theme/base/breakpoints";
 
+import { useUser } from "context/UserContext";
+import { useNavigate } from "react-router-dom";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+
 function DefaultNavbar({ brand, routes, transparent, light, action, sticky, relative, center }) {
   const [dropdown, setDropdown] = useState("");
   const [dropdownEl, setDropdownEl] = useState("");
@@ -53,6 +57,29 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
   const [arrowRef, setArrowRef] = useState(null);
   const [mobileNavbar, setMobileNavbar] = useState(false);
   const [mobileView, setMobileView] = useState(false);
+
+  const { user, setUser } = useUser();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    navigate("/pages/authentication/sign-in"); // Redirect to sign-in page after signing out
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleConfirmSignOut = () => {
+    handleSignOut();
+    handleClose();
+  };
 
   const openMobileNavbar = () => setMobileNavbar(!mobileNavbar);
 
@@ -468,6 +495,34 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
           backdropFilter: transparent ? "none" : `saturate(200%) blur(30px)`,
         })}
       >
+        {user ? (
+          <>
+            {/* Show sign-out button if user is logged in */}
+            <Button color="primary" onClick={handleClickOpen}>
+              Sign Out
+            </Button>
+            <Dialog open={open} onClose={handleClose}>
+              <DialogTitle>Confirm Sign Out</DialogTitle>
+              <DialogContent>Are you sure you want to sign out?</DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose}>Cancel</Button>
+                <Button onClick={handleConfirmSignOut} color="primary">
+                  Sign Out
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </>
+        ) : (
+          <>
+            {/* Show sign-in and sign-up buttons if user is not logged in */}
+            <Link to="/pages/authentication/sign-in">
+              <Button color="primary">Sign In</Button>
+            </Link>
+            <Link to="/pages/authentication/sign-in/sign-up">
+              <Button color="primary">Sign Up</Button>
+            </Link>
+          </>
+        )}
         <MKBox display="flex" justifyContent="space-between" alignItems="center">
           <MKBox
             component={Link}

@@ -9,8 +9,17 @@ router.post("/", async (req, res) => {
     const { email, password } = req.body;
     try {
         let user = await Patient.findOne({ where: { email } });
-        if (!user) user = await Doctor.findOne({ where: { email } });
-        if (!user) user = await Administrator.findOne({ where: { email } });
+        let role = 'Patient';
+
+        if (!user) {
+            user = await Doctor.findOne({ where: { email } });
+            role = 'Doctor';
+        }
+
+        if (!user) {
+            user = await Administrator.findOne({ where: { email } });
+            role = 'Administrator';
+        }
 
         if (!user) {
             return res.status(400).json({ success: false, message: "No user found with this email" });
@@ -22,7 +31,19 @@ router.post("/", async (req, res) => {
             return res.status(400).json({ success: false, message: "Password mismatch" });
         }
 
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        // Include the necessary fields in the token payload
+        const token = jwt.sign(
+            {
+                id: user.id,
+                role,
+                email: user.email,
+                emri: user.emri,
+                mbiemri: user.mbiemri,
+                nrTel: user.nrTel,
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
 
         res.json({ success: true, token });
     } catch (err) {

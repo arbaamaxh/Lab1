@@ -13,8 +13,10 @@ import DefaultFooter from "examples/Footers/DefaultFooter";
 import routes from "routes";
 import footerRoutes from "footer.routes";
 import { useDepartments } from "../hooks/useDepartments";
+import { useUser } from "context/UserContext";
 
 const OurDepartments = () => {
+  const { user } = useUser();
   const {
     hospitals,
     departments,
@@ -35,8 +37,14 @@ const OurDepartments = () => {
     handleAddDepartmentClick,
   } = useDepartments();
 
+  const role = user ? user.role : "guest";
+
   return (
     <>
+      {role === "admin" && <div>Admin Content</div>}
+      {role === "doctor" && <div>Doctor Content</div>}
+      {role === "patient" && <div>Patient Content</div>}
+      {role === "guest" && <div>Guest Content</div>}
       <DefaultNavbar routes={routes} sticky />
       <MKBox sx={{ paddingTop: "100px" }}>
         <Container>
@@ -48,19 +56,19 @@ const OurDepartments = () => {
             renderInput={(params) => <TextField {...params} label="Select Hospital" />}
             sx={{ marginBottom: 4 }}
           />
-
-          <Button
-            color="primary"
-            variant="contained"
-            sx={{ marginBottom: 2, color: "#fff" }}
-            onClick={() => setShowAddDepartmentForm(!showAddDepartmentForm)}
-            disabled={!selectedHospital}
-          >
-            {showAddDepartmentForm ? "Cancel" : "Add New Department"}
-          </Button>
-
+          {role === "admin" && (
+            <Button
+              color="primary"
+              variant="contained"
+              sx={{ marginBottom: 2, color: "#fff" }}
+              onClick={() => setShowAddDepartmentForm(!showAddDepartmentForm)}
+              disabled={!selectedHospital}
+            >
+              {showAddDepartmentForm ? "Cancel" : "Add New Department"}
+            </Button>
+          )}
           <Grid container spacing={3}>
-            {showAddDepartmentForm && (
+            {showAddDepartmentForm && role === "admin" && (
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <Card sx={{ maxWidth: 345 }}>
                   <CardContent>
@@ -104,7 +112,6 @@ const OurDepartments = () => {
                 </Card>
               </Grid>
             )}
-
             {departments.length > 0 ? (
               departments.map((department) => (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={department.departmentID}>
@@ -157,13 +164,17 @@ const OurDepartments = () => {
                           <Typography variant="body2" color="text.secondary">
                             {department.nrTel}
                           </Typography>
-                          <Button onClick={() => handleEdit(department)}>Edit</Button>
-                          <Button
-                            onClick={() => handleDelete(department.departmentID)}
-                            style={{ marginLeft: "10px" }}
-                          >
-                            Delete
-                          </Button>
+                          {role === "admin" && (
+                            <>
+                              <Button onClick={() => handleEdit(department)}>Edit</Button>
+                              <Button
+                                onClick={() => handleDelete(department.departmentID)}
+                                style={{ marginLeft: "10px" }}
+                              >
+                                Delete
+                              </Button>
+                            </>
+                          )}
                         </>
                       )}
                     </CardContent>

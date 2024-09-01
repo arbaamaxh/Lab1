@@ -55,7 +55,7 @@ function Information() {
                 description="You will be feeling healthier by the day."
                 action={{
                   type: "internal",
-                  route: "/sections/page-sections/page-headers",
+                  route: "/pages/authentication/sign-in/booking",
                   label: "Book appointment",
                 }}
               />

@@ -14,8 +14,10 @@ import DefaultFooter from "examples/Footers/DefaultFooter";
 import routes from "routes";
 import footerRoutes from "footer.routes";
 import { useDoctors } from "../hooks/useDoctors";
+import { useUser } from "context/UserContext";
 
 const OurDoctors = () => {
+  const { user } = useUser();
   const {
     hospitals,
     departments,
@@ -42,8 +44,14 @@ const OurDoctors = () => {
     handleDelete,
   } = useDoctors();
 
+  const role = user ? user.role : "guest";
+
   return (
     <>
+      {role === "admin" && <div>Admin Content</div>}
+      {role === "doctor" && <div>Doctor Content</div>}
+      {role === "patient" && <div>Patient Content</div>}
+      {role === "guest" && <div>Guest Content</div>}
       <DefaultNavbar routes={routes} sticky />
       <MKBox sx={{ paddingTop: "100px" }}>
         <Container>
@@ -65,17 +73,18 @@ const OurDoctors = () => {
             sx={{ marginBottom: 4 }}
             disabled={!selectedHospital}
           />
-
-          <Button
-            color="primary"
-            variant="contained"
-            sx={{ marginBottom: 2, color: "#fff" }}
-            onClick={() => setShowAddDoctorForm(!showAddDoctorForm)}
-          >
-            {showAddDoctorForm ? "Cancel" : "Add New Doctor"}
-          </Button>
+          {role === "admin" && (
+            <Button
+              color="primary"
+              variant="contained"
+              sx={{ marginBottom: 2, color: "#fff" }}
+              onClick={() => setShowAddDoctorForm(!showAddDoctorForm)}
+            >
+              {showAddDoctorForm ? "Cancel" : "Add New Doctor"}
+            </Button>
+          )}
           <Grid container spacing={3}>
-            {showAddDoctorForm && (
+            {showAddDoctorForm && role === "admin" && (
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <Card sx={{ maxWidth: 345 }}>
                   <CardContent>
@@ -277,13 +286,17 @@ const OurDoctors = () => {
                           <Typography variant="body2" color="text.secondary">
                             {doctor.nrTel}
                           </Typography>
-                          <Button onClick={() => handleEdit(doctor)}>Edit</Button>
-                          <Button
-                            onClick={() => handleDelete(doctor.nrPersonal)}
-                            style={{ marginLeft: "10px" }}
-                          >
-                            Delete
-                          </Button>
+                          {role === "admin" && (
+                            <>
+                              <Button onClick={() => handleEdit(doctor)}>Edit</Button>
+                              <Button
+                                onClick={() => handleDelete(doctor.nrPersonal)}
+                                style={{ marginLeft: "10px" }}
+                              >
+                                Delete
+                              </Button>
+                            </>
+                          )}
                         </>
                       )}
                     </CardContent>
