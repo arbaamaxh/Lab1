@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Grid, Card, RadioGroup, FormControlLabel, Radio } from "@mui/material";
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
@@ -17,8 +17,42 @@ const RegisterPatient = () => {
     handleSubmit,
     handleHospitalChange,
     errorMessage,
+    formErrors,
     hospitalOptions,
+    resetForm,
   } = useRegisterForm();
+
+  useEffect(() => {
+    return () => {
+      resetForm();
+    };
+  }, [resetForm]);
+
+  const customSelectStyles = {
+    control: (provided) => ({
+      ...provided,
+      fontSize: "14px", // Match font size with other inputs
+      fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", // Match font family
+      color: "#495057", // Match text color
+    }),
+    option: (provided) => ({
+      ...provided,
+      fontSize: "14px", // Match font size with other inputs
+      fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", // Match font family
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      fontSize: "14px", // Match font size with other inputs
+      fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", // Match font family
+      color: "#adb5bd", // Match placeholder color
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      fontSize: "14px", // Match font size with other inputs
+      fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif", // Match font family
+      color: "#495057", // Match text color
+    }),
+  };
 
   return (
     <>
@@ -58,7 +92,7 @@ const RegisterPatient = () => {
                 textAlign="center"
               >
                 <MKTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-                  Add Patient
+                  Sign Up
                 </MKTypography>
               </MKBox>
               {errorMessage && (
@@ -84,8 +118,7 @@ const RegisterPatient = () => {
                           value={newPatient.emri}
                           onChange={handleChange}
                           required
-                          pattern="^[A-Z][a-zA-Z\s]*$"
-                          title="Name must start with a capital letter"
+                          helperText={formErrors.emri}
                         />
                       </MKBox>
                     </Grid>
@@ -101,27 +134,23 @@ const RegisterPatient = () => {
                           value={newPatient.mbiemri}
                           onChange={handleChange}
                           required
-                          pattern="^[A-Z][a-zA-Z\s]*$"
-                          title="Surname must start with a capital letter"
+                          helperText={formErrors.mbiemri}
                         />
                       </MKBox>
                     </Grid>
                     <Grid item xs={12} md={6}>
-                      <MKBox mb={2}>
-                        <MKInput
-                          type="text"
-                          label="Personal ID"
-                          fullWidth
-                          name="nrPersonal"
-                          id="nrPersonal"
-                          placeholder="Personal ID"
-                          value={newPatient.nrPersonal}
-                          onChange={handleChange}
-                          required
-                          pattern="^\d{10}$"
-                          title="Personal ID should have exactly 10 numbers"
-                        />
-                      </MKBox>
+                      <MKInput
+                        type="text"
+                        label="Personal ID"
+                        fullWidth
+                        name="nrPersonal"
+                        id="nrPersonal"
+                        placeholder="Personal ID"
+                        value={newPatient.nrPersonal}
+                        onChange={handleChange}
+                        required
+                        helperText={formErrors.nrPersonal}
+                      />
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <MKBox mb={2}>
@@ -183,8 +212,7 @@ const RegisterPatient = () => {
                           value={newPatient.nrTel}
                           onChange={handleChange}
                           required
-                          pattern="^\d{5,15}$"
-                          title="Phone Number should have between 5-15 numbers."
+                          helperText={formErrors.emri}
                         />
                       </MKBox>
                     </Grid>
@@ -200,11 +228,12 @@ const RegisterPatient = () => {
                           value={newPatient.email}
                           onChange={handleChange}
                           required
-                          pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
-                          title="Please enter a valid email address"
+                          helperText={formErrors.email}
                         />
                       </MKBox>
                     </Grid>
+
+                    {/* Third Row */}
                     <Grid item xs={12} md={6}>
                       <MKBox mb={2}>
                         <MKInput
@@ -217,16 +246,12 @@ const RegisterPatient = () => {
                           value={newPatient.password}
                           onChange={handleChange}
                           required
-                          pattern="^(?=.*\d)[A-Za-z\d]{8,16}$"
-                          title="Password must be 8-16 characters long and include at least one number"
+                          helperText={formErrors.password}
                         />
                       </MKBox>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} md={6}>
                       <MKBox mb={2}>
-                        <MKTypography variant="body2" color="text" sx={{ mb: 1 }}>
-                          Hospital
-                        </MKTypography>
                         <Select
                           options={hospitalOptions}
                           classNamePrefix="custom-select"
@@ -235,6 +260,7 @@ const RegisterPatient = () => {
                           )}
                           onChange={handleHospitalChange}
                           placeholder="Select Hospital"
+                          styles={customSelectStyles}
                           required
                         />
                       </MKBox>
@@ -242,7 +268,7 @@ const RegisterPatient = () => {
                     <Grid item xs={12}>
                       <MKBox mt={4}>
                         <MKButton variant="gradient" color="info" fullWidth type="submit">
-                          Add Patient
+                          Register
                         </MKButton>
                       </MKBox>
                     </Grid>

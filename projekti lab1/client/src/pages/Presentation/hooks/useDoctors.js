@@ -8,10 +8,23 @@ export const useDoctors = () => {
   const [selectedHospital, setSelectedHospital] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
 
+  const token = localStorage.getItem("token"); // Retrieve the token from local storage
+
+  const axiosConfig = {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+    },
+  };
+
   //display doctors
   const fetchHospitals = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/hospitals");
+      const response = await axios.get("http://localhost:3001/hospitals", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error fetching hospitals:", error);
@@ -21,7 +34,14 @@ export const useDoctors = () => {
 
   const fetchDepartments = async (hospitalId) => {
     try {
-      const response = await axios.get(`http://localhost:3001/hospitals/${hospitalId}/departments`);
+      const response = await axios.get(
+        `http://localhost:3001/hospitals/${hospitalId}/departments`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Error fetching departments:", error);
@@ -31,7 +51,14 @@ export const useDoctors = () => {
 
   const fetchDoctors = async (departmentId) => {
     try {
-      const response = await axios.get(`http://localhost:3001/departments/${departmentId}/doctors`);
+      const response = await axios.get(
+        `http://localhost:3001/departments/${departmentId}/doctors`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          },
+        }
+      );
       setDoctors(response.data);
     } catch (error) {
       console.error("Error fetching doctors:", error);
@@ -226,11 +253,7 @@ export const useDoctors = () => {
     formData.append("password", newDoctor.password);
 
     try {
-      await axios.post("http://localhost:3001/doctors", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.post("http://localhost:3001/doctors", formData, axiosConfig, {});
       fetchDoctors(selectedDepartment);
       setNewDoctor({
         emri: "",
@@ -267,7 +290,12 @@ export const useDoctors = () => {
 
   const handleSave = async () => {
     try {
-      await axios.put(`http://localhost:3001/doctors/${editedDoctor.nrPersonal}`, editedDoctor);
+      await axios.put(
+        `http://localhost:3001/doctors/${editedDoctor.nrPersonal}`,
+        editedDoctor,
+        axiosConfig,
+        {}
+      );
       fetchDoctors(selectedDepartment);
       setEditingDoctorId(null);
     } catch (error) {
@@ -282,7 +310,11 @@ export const useDoctors = () => {
   //delete
   const handleDelete = async (nrPersonal) => {
     try {
-      await axios.delete(`http://localhost:3001/doctors/${nrPersonal}`);
+      await axios.delete(`http://localhost:3001/doctors/${nrPersonal}`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
       fetchDoctors(selectedDepartment);
     } catch (error) {
       console.error("Error deleting doctor:", error);

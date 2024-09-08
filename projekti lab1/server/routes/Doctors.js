@@ -4,6 +4,8 @@ const { Doctor, Department,  Hospital ,Prescription } = require('../models');
 const multer = require('multer');
 const path = require('path');
 const bcrypt = require("bcrypt");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission'); 
 
 const upload = multer({
     storage: multer.diskStorage({
@@ -18,7 +20,7 @@ const upload = multer({
   });
 
 // create (insertimi ne tabelen doctors)
-router.post("/", upload.single('img'),async (req,res) => {
+router.post("/", upload.single('img'), auth, checkRole(["admin"]), async (req,res) => {
     try{
         const { emri,mbiemri,nrPersonal,adresa,nrTel,specializimi,email,password,hospitalName,departmentName } = req.body;
         const imageUrl = req.file ? req.file.path : '';
@@ -87,14 +89,14 @@ router.post("/", upload.single('img'),async (req,res) => {
 
 
 // read (me i pa rows ne tabelen doctors)
-router.get('/', async (req, res) => {
+router.get('/', auth, checkRole(["admin"]), async (req, res) => {
     const allDoctors = await Doctor.findAll();
     res.json(allDoctors);
 });
 
 
 // update (manipulo me te dhena ne tabelen doctors)
-router.put("/:nrPersonal", upload.single('img'), async (req, res) => {
+router.put("/:nrPersonal", upload.single('img'), auth, checkRole(["admin"]), async (req, res) => {
     try{
         const {emri,mbiemri,adresa,nrTel,specializimi,email,password,depID} = req.body;
         const nrPersonal = req.params.nrPersonal;
@@ -149,7 +151,7 @@ router.put("/:nrPersonal", upload.single('img'), async (req, res) => {
 
 
 //get prescriptions by a doctor
-router.get('/:nrPersonal/prescriptions', async (req, res) => {
+router.get('/:nrPersonal/prescriptions', auth, checkRole(["admin"]), async (req, res) => {
     try{
         const { nrPersonal } = req.params;
         const prescriptions = await Prescription.findAll({
@@ -164,7 +166,7 @@ router.get('/:nrPersonal/prescriptions', async (req, res) => {
 
 
 // delete (fshirja e nje doktori sipas nrPersonal te tij)
-router.delete("/:nrPersonal", async (req, res) => {
+router.delete("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const nrPersonal = req.params.nrPersonal;
 

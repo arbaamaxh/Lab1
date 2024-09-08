@@ -42,10 +42,8 @@ import DefaultNavbarMobile from "examples/Navbars/DefaultNavbar/DefaultNavbarMob
 
 // Material Kit 2 React base styles
 import breakpoints from "assets/theme/base/breakpoints";
-
-import { useUser } from "context/UserContext";
-import { useNavigate } from "react-router-dom";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { useUser } from "context/UserContext"; // Ensure the path is correct
+import { cloneDeep } from "lodash";
 
 function DefaultNavbar({ brand, routes, transparent, light, action, sticky, relative, center }) {
   const [dropdown, setDropdown] = useState("");
@@ -57,29 +55,29 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
   const [arrowRef, setArrowRef] = useState(null);
   const [mobileNavbar, setMobileNavbar] = useState(false);
   const [mobileView, setMobileView] = useState(false);
+  const [formattedRoutes, setFormattedRoutes] = useState(routes);
 
-  const { user, setUser } = useUser();
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const { user } = useUser();
 
-  const handleSignOut = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    navigate("/pages/authentication/sign-in"); // Redirect to sign-in page after signing out
-  };
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleConfirmSignOut = () => {
-    handleSignOut();
-    handleClose();
-  };
+  useEffect(() => {
+    const newRoutes = cloneDeep(routes);
+    if (user === null || !user) {
+      newRoutes[0].collapse[1].collapse = newRoutes[0].collapse[1].collapse.filter(
+        (item) => item.name !== "log out"
+      );
+    } else {
+      newRoutes[0].collapse[1].collapse = newRoutes[0].collapse[1].collapse.filter(
+        (item) => item.name !== "sign in"
+      );
+      newRoutes[0].collapse[1].collapse = newRoutes[0].collapse[1].collapse.filter(
+        (item) => item.name !== "sign up"
+      );
+    }
+    console.log("=======================");
+    console.log(routes);
+    console.log("User12344:", user);
+    setFormattedRoutes(newRoutes);
+  }, [user]);
 
   const openMobileNavbar = () => setMobileNavbar(!mobileNavbar);
 
@@ -108,7 +106,7 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
     return () => window.removeEventListener("resize", displayMobileNavbar);
   }, []);
 
-  const renderNavbarItems = routes.map(({ name, icon, href, route, collapse }) => (
+  const renderNavbarItems = formattedRoutes.map(({ name, icon, href, route, collapse }) => (
     <DefaultNavbarDropdown
       key={name}
       name={name}
@@ -129,7 +127,7 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
   ));
 
   // Render the routes on the dropdown menu
-  const renderRoutes = routes.map(({ name, collapse, columns, rowsPerColumn }) => {
+  const renderRoutes = formattedRoutes.map(({ name, collapse, columns, rowsPerColumn }) => {
     let template;
 
     // Render the dropdown menu that should be display as columns
@@ -306,7 +304,7 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
     return template;
   });
 
-  // Routes dropdown menu
+  // formattedRoutes dropdown menu
   const dropdownMenu = (
     <Popper
       anchorEl={dropdown}
@@ -356,7 +354,7 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
   );
 
   // Render routes that are nested inside the dropdown menu routes
-  const renderNestedRoutes = routes.map(({ collapse, columns }) =>
+  const renderNestedRoutes = formattedRoutes.map(({ collapse, columns }) =>
     collapse && !columns
       ? collapse.map(({ name: parentName, collapse: nestedCollapse }) => {
           let template;
@@ -495,34 +493,6 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
           backdropFilter: transparent ? "none" : `saturate(200%) blur(30px)`,
         })}
       >
-        {user ? (
-          <>
-            {/* Show sign-out button if user is logged in */}
-            <Button color="primary" onClick={handleClickOpen}>
-              Sign Out
-            </Button>
-            <Dialog open={open} onClose={handleClose}>
-              <DialogTitle>Confirm Sign Out</DialogTitle>
-              <DialogContent>Are you sure you want to sign out?</DialogContent>
-              <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button onClick={handleConfirmSignOut} color="primary">
-                  Sign Out
-                </Button>
-              </DialogActions>
-            </Dialog>
-          </>
-        ) : (
-          <>
-            {/* Show sign-in and sign-up buttons if user is not logged in */}
-            <Link to="/pages/authentication/sign-in">
-              <Button color="primary">Sign In</Button>
-            </Link>
-            <Link to="/pages/authentication/sign-in/sign-up">
-              <Button color="primary">Sign Up</Button>
-            </Link>
-          </>
-        )}
         <MKBox display="flex" justifyContent="space-between" alignItems="center">
           <MKBox
             component={Link}
@@ -595,7 +565,7 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
           borderRadius="xl"
           px={transparent ? 2 : 0}
         >
-          {mobileView && <DefaultNavbarMobile routes={routes} open={mobileNavbar} />}
+          {mobileView && <DefaultNavbarMobile routes={formattedRoutes} open={mobileNavbar} />}
         </MKBox>
       </MKBox>
       {dropdownMenu}

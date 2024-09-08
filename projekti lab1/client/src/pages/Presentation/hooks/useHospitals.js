@@ -5,10 +5,23 @@ export const useHospitals = () => {
   const [hospitals, setHospitals] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
 
+  const token = localStorage.getItem("token"); // Retrieve the token from local storage
+
+  const axiosConfig = {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+    },
+  };
+
   //display
   const fetchHospitals = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/hospitals");
+      const response = await axios.get("http://localhost:3001/hospitals", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
       setHospitals(response.data);
     } catch (error) {
       console.error("There was an error fetching the hospitals!", error);
@@ -68,11 +81,7 @@ export const useHospitals = () => {
     }
 
     try {
-      await axios.post("http://localhost:3001/hospitals", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.post("http://localhost:3001/hospitals", formData, axiosConfig, {});
       fetchHospitals();
       setNewHospital({
         emri: "",
@@ -129,11 +138,12 @@ export const useHospitals = () => {
     }
 
     try {
-      await axios.put(`http://localhost:3001/hospitals/${editingHospitalId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.put(
+        `http://localhost:3001/hospitals/${editingHospitalId}`,
+        formData,
+        axiosConfig,
+        {}
+      );
       fetchHospitals();
       setEditingHospitalId(null);
       setSelectedImage(null);
@@ -145,7 +155,11 @@ export const useHospitals = () => {
   //delete
   const handleDelete = async (hospitalId) => {
     try {
-      await axios.delete(`http://localhost:3001/hospitals/${hospitalId}`);
+      await axios.delete(`http://localhost:3001/hospitals/${hospitalId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
       fetchHospitals();
     } catch (error) {
       console.error("Error deleting hospital:", error);

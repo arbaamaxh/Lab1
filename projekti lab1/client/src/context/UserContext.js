@@ -4,9 +4,7 @@ import { jwtDecode } from "jwt-decode"; // Import jwt-decode correctly
 
 const UserContext = createContext();
 
-export const useUser = () => {
-  return useContext(UserContext);
-};
+export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -16,7 +14,7 @@ export const UserProvider = ({ children }) => {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        const { id, role, email, emri, mbiemri, nrTel } = decodedToken;
+        const { role, email, emri, mbiemri, nrTel } = decodedToken;
 
         // Check if the token is expired
         const currentTime = Date.now() / 1000;
@@ -25,7 +23,7 @@ export const UserProvider = ({ children }) => {
           setUser(null);
         } else {
           // Combine emri and mbiemri to form the full name
-          setUser({ id, role, email, emri, mbiemri, nrTel });
+          setUser({ role, email, emri, mbiemri, nrTel });
         }
       } catch (error) {
         localStorage.removeItem("token");

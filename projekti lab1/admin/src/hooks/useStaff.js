@@ -19,7 +19,12 @@ export const useStaff = () => {
     setSelectedHospital(hospital);
     setActiveHospitalTab(tab);
     try {
-      const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/departments`);
+      const token = localStorage.get("token")
+      const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/departments`, {
+        headers : {
+          "Authorization" : `Bearer ${token}`
+        }
+      });
       setDepartments(response.data);
     } catch (error) {
       console.error('Error fetching departments:', error);

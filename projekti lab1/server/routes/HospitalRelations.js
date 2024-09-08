@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { Department, Doctor, Patient, Staff, Room, Appointment, Administrator } = require('../models');
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission'); 
 
 //get departments in a hospital
 router.get('/:nrRegjistrimit/departments', async (req, res) => {
@@ -14,7 +16,7 @@ router.get('/:nrRegjistrimit/departments', async (req, res) => {
 });
 
 //get doctors by a hospital's department
-router.get('/:nrRegjistrimit/departments/:departmentID/doctors', async (req, res) => {
+router.get('/:nrRegjistrimit/departments/:departmentID/doctors', auth, checkRole(["admin", "patient", "doctor", "guest"]), async (req, res) => {
     try{
         const { nrRegjistrimit, departmentID } = req.params;
         
@@ -23,7 +25,7 @@ router.get('/:nrRegjistrimit/departments/:departmentID/doctors', async (req, res
                 departmentID: departmentID,
                 hospitalNrRegjistrimit: nrRegjistrimit
             }
-        });
+        }); 
         if(!department){
             return res.status(404).json({ error: 'Department not found in the hospital' });
         }
@@ -33,6 +35,19 @@ router.get('/:nrRegjistrimit/departments/:departmentID/doctors', async (req, res
             }
         });
 
+        if (req.user.role === "admin") {
+            // If the user is an admin, return the full data
+            return res.json(doctors);
+        } else {
+            const limitedDoctors = doctors.map(doctor => ({
+                emri: doctor.emri,
+                mbiemri: doctor.mbiemri,
+                nrTel: doctor.nrTel,
+                specializimi: doctor.specializimi
+            }));
+            return res.json(limitedDoctors);
+        }
+
         res.json(doctors);
     }catch(err){
         console.error('Error fetching doctors:', err);
@@ -41,7 +56,7 @@ router.get('/:nrRegjistrimit/departments/:departmentID/doctors', async (req, res
 });
 
 //get patients in a hospital
-router.get('/:nrRegjistrimit/patients', async (req, res) => {
+router.get('/:nrRegjistrimit/patients', auth, checkRole(["admin"]), async (req, res) => {
     try{
         const { nrRegjistrimit } = req.params;
         const patients = await Patient.findAll({ where: { hospitalNrRegjistrimit: nrRegjistrimit } });
@@ -52,7 +67,7 @@ router.get('/:nrRegjistrimit/patients', async (req, res) => {
 });
 
 //get staff from a hospital's department
-router.get('/:nrRegjistrimit/departments/:departmentID/staffs', async (req, res) => {
+router.get('/:nrRegjistrimit/departments/:departmentID/staffs', auth, checkRole(["admin"]), async (req, res) => {
     try{
         const { nrRegjistrimit, departmentID } = req.params;
         
@@ -81,7 +96,7 @@ router.get('/:nrRegjistrimit/departments/:departmentID/staffs', async (req, res)
 
 
 //get admins in a hospital
-router.get('/:nrRegjistrimit/administrators', async (req, res) => {
+router.get('/:nrRegjistrimit/administrators', auth, checkRole(["admin"]), async (req, res) => {
     try{
         const { nrRegjistrimit } = req.params;
         const admins = await Administrator.findAll({ where: { hospitalNrRegjistrimit: nrRegjistrimit } });
@@ -93,7 +108,7 @@ router.get('/:nrRegjistrimit/administrators', async (req, res) => {
 
 
 // Get rooms in a department
-router.get('/:nrRegjistrimit/departments/:departmentID/rooms', async (req, res) => {
+router.get('/:nrRegjistrimit/departments/:departmentID/rooms', auth, checkRole(["admin"]), async (req, res) => {
     try{
         const { nrRegjistrimit, departmentID } = req.params;
 
@@ -117,7 +132,8 @@ router.get('/:nrRegjistrimit/departments/:departmentID/rooms', async (req, res) 
     }
 });
 
-router.get('/:nrRegjistrimit/departments/:departmentID/appointments', async (req, res) => {
+//appointments
+router.get('/:nrRegjistrimit/departments/:departmentID/appointments', auth, checkRole(["admin"]), async (req, res) => {
     try {
         const { nrRegjistrimit, departmentID } = req.params;
 

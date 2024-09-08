@@ -3,6 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import Card from "@mui/material/Card";
 import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import MuiLink from "@mui/material/Link";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import GoogleIcon from "@mui/icons-material/Google";
@@ -16,23 +20,27 @@ import routes from "routes";
 import bgImage from "assets/images/bg-presentation.jpg";
 import axios from "axios";
 import { useUser } from "context/UserContext"; // Import the custom hook
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode"; // Import jwtDecode properly
 
 function SignInBasic() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState(""); // State to handle errors
-  const [isLoading, setIsLoading] = useState(false); // State for loading
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { setUser } = useUser();
+  const { setUser } = useUser(); // Access the setUser function from context
   const navigate = useNavigate();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
+  const handleTogglePasswordVisibility = () => setShowPassword(!showPassword);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
     try {
       const response = await axios.post("http://localhost:3001/signin", {
         email,
@@ -40,28 +48,30 @@ function SignInBasic() {
       });
 
       if (response.data.success) {
-        const decodedToken = jwtDecode(response.data.token);
+        const token = response.data.token;
+        localStorage.setItem("token", token);
+
+        // Decode the token and set the user context immediately
+        const decodedToken = jwtDecode(token);
         const userData = {
-          id: decodedToken.id,
           role: decodedToken.role,
           email: decodedToken.email,
           emri: decodedToken.emri,
           mbiemri: decodedToken.mbiemri,
           nrTel: decodedToken.nrTel,
         };
-        setUser(userData);
-        if (rememberMe) {
-          localStorage.setItem("token", response.data.token);
-        } else {
-          sessionStorage.setItem("token", response.data.token);
-        }
+
+        setUser(userData); // Update the user context immediately
+
+        console.log("User data set:", userData); // Log to console to verify
+
         navigate("/dashboard");
       } else {
-        setError(response.data.message);
+        setError(response.data.message || "Sign-in failed.");
       }
     } catch (err) {
-      setError("An error occurred during sign in.");
-      console.error("Sign-in error:", err); // Log the error for debugging
+      setError("An error occurred during sign in. Please try again.");
+      console.error("Sign-in error:", err.response ? err.response.data : err.message);
     } finally {
       setIsLoading(false);
     }
@@ -129,18 +139,25 @@ function SignInBasic() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      error={!email.includes("@")} // Basic email validation
-                      helperText={!email.includes("@") ? "Invalid email address" : ""}
                     />
                   </MKBox>
                   <MKBox mb={2}>
                     <MKInput
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       label="Password"
                       fullWidth
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton onClick={handleTogglePasswordVisibility} edge="end">
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
                     />
                   </MKBox>
                   <MKBox display="flex" alignItems="center" ml={-1}>

@@ -6,11 +6,23 @@ export const useDepartments = () => {
   const [departments, setDepartments] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
 
+  const token = localStorage.getItem("token"); // Retrieve the token from local storage
+
+  const axiosConfig = {
+    headers: {
+      Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+    },
+  };
+
   //display departments
   useEffect(() => {
     const fetchHospitals = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/hospitals");
+        const response = await axios.get("http://localhost:3001/hospitals", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          },
+        });
         setHospitals(response.data);
         if (response.data.length > 0) {
           setSelectedHospital(response.data[0]);
@@ -26,7 +38,12 @@ export const useDepartments = () => {
   const fetchDepartments = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/hospitals/${selectedHospital.nrRegjistrimit}/departments`
+        `http://localhost:3001/hospitals/${selectedHospital.nrRegjistrimit}/departments`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          },
+        }
       );
       setDepartments(response.data);
     } catch (error) {
@@ -88,7 +105,7 @@ export const useDepartments = () => {
     };
 
     try {
-      await axios.post("http://localhost:3001/departments", formData);
+      await axios.post("http://localhost:3001/departments", formData, axiosConfig, {});
       setShowAddDepartmentForm(false);
       setNewDepartment({
         emri: "",
@@ -128,7 +145,12 @@ export const useDepartments = () => {
 
   const handleSave = async () => {
     try {
-      await axios.put(`http://localhost:3001/departments/${editingDepartmentId}`, editedDepartment);
+      await axios.put(
+        `http://localhost:3001/departments/${editingDepartmentId}`,
+        editedDepartment,
+        axiosConfig,
+        {}
+      );
       setEditingDepartmentId(null);
       fetchDepartments();
     } catch (error) {
@@ -139,7 +161,11 @@ export const useDepartments = () => {
   //delete
   const handleDelete = async (departmentID) => {
     try {
-      await axios.delete(`http://localhost:3001/departments/${departmentID}`);
+      await axios.delete(`http://localhost:3001/departments/${departmentID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
       fetchDepartments();
     } catch (error) {
       console.error("There was an error deleting the department!", error);

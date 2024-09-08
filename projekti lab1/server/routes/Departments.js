@@ -1,11 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { Department, Room, Doctor, Hospital } = require('../models');
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission'); 
 
 // create (insertimi ne tabelen departments)
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["admin"]), async (req, res) => {
     try {
         const { emri, lokacioni, nrTel, hospitalId } = req.body;
+
+        console.log("Received hospitalId:", hospitalId); // Debug log
 
         const hospital = await Hospital.findOne({
             where: {
@@ -32,7 +36,7 @@ router.post("/", async (req, res) => {
 });
 
 // update (manipulo me te dhena ne tabelen departments)
-router.put("/:departmentID", async (req, res) => {
+router.put("/:departmentID", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const { emri, lokacioni, nrTel } = req.body;
         const departmentID = req.params.departmentID;
@@ -50,7 +54,7 @@ router.put("/:departmentID", async (req, res) => {
 });
 
 //read
-router.get('/:departmentID/rooms', async (req, res) => {
+router.get('/:departmentID/rooms', auth, checkRole(["admin"]), async (req, res) => {
     try{
         const departmentID = req.params.departmentID;
         const rooms = await Room.findAll({
@@ -63,12 +67,25 @@ router.get('/:departmentID/rooms', async (req, res) => {
     }
 });
 
-router.get('/:departmentID/doctors', async (req, res) => {
+router.get('/:departmentID/doctors', auth, checkRole(["admin", "patient", "doctor", "guest"]), async (req, res) => {
     try{
         const departmentID = req.params.departmentID;
         const doctors = await Doctor.findAll({
             where: { depID: departmentID }
         });
+        if (req.user.role === "admin") {
+            // If the user is an admin, return the full data
+            return res.json(doctors);
+        } else {
+            // If the user is not an admin, return only name and surname
+            const limitedDoctors = doctors.map(doctor => ({
+                emri: doctor.emri,
+                mbiemri: doctor.mbiemri,
+                nrTel: doctor.nrTel,
+                specializimi: doctor.specializimi
+            }));
+            return res.json(limitedDoctors);
+        }
         res.json(doctors);
     }catch(error){
       console.error('Error fetching doctors:', error);
@@ -85,7 +102,7 @@ router.get('/', async (req, res) => {
 
 
 // delete (fshirja e nje departamenti sipas ID te tij)
-router.delete("/:departmentID", async (req, res) => {
+router.delete("/:departmentID", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const departmentID = req.params.departmentID;
 

@@ -130,6 +130,7 @@ export const useAppointments = () => {
       })
       .then((response) => {
         console.log("Appointment booked successfully:", response.data);
+        navigate("/dashboard");
       })
       .catch((error) => console.error("Error booking appointment:", error));
   };

@@ -9,16 +9,16 @@ router.post("/", async (req, res) => {
     const { email, password } = req.body;
     try {
         let user = await Patient.findOne({ where: { email } });
-        let role = 'Patient';
+        let role = 'patient';
 
         if (!user) {
             user = await Doctor.findOne({ where: { email } });
-            role = 'Doctor';
+            role = 'doctor';
         }
 
         if (!user) {
             user = await Administrator.findOne({ where: { email } });
-            role = 'Administrator';
+            role = 'admin';
         }
 
         if (!user) {
@@ -31,10 +31,11 @@ router.post("/", async (req, res) => {
             return res.status(400).json({ success: false, message: "Password mismatch" });
         }
 
+
+        console.log(user)
         // Include the necessary fields in the token payload
         const token = jwt.sign(
             {
-                id: user.id,
                 role,
                 email: user.email,
                 emri: user.emri,
@@ -42,7 +43,7 @@ router.post("/", async (req, res) => {
                 nrTel: user.nrTel,
             },
             process.env.JWT_SECRET,
-            { expiresIn: "1h" }
+            { expiresIn: "30d" }
         );
 
         res.json({ success: true, token });

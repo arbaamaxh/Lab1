@@ -37,6 +37,7 @@ const OurHospitals = () => {
   } = useHospitals();
 
   const role = user ? user.role : "guest";
+
   return (
     <>
       {role === "admin" && <div>Admin Content</div>}

@@ -5,6 +5,8 @@ const { Hospital } = require('../models');
 const router = express.Router();
 const hospitalRelationsRouter = require('./HospitalRelations');
 router.use('/', hospitalRelationsRouter);
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission'); 
 
 // Set up multer for file uploads
 const upload = multer({
@@ -20,7 +22,7 @@ const upload = multer({
   }),
 });
 
-router.post("/", upload.single('img'), async (req, res) => {
+router.post("/", upload.single('img'), auth, checkRole(["admin"]), async (req, res) => {
   try {
     const { emri, adresa, nrTel } = req.body;
     const imageUrl = req.file ? req.file.path : '';
@@ -52,7 +54,7 @@ router.get('/', async (req, res) => {
 });
 
 // Update (update hospital data)
-router.put("/:nrRegjistrimit", upload.single('img'), async (req, res) => {
+router.put("/:nrRegjistrimit", upload.single('img'), auth, checkRole(["admin"]), async (req, res) => {
   try {
     const { emri, adresa, nrTel } = req.body;
     const nrRegjistrimit = req.params.nrRegjistrimit;
@@ -80,7 +82,7 @@ router.put("/:nrRegjistrimit", upload.single('img'), async (req, res) => {
 });
 
 // Delete (delete a hospital)
-router.delete("/:nrRegjistrimit", async (req, res) => {
+router.delete("/:nrRegjistrimit", auth, checkRole(["admin"]), async (req, res) => {
   try {
     const nrRegjistrimit = req.params.nrRegjistrimit;
 
