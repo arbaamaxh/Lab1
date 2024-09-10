@@ -6,6 +6,7 @@ import theme from "assets/theme";
 import Presentation from "layouts/pages/presentation";
 import { UserProvider, useUser } from "context/UserContext"; // Ensure the path is correct
 import routes from "routes";
+import BookAppointment from "pages/LandingPages/Booking/BookAppointments";
 
 function AppContent() {
   const { user } = useUser();
@@ -46,6 +47,7 @@ function AppContent() {
     <Routes>
       {getRoutes(routes)}
       <Route path="/presentation" element={<Presentation />} />
+      <Route path="/pages/authentication/sign-in/booking" element={<BookAppointment />} />
       <Route path="*" element={<Navigate to="/presentation" />} />
     </Routes>
   );

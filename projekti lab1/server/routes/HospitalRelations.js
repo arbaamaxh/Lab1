@@ -43,7 +43,8 @@ router.get('/:nrRegjistrimit/departments/:departmentID/doctors', auth, checkRole
                 emri: doctor.emri,
                 mbiemri: doctor.mbiemri,
                 nrTel: doctor.nrTel,
-                specializimi: doctor.specializimi
+                specializimi: doctor.specializimi,
+                nrPersonal: doctor.nrPersonal // THINK ABOUT THIS QYSH ME DO IT OTHERWISE SE BOOK APPOINTMENTS SPO BOJN PA TO
             }));
             return res.json(limitedDoctors);
         }

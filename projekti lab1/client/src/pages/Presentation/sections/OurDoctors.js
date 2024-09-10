@@ -48,10 +48,6 @@ const OurDoctors = () => {
 
   return (
     <>
-      {role === "admin" && <div>Admin Content</div>}
-      {role === "doctor" && <div>Doctor Content</div>}
-      {role === "patient" && <div>Patient Content</div>}
-      {role === "guest" && <div>Guest Content</div>}
       <DefaultNavbar routes={routes} sticky />
       <MKBox sx={{ paddingTop: "100px" }}>
         <Container>

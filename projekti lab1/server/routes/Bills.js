@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { Bill, Patient, Hospital, Service, BillSherbimi } = require('../models');
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission'); 
 
 // create (insertimi ne tabelen bills)
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const { sherbimi, data, totali, patientName, hospitalName } = req.body;
 
@@ -64,7 +66,7 @@ router.post("/", async (req, res) => {
 
 
 // read (me i pa edhe rows te billit po edhe emrin e pacientit edhe tspitalit)
-router.get("/", async (req, res) => {
+router.get("/", auth, checkRole(["admin"]), async (req, res) => {
     try {
         const bills = await Bill.findAll({
             include: [
@@ -93,7 +95,7 @@ router.get("/", async (req, res) => {
 
 
 // update (manipulo me te dhena ne tabelen bills)
-router.put("/:billID", async (req, res) => {
+router.put("/:billID", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const {data,totali} = req.body;
         const billID = req.params.billID;
@@ -125,7 +127,7 @@ router.put("/:billID", async (req, res) => {
 
 
 // delete (fshirja e nje fature sipas ID se saj)
-router.delete("/:billID", async (req, res) => {
+router.delete("/:billID", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const billID = req.params.billID;
 

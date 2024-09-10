@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { Administrator, Hospital } = require('../models');
 const bcrypt = require("bcrypt");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission'); 
 
 // create (insertimi ne tabelen admins)
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["admin"]), async (req, res) => {
     try {
         const { emri, mbiemri, nrPersonal, datelindja, adresa, nrTel, email, password, hospitalNrRegjistrimit } = req.body;
 
@@ -61,13 +63,13 @@ router.post("/", async (req, res) => {
 
 
 // read (me i pa rows ne tabelen admins)
-router.get('/', async (req, res) => {
+router.get('/', auth, checkRole(["admin"]), async (req, res) => {
     const allAdmins = await Administrator.findAll();
     res.json(allAdmins);
 });
 
 // Get admin details by personal number
-router.get('/:nrPersonal', async (req, res) => {
+router.get('/:nrPersonal', auth, checkRole(["admin"]), async (req, res) => {
     try {
         const { nrPersonal } = req.params;
         const admin = await Administrator.findOne({
@@ -87,7 +89,7 @@ router.get('/:nrPersonal', async (req, res) => {
 
 
 // update (manipulo me te dhena ne tabelen admins)
-router.put("/:nrPersonal", async (req, res) => {
+router.put("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
     try {
         const { emri, mbiemri, datelindja, adresa, nrTel, email, password } = req.body;
         const nrPersonal = req.params.nrPersonal;
@@ -138,7 +140,7 @@ router.put("/:nrPersonal", async (req, res) => {
 
 
 // delete (fshirja e nje admini sipas nrPersonal te tij)
-router.delete("/:nrPersonal", async (req, res) => {
+router.delete("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
     try {
         const nrPersonal = req.params.nrPersonal;
 

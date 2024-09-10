@@ -28,12 +28,9 @@ router.post("/", async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(400).json({ success: false, message: "Password mismatch" });
+            return res.status(400).json({ success: false, message: "Password does not match" });
         }
 
-
-        console.log(user)
-        // Include the necessary fields in the token payload
         const token = jwt.sign(
             {
                 role,

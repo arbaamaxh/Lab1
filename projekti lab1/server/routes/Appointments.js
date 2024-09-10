@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { Appointment, Patient, Doctor, Department, Hospital } = require('../models');
 const moment = require('moment-timezone');
-
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission'); 
 
 // create (insertimi ne tabelen appointments)
 router.post("/", async (req,res) => {
@@ -74,7 +75,7 @@ router.post("/", async (req,res) => {
 
 
 // read (me i pa rows ne tabelen appointments (per dashboard))
-router.get('/', async (req, res) => {
+router.get('/', auth, checkRole(["admin"]), async (req, res) => {
     try{
       const { date, departmentID } = req.query;
       
@@ -146,7 +147,7 @@ router.get("/availability", async (req, res) => {
 
 
 // update (manipulo me te dhena ne tabelen appointments)
-router.put("/:appointmentID", async (req, res) => {
+router.put("/:appointmentID", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const {data,ora} = req.body;
         const appointmentID = req.params.appointmentID;
@@ -178,7 +179,7 @@ router.put("/:appointmentID", async (req, res) => {
 
 
 // delete (fshirja e nje termini sipas ID te tij)
-router.delete("/:appointmentID", async (req, res) => {
+router.delete("/:appointmentID", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const appointmentID = req.params.appointmentID;
 

@@ -23,6 +23,15 @@ export const useAppointments = () => {
   const [doctors, setDoctors] = useState([]);
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
 
+  const token = localStorage.getItem("token"); // Retrieve the token from local storage
+
+  const axiosConfig = {
+    headers: {
+      "Content-Type": "application/json", // Use 'application/json' if you're not uploading files
+      Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+    },
+  };
+
   useEffect(() => {
     if (!user) {
       navigate("/pages/authentication/sign-in");
@@ -80,7 +89,8 @@ export const useAppointments = () => {
 
     axios
       .get(
-        `http://localhost:3001/hospitals/${formData.hospital}/departments/${departmentID}/doctors`
+        `http://localhost:3001/hospitals/${formData.hospital}/departments/${departmentID}/doctors`,
+        axiosConfig
       )
       .then((response) => setDoctors(response.data))
       .catch((error) => console.error("Error fetching doctors:", error));
@@ -119,6 +129,7 @@ export const useAppointments = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("Form data before submitting:", formData); // Debugging line
     axios
       .post("http://localhost:3001/appointments", {
         data: formData.preferredDate,

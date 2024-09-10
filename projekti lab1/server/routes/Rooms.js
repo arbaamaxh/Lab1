@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { Room, Department, Hospital } = require('../models');
-
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
 // create (insertimi ne tabelen room)
-router.post("/", async (req,res) => {
+router.post("/", auth, checkRole(["admin"]), async (req,res) => {
     try{
         const {roomID,numri,hospitalName,departmentName} = req.body;
 
@@ -43,7 +44,7 @@ router.post("/", async (req,res) => {
 
 
 // read (me i pa rows ne tabelen rooms)
-router.get('/', async (req, res) => {
+router.get('/', auth, checkRole(["admin"]), async (req, res) => {
     try{
         const rooms = await Room.findAll({
             include: [
@@ -69,7 +70,7 @@ router.get('/', async (req, res) => {
 
 
 // update (manipulo me te dhena ne tabelen rooms)
-router.put("/:roomID", async (req, res) => {
+router.put("/:roomID", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const {numri,depID} = req.body;
         const roomID = req.params.roomID;
@@ -101,7 +102,7 @@ router.put("/:roomID", async (req, res) => {
 
 
 // delete (fshirja e nje dhome sipas ID se saj)
-router.delete("/:roomID", async (req, res) => {
+router.delete("/:roomID", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const roomID = req.params.roomID;
 

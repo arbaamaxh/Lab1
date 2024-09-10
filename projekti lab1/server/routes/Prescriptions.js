@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { Prescription, Patient, Doctor } = require('../models');
-
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
 // create (insertimi ne tabelen prescriptions)
-router.post("/", async (req,res) => {
+router.post("/", auth, checkRole(["admin"]), async (req,res) => {
     try{
         const {data,diagnoza,ilace,udhezimi,patientNrPersonal,doctorNrPersonal} = req.body;
 
@@ -39,14 +40,14 @@ router.post("/", async (req,res) => {
 
 
 // read (me i pa rows ne tabelen prescriptions)
-router.get('/', async (req, res) => {
+router.get('/', auth, checkRole(["admin"]), async (req, res) => {
     const allPrescriptions = await Prescription.findAll();
     res.json(allPrescriptions);
 });
 
 
 // update (manipulo me te dhena ne tabelen prescriptions)
-router.put("/:prescriptionID", async (req, res) => {
+router.put("/:prescriptionID", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const {diagnoza,ilace,udhezimi} = req.body;
         const prescriptionID = req.params.prescriptionID;
@@ -78,7 +79,7 @@ router.put("/:prescriptionID", async (req, res) => {
 
 
 // delete (fshirja e nje raporti sipas ID te tij)
-router.delete("/:prescriptionID", async (req, res) => {
+router.delete("/:prescriptionID", auth, checkRole(["admin"]), async (req, res) => {
     try{
         const prescriptionID = req.params.prescriptionID;
 

@@ -51,8 +51,8 @@ function SignInBasic() {
         const token = response.data.token;
         localStorage.setItem("token", token);
 
-        // Decode the token and set the user context immediately
         const decodedToken = jwtDecode(token);
+
         const userData = {
           role: decodedToken.role,
           email: decodedToken.email,
@@ -70,7 +70,7 @@ function SignInBasic() {
         setError(response.data.message || "Sign-in failed.");
       }
     } catch (err) {
-      setError("An error occurred during sign in. Please try again.");
+      setError(err.response.data.message || "An error occurred during sign in. Please try again.");
       console.error("Sign-in error:", err.response ? err.response.data : err.message);
     } finally {
       setIsLoading(false);

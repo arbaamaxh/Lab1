@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { Patient, Hospital, Prescription } = require('../models');
 const bcrypt = require("bcrypt");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
 // create (insertimi ne tabelen patients)
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["admin"]), async (req, res) => {
     try {
         const { emri, mbiemri, nrPersonal, datelindja, gjinia, adresa, nrTel, email, password, hospitalId } = req.body;
 
@@ -84,7 +86,7 @@ router.post("/", async (req, res) => {
 
 
 // read (me i pa rows ne tabelen patients)
-router.get('/', async (req, res) => {
+router.get('/', auth, checkRole(["admin"]), async (req, res) => {
     const allPatients = await Patient.findAll();
     res.json(allPatients);
 });
@@ -105,7 +107,7 @@ router.get('/:nrPersonal/prescriptions', async (req, res) => {
 });
 
 // Get patient details by personal number
-router.get('/:nrPersonal', async (req, res) => {
+router.get('/:nrPersonal', auth, checkRole(["admin"]), async (req, res) => {
     try {
         const { nrPersonal } = req.params;
         const patient = await Patient.findOne({
@@ -125,7 +127,7 @@ router.get('/:nrPersonal', async (req, res) => {
 
 
 // update (manipulo me te dhena ne tabelen patients)
-router.put("/:nrPersonal", async (req, res) => {
+router.put("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
     try {
         const { emri, mbiemri, datelindja, gjinia, adresa, nrTel, email, password } = req.body;
         const nrPersonal = req.params.nrPersonal;
@@ -177,7 +179,7 @@ router.put("/:nrPersonal", async (req, res) => {
 
 
 // delete (fshirja e nje pacienti sipas nrPersonal te tij)
-router.delete("/:nrPersonal", async (req, res) => {
+router.delete("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
     try {
         const nrPersonal = req.params.nrPersonal;
 

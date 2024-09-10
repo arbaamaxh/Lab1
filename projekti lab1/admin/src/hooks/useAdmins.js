@@ -11,7 +11,7 @@ export const useAdmins = () => {
     const [admins, setAdmins] = useState([]);
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [activeHospitalTab, setActiveHospitalTab] = useState('0');
-
+    
     const handleHospitalSelect = async (hospital, tab) => {
         setSelectedHospital(hospital);
         setActiveHospitalTab(tab);

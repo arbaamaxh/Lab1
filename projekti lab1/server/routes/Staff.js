@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { Staff, Department, Room, Hospital } = require('../models');
-
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
 // create (insertimi ne tabelen staff)
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["admin"]), async (req, res) => {
   try {
     const { emri, mbiemri, nrPersonal, pozita, adresa, nrTel, hospitalName, departmentName, dhomaNumri } = req.body;
 
@@ -91,14 +92,14 @@ router.post("/", async (req, res) => {
 
 
 // read (me i pa rows ne tabelen staff)
-router.get('/', async (req, res) => {
+router.get('/', auth, checkRole(["admin"]), async (req, res) => {
   const allStaff = await Staff.findAll();
   res.json(allStaff);
 });
 
 
 // update (manipulo me te dhena ne tabelen staff)
-router.put("/:nrPersonal", async (req, res) => {
+router.put("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
   try {
     const { emri, mbiemri, pozita, adresa, nrTel, depID, dhoma } = req.body;
     const nrPersonal = req.params.nrPersonal;
@@ -132,7 +133,7 @@ router.put("/:nrPersonal", async (req, res) => {
 
 
 // delete (fshirja e nje stafi sipas nrPersonal te tij)
-router.delete("/:nrPersonal", async (req, res) => {
+router.delete("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
   try {
     const nrPersonal = req.params.nrPersonal;
 
