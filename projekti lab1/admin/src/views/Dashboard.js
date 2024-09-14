@@ -1,5 +1,3 @@
-// src/components/Dashboard.js
-
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Line } from 'react-chartjs-2';
@@ -14,15 +12,22 @@ import {
     Col,
 } from 'reactstrap';
 import { fetchAppointmentData } from 'variables/chartData';
+import { useLocation } from 'react-router-dom';
 
 function Dashboard() {
     const [bigChartData, setBigChartData] = useState('data1');
     const [appointmentData, setAppointmentData] = useState({ labels: [], datasets: [] });
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const token = queryParams.get('token');
 
     useEffect(() => {
-        // Fetch appointment data when the component mounts
+        if (token) {
+            localStorage.setItem('token', token);
+            console.log('Token saved to localStorage:', token);
+        }
         fetchAppointmentData().then(data => setAppointmentData(data));
-    }, []);
+    }, [token]);
 
     const setBgChartData = (name) => {
         setBigChartData(name);

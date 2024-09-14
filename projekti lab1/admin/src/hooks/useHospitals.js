@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 export const useHospitals = () => {
@@ -11,21 +11,34 @@ export const useHospitals = () => {
   const [hospitalModal, setHospitalModal] = useState(false);
   const [selectedImageName, setSelectedImageName] = useState('');
 
+  const token = localStorage.getItem("token");
+
+  const axiosConfig = {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
   const toggleHospitalModal = () => setHospitalModal(!hospitalModal);
 
-  const fetchHospitals = async () => {
+  const fetchHospitals = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:3001/hospitals");
+      const response = await fetch("http://localhost:3001/hospitals", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
       setHospitals(data);
     } catch (error) {
       console.error("Error fetching hospitals:", error);
     }
-  };
-
+  }, [token]);
+  
   useEffect(() => {
     fetchHospitals();
-  }, []);
+  }, [fetchHospitals]);
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -59,11 +72,7 @@ export const useHospitals = () => {
     }
   
     try {
-      const response = await axios.post("http://localhost:3001/hospitals", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const response = await axios.post("http://localhost:3001/hospitals", formData, axiosConfig, {});
       if (response.status === 201) {
         fetchHospitals();
         setNewHospital({ emri: "", adresa: "", nrTel: "", imageUrl: "" });
@@ -80,7 +89,7 @@ export const useHospitals = () => {
     }
   };  
 
-  // Handle editing, saving, and deleting hospitals (unchanged)
+  // edit
   const [selectedEditFile, setSelectedEditFile] = useState(null);
   const [editingHospitalId, setEditingHospitalId] = useState(null);
   const [editedHospital, setEditedHospital] = useState({
@@ -124,11 +133,7 @@ export const useHospitals = () => {
     }
   
     try {
-      const response = await axios.put(`http://localhost:3001/hospitals/${editingHospitalId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const response = await axios.put(`http://localhost:3001/hospitals/${editingHospitalId}`, formData, axiosConfig, {});
       if (response.status === 200) {
         fetchHospitals();
         setEditingHospitalId(null);
@@ -150,7 +155,11 @@ export const useHospitals = () => {
 
   const handleDeleteHospital = async (hospitalID) => {
     try {
-      await axios.delete(`http://localhost:3001/hospitals/${hospitalID}`);
+      await axios.delete(`http://localhost:3001/hospitals/${hospitalID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setHospitals(hospitals.filter(hospital => hospital.nrRegjistrimit !== hospitalID));
       setSuccessMessage('Hospital deleted successfully');
       setTimeout(() => {

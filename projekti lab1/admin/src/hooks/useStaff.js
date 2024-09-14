@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 export const useStaff = () => {
@@ -15,11 +15,12 @@ export const useStaff = () => {
   const [activeHospitalTab, setActiveHospitalTab] = useState('0');
   const [activeDepartmentTab, setActiveDepartmentTab] = useState('0');
 
-  const handleHospitalSelect = async (hospital, tab) => {
+  const token = localStorage.getItem("token");
+
+  const handleHospitalSelect = useCallback(async (hospital, tab) => {
     setSelectedHospital(hospital);
     setActiveHospitalTab(tab);
     try {
-      const token = localStorage.get("token")
       const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/departments`, {
         headers : {
           "Authorization" : `Bearer ${token}`
@@ -29,13 +30,17 @@ export const useStaff = () => {
     } catch (error) {
       console.error('Error fetching departments:', error);
     }
-  };
+  }, [token]);
 
   const handleDepartmentSelect = async (department, tab) => {
     setSelectedDepartment(department);
     setActiveDepartmentTab(tab);
     try {
-      const response = await axios.get(`http://localhost:3001/hospitals/${selectedHospital.nrRegjistrimit}/departments/${department.departmentID}/staffs`);
+      const response = await axios.get(`http://localhost:3001/hospitals/${selectedHospital.nrRegjistrimit}/departments/${department.departmentID}/staffs`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setStaff(response.data);
     } catch (error) {
       console.error('Error fetching staff:', error);
@@ -53,15 +58,19 @@ export const useStaff = () => {
 
   const toggleStaffModal = () => setStaffModal(!staffModal);
 
-  const fetchRooms = async (departmentId) => {
+  const fetchRooms = useCallback(async (departmentId) => {
     try {
-      const response = await fetch(`http://localhost:3001/departments/${departmentId}/rooms`);
+      const response = await fetch(`http://localhost:3001/departments/${departmentId}/rooms`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
       setRooms(data);
     } catch (error) {
       console.error("Error fetching rooms:", error);
     }
-  };
+  }, [token]);
 
   const handleHospitalChange = async (selectedOption) => {
     setSelectedHospitalModal(selectedOption);
@@ -109,6 +118,7 @@ export const useStaff = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(staffWithDepartment),
       });
@@ -168,7 +178,12 @@ export const useStaff = () => {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put(`http://localhost:3001/staff/${editingStaffId}`, editedStaff);
+      const response = await axios.put(`http://localhost:3001/staff/${editingStaffId}`, editedStaff, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.status === 200) {
         handleHospitalSelect(selectedHospital, activeHospitalTab);
         handleDepartmentSelect(selectedDepartment, activeDepartmentTab);
@@ -191,7 +206,11 @@ export const useStaff = () => {
   //delete a staff member
   const handleDeleteStaff = async (nrPersonal) => {
     try {
-      await axios.delete(`http://localhost:3001/staff/${nrPersonal}`);
+      await axios.delete(`http://localhost:3001/staff/${nrPersonal}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setStaff(staff.filter(staff => staff.nrPersonal !== nrPersonal));
       setSuccessMessage('Staff member deleted successfully');
       setTimeout(() => {
@@ -219,7 +238,7 @@ export const useStaff = () => {
       .catch(error => {
         console.error('Error fetching hospitals:', error);
       });
-  }, []);
+  }, [handleHospitalSelect]);
 
   useEffect(() => {
     if (departments.length > 0) {

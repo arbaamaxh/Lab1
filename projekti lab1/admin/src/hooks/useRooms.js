@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 export const useRooms = () => {
@@ -8,19 +8,25 @@ export const useRooms = () => {
 
     const [rooms, setRooms] = useState([]);
 
-    const fetchRooms = async () => {
+    const token = localStorage.getItem("token");
+
+    const fetchRooms = useCallback(async () => {
         try {
-          const response = await fetch("http://localhost:3001/rooms");
+          const response = await fetch("http://localhost:3001/rooms", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
           const data = await response.json();
           setRooms(data);
         } catch (error) {
           console.error("Error fetching rooms:", error);
         }
-      };
+      }, [token]);
     
       useEffect(() => {
         fetchRooms();
-      }, []);
+      }, [fetchRooms]);
 
     //insert new room into database
     const [newRoom, setNewRoom] = useState({ numri: '', depID: '' });
@@ -32,26 +38,29 @@ export const useRooms = () => {
 
     const toggleRoomModal = () => setRoomModal(!roomModal);
 
-    const fetchHospitals = async () => {
+    const fetchHospitals = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:3001/hospitals");
+            const response = await fetch("http://localhost:3001/hospitals", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             const data = await response.json();
             setHospitals(data);
         } catch (error) {
             console.error("Error fetching hospitals:", error);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchHospitals();
-    }, []);
+    }, [fetchHospitals]);
 
 
     const handleHospitalChange = async (selectedOption) => {
         setSelectedHospital(selectedOption);
         setSelectedDepartment(null);
         setNewRoom({ ...newRoom, hospitalName: selectedOption.label, depID: ''});
-
         try {
             const response = await axios.get(`http://localhost:3001/hospitals/${selectedOption.value}/departments`);
             setDepartments(response.data);
@@ -87,6 +96,7 @@ export const useRooms = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(roomWithDepartment),
             });
@@ -142,7 +152,12 @@ export const useRooms = () => {
 
     const handleSave = async () => {
         try {
-            const response = await axios.put(`http://localhost:3001/rooms/${editingRoomId}`, editedRoom);
+            const response = await axios.put(`http://localhost:3001/rooms/${editingRoomId}`, editedRoom, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             if (response.status === 200) {
                 setEditingRoomId(null);
                 fetchRooms();
@@ -163,7 +178,11 @@ export const useRooms = () => {
 
     const handleDeleteRoom = async (roomID) => {
         try {
-            await axios.delete(`http://localhost:3001/rooms/${roomID}`);
+            await axios.delete(`http://localhost:3001/rooms/${roomID}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setRooms(rooms.filter(room => room.roomID !== roomID));
             setSuccessMessage('Room deleted successfully');
             setTimeout(() => {

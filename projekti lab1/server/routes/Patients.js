@@ -6,7 +6,7 @@ const auth = require('../middleware/auth');
 const checkRole = require('../middleware/permission');
 
 // create (insertimi ne tabelen patients)
-router.post("/", auth, checkRole(["admin"]), async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const { emri, mbiemri, nrPersonal, datelindja, gjinia, adresa, nrTel, email, password, hospitalId } = req.body;
 
@@ -158,12 +158,18 @@ router.put("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
             adresa,
             nrTel,
             email,
+            password,
         };
 
-        if (password) {
+        if (password && !isHashedPassword(password)) {
             const hashedPassword = await bcrypt.hash(password, 10);
             updatedData.password = hashedPassword;
+        } else {
+            updatedData.password = patient.password;
         }
+
+        console.log('Incoming password:', password);
+        console.log('Existing hashed password:', patient.password);
 
         await Patient.update(updatedData, {
             where: { nrPersonal }
@@ -177,6 +183,9 @@ router.put("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
     }
 });
 
+const isHashedPassword = (password) => {
+    return /^(\$2[aby]\$)/.test(password);
+};
 
 // delete (fshirja e nje pacienti sipas nrPersonal te tij)
 router.delete("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {

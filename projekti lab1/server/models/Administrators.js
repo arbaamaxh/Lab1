@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true
         },
         datelindja: {
-            type: DataTypes.STRING,
+            type: DataTypes.DATEONLY,
             allowNull: false,
         },
         adresa: {

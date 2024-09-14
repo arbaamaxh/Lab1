@@ -22,7 +22,7 @@ const routes = [
     rowsPerColumn: 2,
     collapse: [
       {
-        name: "landing pages",
+        name: "hospital",
         collapse: [
           {
             name: "about us",

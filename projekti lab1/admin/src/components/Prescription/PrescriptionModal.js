@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, ModalHeader, ModalBody, Form, FormGroup, Label, Button, Alert, Input } from 'reactstrap';
 import Select from 'react-select';
+import DatePicker from "react-datepicker";
 
 const PrescriptionModal = ({
     isOpen,
@@ -11,6 +12,7 @@ const PrescriptionModal = ({
     handleDepartmentChange,
     handleDoctorChange,
     handlePatientChange,
+    handleDateChange,
     handleChange,
     errorMessageModal,
     setErrorMessageModal,
@@ -22,6 +24,7 @@ const PrescriptionModal = ({
     selectedDepartment,
     selectedDoctor,
     selectedPatient,
+    selectedDate,
 }) => (
     <Modal isOpen={isOpen} toggle={toggle} className="Modal">
         <ModalHeader toggle={toggle} className="ModalHeader">Add Presciption</ModalHeader>
@@ -31,8 +34,13 @@ const PrescriptionModal = ({
             </Alert>
             <Form onSubmit={handleSubmit}>
                 <FormGroup>
-                    <Label for="data">Data</Label>
-                    <Input type="text" name="data" id="data" placeholder="Date" value={newPrescription.data} onChange={handleChange} required />
+                    <DatePicker
+                        placeholderText="Select Date"
+                        selected={selectedDate}
+                        onChange={handleDateChange}
+                        dateFormat="yyyy-MM-dd"
+                        className="form-control"
+                    />
                 </FormGroup>
                 <FormGroup>
                     <Label for="diagnoza">Diagnoza</Label>

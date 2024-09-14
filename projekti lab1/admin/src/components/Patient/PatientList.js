@@ -15,12 +15,14 @@ const PatientList = () => {
         editedPatient,
         editingPatientId,
         selectedHospital,
+        selectedDate,
         activeHospitalTab,
         hospitalOptions,
         successMessage,
         errorMessage,
         errorMessageModal,
         handleHospitalSelect,
+        handleDateChange,
         handleChange,
         handleHospitalChange,
         handleSubmit,
@@ -208,12 +210,14 @@ const PatientList = () => {
                                             isOpen={patientModal}
                                             toggle={togglePatientModal}
                                             newPatient={newPatient}
+                                            handleDateChange={handleDateChange}
                                             handleChange={handleChange}
                                             handleSubmit={handleSubmit}
                                             handleHospitalChange={handleHospitalChange}
                                             errorMessageModal={errorMessageModal}
                                             setErrorMessageModal={setErrorMessageModal}
                                             hospitalOptions={hospitalOptions}
+                                            selectedDate={selectedDate}
                                         />
                                     </CardBody>
                                 </Card>

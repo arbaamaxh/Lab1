@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, ModalHeader, ModalBody, Form, FormGroup, Label, Input, Button, Alert, Table } from 'reactstrap';
 import Select from 'react-select';
 import "assets/css/ModalStyles.css";
+import DatePicker from "react-datepicker";
 
 const BillModal = ({
     isOpen,
@@ -13,6 +14,7 @@ const BillModal = ({
     setNewService,
     handleHospitalChange,
     handlePatientChange,
+    handleDateChange,
     handleChange,
     handleSubmit,
     selectedHospital,
@@ -21,6 +23,7 @@ const BillModal = ({
     patients,
     errorMessageModal,
     setErrorMessageModal,
+    selectedDate,
 }) => (
     <Modal isOpen={isOpen} toggle={toggle} className="Modal">
         <ModalHeader toggle={toggle} className="ModalHeader">Add Bill</ModalHeader>
@@ -56,8 +59,13 @@ const BillModal = ({
                     </Table>
                 </FormGroup>
                 <FormGroup>
-                    <Label for="data">Date</Label>
-                    <Input type="text" name="data" id="data" placeholder="Date" value={newBill.data} onChange={handleChange} required />
+                    <DatePicker
+                        placeholderText="Select Date"
+                        selected={selectedDate}
+                        onChange={handleDateChange}
+                        dateFormat="yyyy-MM-dd"
+                        className="form-control"
+                    />
                 </FormGroup>
                 <FormGroup>
                     <Label for="totali">Total</Label>

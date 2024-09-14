@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 export const useAdmins = () => {
@@ -12,36 +12,47 @@ export const useAdmins = () => {
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [activeHospitalTab, setActiveHospitalTab] = useState('0');
     
-    const handleHospitalSelect = async (hospital, tab) => {
+    const token = localStorage.getItem("token");
+
+    const handleHospitalSelect = useCallback(async (hospital, tab) => {
         setSelectedHospital(hospital);
         setActiveHospitalTab(tab);
         try {
-            const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/administrators`);
+            const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/administrators`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setAdmins(response.data);
         } catch (error) {
             console.error('Error fetching admins:', error);
         }
-    };
+    }, [token]);
 
     //insert a admin into database
     const [newAdmin, setNewAdmin] = useState({ emri: '', mbriemri: '', nrPersonal: '', datelindja: '', adresa: '', nrTel: '', email: '', password: '', hospitalNrRegjistrimit: '' });
     const [adminModal, setAdminModal] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
     const toggleAdminModal = () => setAdminModal(!adminModal);
 
-    const fetchAdmins = async () => {
+    const fetchAdmins = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:3001/administrators");
+            const response = await fetch("http://localhost:3001/administrators", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             const data = await response.json();
             setAdmins(data);
         } catch (error) {
             console.error("Error fetching admins:", error);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchAdmins();
-    }, []);
+    }, [fetchAdmins]);
 
     const handleChange = (e) => {
         if (e && e.target) {
@@ -54,14 +65,21 @@ export const useAdmins = () => {
         setNewAdmin({ ...newAdmin, hospitalNrRegjistrimit: selectedOption.value });
     };
 
+    const handleDateChange = async (selectedOption) => {
+        setSelectedDate(selectedOption);
+        setNewAdmin({ ...newAdmin, datelindja: selectedOption });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const adminWithHospital = { ...newAdmin };
+        const formattedDate = new Date(selectedDate).toISOString().split('T')[0];
+        const adminWithHospital = { ...newAdmin, datelindja: formattedDate };
         try {
             const response = await fetch("http://localhost:3001/administrators", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(adminWithHospital),
             });
@@ -69,7 +87,6 @@ export const useAdmins = () => {
                 toggleAdminModal();
                 handleHospitalSelect(selectedHospital, activeHospitalTab);
                 setNewAdmin({ emri: "", mbriemri: "", nrPersonal: "", datelindja: "", adresa: "", nrTel: "", email: '', password: '', hospitalNrRegjistrimit: "" });
-                fetchAdmins();
             } else if (response.status === 400) {
                 const responseData = await response.json();
                 setErrorMessageModal(`Failed to insert admin: ${responseData.error}`);
@@ -121,11 +138,15 @@ export const useAdmins = () => {
 
     const handleSave = async () => {
         try {
-            const response = await axios.put(`http://localhost:3001/administrators/${editingAdminId}`, editedAdmin);
+            const response = await axios.put(`http://localhost:3001/administrators/${editingAdminId}`, editedAdmin, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             if (response.status === 200) {
                 handleHospitalSelect(selectedHospital, activeHospitalTab);
                 setEditingAdminId(null);
-                fetchAdmins();
                 setSuccessMessage('Admin updated successfully');
                 setTimeout(() => {
                     setSuccessMessage(null);
@@ -158,7 +179,11 @@ export const useAdmins = () => {
     //delete a admin
     const handleDeleteAdmin = async (nrPersonal) => {
         try {
-            await axios.delete(`http://localhost:3001/administrators/${nrPersonal}`);
+            await axios.delete(`http://localhost:3001/administrators/${nrPersonal}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setAdmins(admins.filter(admin => admin.nrPersonal !== nrPersonal));
             setSuccessMessage('Admin deleted successfully');
             setTimeout(() => {
@@ -184,7 +209,7 @@ export const useAdmins = () => {
             .catch(error => {
                 console.error('Error fetching hospitals:', error);
             });
-    }, []);
+    }, [handleHospitalSelect]);
 
     const hospitalOptions = hospitals.map(hospital => ({
         value: hospital.nrRegjistrimit,
@@ -199,12 +224,14 @@ export const useAdmins = () => {
         editedAdmin,
         editingAdminId,
         selectedHospital,
+        selectedDate,
         activeHospitalTab,
         hospitalOptions,
         successMessage,
         errorMessage,
         errorMessageModal,
         handleHospitalSelect,
+        handleDateChange,
         handleChange,
         handleHospitalChange,
         handleSubmit,

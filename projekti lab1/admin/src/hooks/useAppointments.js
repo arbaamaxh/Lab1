@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import 'moment-timezone';
@@ -8,6 +8,8 @@ export const useAppointments = () => {
     const [errorMessage, setErrorMessage] = useState(null);
     const [errorMessageModal, setErrorMessageModal] = useState(null);
     const [hospitals, setHospitals] = useState([]);
+
+    const token = localStorage.getItem("token");
 
     //displaying appointments by date
     const [appointments, setAppointments] = useState([]);
@@ -19,11 +21,15 @@ export const useAppointments = () => {
     const [activeHospitalTab, setActiveHospitalTab] = useState('0');
     const [activeDepartmentTab, setActiveDepartmentTab] = useState('0');
 
-    const handleHospitalSelect = async (hospital, tab) => {
+    const handleHospitalSelect = useCallback(async (hospital, tab) => {
         setSelectedHospital(hospital);
         setActiveHospitalTab(tab);
         try {
-            const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/departments`);
+            const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/departments`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setDepartments(response.data);
         } catch (error) {
             console.error('Error fetching departments:', error);
@@ -32,13 +38,17 @@ export const useAppointments = () => {
                 setErrorMessage(null);
             }, 3000);
         }
-    };
+    }, [token]);
 
     const handleDepartmentSelect = async (department, tab) => {
         setSelectedDepartment(department);
         setActiveDepartmentTab(tab);
         try {
-            const response = await axios.get(`http://localhost:3001/hospitals/${selectedHospital.nrRegjistrimit}/departments/${department.departmentID}/appointments`);
+            const response = await axios.get(`http://localhost:3001/hospitals/${selectedHospital.nrRegjistrimit}/departments/${department.departmentID}/appointments`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setAppointments(response.data);
         } catch (error) {
             console.error('Error fetching appointments:', error);
@@ -49,14 +59,19 @@ export const useAppointments = () => {
         }
     };
 
-    const handleFetchAppointmentsByDate = async (date, departmentID) => {
+    const handleFetchAppointmentsByDate = useCallback(async (date, departmentID) => {
         try {
             const formattedDate = moment(date).tz('Europe/Tirane').format('YYYY-MM-DD');
             let url = `http://localhost:3001/appointments?date=${formattedDate}`;
             if (departmentID) {
                 url += `&departmentID=${departmentID}`;
             }
-            const response = await axios.get(url);
+
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
             const sortedAppointments = response.data.sort((a, b) => {
                 const dateA = moment.tz(`${a.data}T${a.ora}`, 'Europe/Tirane').toDate();
@@ -72,7 +87,7 @@ export const useAppointments = () => {
                 setErrorMessage(null);
             }, 3000);
         }
-    };
+    }, [token]);
 
     const handleDateChange = (date) => {
         setDisplayedDate(date); // Update displayedDate when date changes
@@ -98,35 +113,47 @@ export const useAppointments = () => {
 
     const toggleAppointmentModal = () => setAppointmentModal(!appointmentModal);
 
-    const fetchPatients = async (hospitalId) => {
+    const fetchPatients = useCallback(async (hospitalId) => {
         try {
-            const response = await fetch(`http://localhost:3001/hospitals/${hospitalId}/patients`);
+            const response = await fetch(`http://localhost:3001/hospitals/${hospitalId}/patients`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             const data = await response.json();
             setPatients(data);
         } catch (error) {
             console.error("Error fetching patients:", error);
         }
-    };
+    }, [token]);
 
-    const fetchDepartments = async (hospitalId) => {
+    const fetchDepartments = useCallback(async (hospitalId) => {
         try {
-            const response = await fetch(`http://localhost:3001/hospitals/${hospitalId}/departments`);
+            const response = await fetch(`http://localhost:3001/hospitals/${hospitalId}/departments`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             const data = await response.json();
             setDepartmentsModal(data);
         } catch (error) {
             console.error("Error fetching departments:", error);
         }
-    };
+    }, [token]);
 
-    const fetchDoctors = async (depID) => {
+    const fetchDoctors = useCallback(async (depID) => {
         try {
-            const response = await fetch(`http://localhost:3001/departments/${depID}/doctors`);
+            const response = await fetch(`http://localhost:3001/departments/${depID}/doctors`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             const data = await response.json();
             setDoctors(data);
         } catch (error) {
             console.error("Error fetching patients:", error);
         }
-    };
+    }, [token]);
 
     const handleHospitalChange = (selectedOption) => {
         setSelectedHospitalModal(selectedOption);
@@ -216,6 +243,7 @@ export const useAppointments = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(appointment),
             });
@@ -274,7 +302,12 @@ export const useAppointments = () => {
 
     const handleSave = async () => {
         try {
-            const response = await axios.put(`http://localhost:3001/appointments/${editingAppointmentId}`, editedAppointment);
+            const response = await axios.put(`http://localhost:3001/appointments/${editingAppointmentId}`, editedAppointment, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             if (response.status === 200) {
                 handleHospitalSelect(selectedHospital, activeHospitalTab);
                 handleDepartmentSelect(selectedDepartment, activeDepartmentTab);
@@ -297,7 +330,11 @@ export const useAppointments = () => {
     //delete an appointment
     const handleDeleteAppointment = async (appointmentID) => {
         try {
-            await axios.delete(`http://localhost:3001/appointments/${appointmentID}`);
+            await axios.delete(`http://localhost:3001/appointments/${appointmentID}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setAppointments(appointments.filter(appointment => appointment.appointmentID !== appointmentID));
             setSuccessMessage('Appointment deleted successfully');
             setTimeout(() => {
@@ -327,7 +364,7 @@ export const useAppointments = () => {
             });
 
         handleFetchAppointmentsByDate(new Date());
-    }, []);
+    }, [handleHospitalSelect,handleFetchAppointmentsByDate]);
 
     useEffect(() => {
         if (departments.length > 0) {
@@ -338,13 +375,13 @@ export const useAppointments = () => {
 
     useEffect(() => {
         handleFetchAppointmentsByDate(selectedDate, selectedDepartment ? selectedDepartment.departmentID : null);
-    }, [selectedDate, selectedDepartment]);
+    }, [selectedDate, selectedDepartment, handleFetchAppointmentsByDate]);
 
     useEffect(() => {
         if (selectedDate && selectedDepartment) {
             handleFetchAppointmentsByDate(selectedDate, selectedDepartment.departmentID);
         }
-    }, [selectedDate, selectedDepartment]);
+    }, [selectedDate, selectedDepartment,handleFetchAppointmentsByDate]);
 
     return {
         appointments,

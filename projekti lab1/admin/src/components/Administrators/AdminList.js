@@ -15,12 +15,14 @@ const AdminList = () => {
         editedAdmin,
         editingAdminId,
         selectedHospital,
+        selectedDate,
         activeHospitalTab,
         hospitalOptions,
         successMessage,
         errorMessage,
         errorMessageModal,
         handleHospitalSelect,
+        handleDateChange,
         handleChange,
         handleHospitalChange,
         handleSubmit,
@@ -195,12 +197,14 @@ const AdminList = () => {
                                             isOpen={adminModal}
                                             toggle={toggleAdminModal}
                                             newAdmin={newAdmin}
+                                            handleDateChange={handleDateChange}
                                             handleChange={handleChange}
                                             handleSubmit={handleSubmit}
                                             handleHospitalChange={handleHospitalChange}
                                             errorMessageModal={errorMessageModal}
                                             setErrorMessageModal={setErrorMessageModal}
                                             hospitalOptions={hospitalOptions}
+                                            selectedDate={selectedDate}
                                         />
                                     </CardBody>
                                 </Card>

@@ -27,6 +27,7 @@ const PrescriptionList = () => {
     selectedHospitalModal,
     selectedDoctorModal,
     selectedPatientModal,
+    selectedDate,
     togglePrescriptionModal,
     handleDoctorSelect,
     handleDeletePrescription,
@@ -34,6 +35,7 @@ const PrescriptionList = () => {
     handleDepartmentChange,
     handlePatientChange,
     handleDoctorChange,
+    handleDateChange,
     handleChange,
     handleSubmit,
     handleEdit,
@@ -164,6 +166,7 @@ const PrescriptionList = () => {
                       handleDepartmentChange={handleDepartmentChange}
                       handleDoctorChange={handleDoctorChange}
                       handlePatientChange={handlePatientChange}
+                      handleDateChange={handleDateChange}
                       handleChange={handleChange}
                       errorMessageModal={errorMessageModal}
                       setErrorMessageModal={setErrorMessageModal}
@@ -175,6 +178,7 @@ const PrescriptionList = () => {
                       selectedDepartment={selectedDepartmentModal}
                       selectedDoctor={selectedDoctorModal}
                       selectedPatient={selectedPatientModal}
+                      selectedDate={selectedDate}
                     />
                   </CardBody>
                 </Card>

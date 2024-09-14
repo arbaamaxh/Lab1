@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 export const usePatients = () => {
@@ -12,36 +12,47 @@ export const usePatients = () => {
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [activeHospitalTab, setActiveHospitalTab] = useState('0');
 
-    const handleHospitalSelect = async (hospital, tab) => {
+    const token = localStorage.getItem("token");
+
+    const handleHospitalSelect = useCallback(async (hospital, tab) => {
         setSelectedHospital(hospital);
         setActiveHospitalTab(tab);
         try {
-            const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/patients`);
+            const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/patients`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setPatients(response.data);
         } catch (error) {
             console.error('Error fetching patients:', error);
         }
-    };
+    }, [token]);
 
     //insert a patient into database
     const [newPatient, setNewPatient] = useState({ emri: '', mbriemri: '', nrPersonal: '', datelindja: '', gjinia: '', adresa: '', nrTel: '', email: '', password: '', hospitalId: '' });
     const [patientModal, setPatientModal] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
     const togglePatientModal = () => setPatientModal(!patientModal);
 
-    const fetchPatients = async () => {
+    const fetchPatients = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:3001/patients");
+            const response = await fetch("http://localhost:3001/patients", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             const data = await response.json();
             setPatients(data);
         } catch (error) {
             console.error("Error fetching patients:", error);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchPatients();
-    }, []);
+    }, [fetchPatients]);
 
     const handleChange = (e) => {
         if (e && e.target) {
@@ -54,14 +65,21 @@ export const usePatients = () => {
         setNewPatient({ ...newPatient, hospitalId: selectedOption.value });
     };
 
+    const handleDateChange = async (selectedOption) => {
+        setSelectedDate(selectedOption);
+        setNewPatient({ ...newPatient, datelindja: selectedOption });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const patientWithHospital = { ...newPatient };
+        const formattedDate = new Date(selectedDate).toISOString().split('T')[0];
+        const patientWithHospital = { ...newPatient, datelindja: formattedDate };
         try {
             const response = await fetch("http://localhost:3001/patients", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(patientWithHospital),
             });
@@ -121,7 +139,12 @@ export const usePatients = () => {
 
     const handleSave = async () => {
         try {
-            const response = await axios.put(`http://localhost:3001/patients/${editingPatientId}`, editedPatient);
+            const response = await axios.put(`http://localhost:3001/patients/${editingPatientId}`, editedPatient, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             if (response.status === 200) {
                 handleHospitalSelect(selectedHospital, activeHospitalTab);
                 setEditingPatientId(null);
@@ -157,7 +180,11 @@ export const usePatients = () => {
     //delete a patient
     const handleDeletePatient = async (nrPersonal) => {
         try {
-            await axios.delete(`http://localhost:3001/patients/${nrPersonal}`);
+            await axios.delete(`http://localhost:3001/patients/${nrPersonal}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setPatients(patients.filter(patient => patient.nrPersonal !== nrPersonal));
             setSuccessMessage('Patient deleted successfully');
             setTimeout(() => {
@@ -183,7 +210,7 @@ export const usePatients = () => {
             .catch(error => {
                 console.error('Error fetching hospitals:', error);
             });
-    }, []);
+    }, [handleHospitalSelect]);
 
     const hospitalOptions = hospitals.map(hospital => ({
         value: hospital.nrRegjistrimit,
@@ -198,12 +225,14 @@ export const usePatients = () => {
         editedPatient,
         editingPatientId,
         selectedHospital,
+        selectedDate,
         activeHospitalTab,
         hospitalOptions,
         successMessage,
         errorMessage,
         errorMessageModal,
         handleHospitalSelect,
+        handleDateChange,
         handleChange,
         handleHospitalChange,
         handleSubmit,

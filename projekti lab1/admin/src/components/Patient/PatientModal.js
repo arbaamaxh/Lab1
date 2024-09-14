@@ -1,17 +1,20 @@
 import React from 'react';
 import { Modal, ModalHeader, ModalBody, Form, FormGroup, Label, Input, Button, Alert, Row, Col, CustomInput } from 'reactstrap';
 import Select from 'react-select';
+import DatePicker from "react-datepicker";
 
 const PatientModal = ({
     isOpen,
     toggle,
     newPatient,
+    handleDateChange,
     handleChange,
     handleSubmit,
     handleHospitalChange,
     errorMessageModal,
     setErrorMessageModal,
     hospitalOptions,
+    selectedDate,
 }) => (
     <Modal isOpen={isOpen} toggle={toggle} className="Modal">
         <ModalHeader toggle={toggle} className="ModalHeader">Add Patient</ModalHeader>
@@ -41,8 +44,13 @@ const PatientModal = ({
                     </Col>
                     <Col md={6}>
                         <FormGroup>
-                            <Label for="datelindja">Birthday</Label>
-                            <Input type="text" name="datelindja" id="datelindja" placeholder="Birthday" value={newPatient.datelindja} onChange={handleChange} required />
+                            <DatePicker
+                                placeholderText="Select Date"
+                                selected={selectedDate}
+                                onChange={handleDateChange}
+                                dateFormat="yyyy-MM-dd"
+                                className="form-control"
+                            />
                         </FormGroup>
                     </Col>
                 </Row>

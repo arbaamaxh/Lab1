@@ -247,6 +247,7 @@ const RegisterPatient = () => {
                           onChange={handleChange}
                           required
                           helperText={formErrors.password}
+                          autoComplete="new-password"
                         />
                       </MKBox>
                     </Grid>

@@ -37,7 +37,8 @@ const OurHospitals = () => {
   } = useHospitals();
 
   const role = user ? user.role : "guest";
-
+  const token = localStorage.getItem("token"); // Retrieve the token from local storage
+  console.log(token);
   return (
     <>
       <DefaultNavbar routes={routes} sticky />
@@ -53,6 +54,16 @@ const OurHospitals = () => {
               {showAddHospitalForm ? "Cancel" : "Add New Hospital"}
             </Button>
           )}
+          <Button
+            color="primary"
+            variant="contained"
+            sx={{ marginBottom: 2, color: "#fff" }}
+            onClick={() =>
+              (window.location.href = `http://localhost:3006/admin/dashboard?token=${token}`)
+            }
+          >
+            Dashboard
+          </Button>
           <Grid container spacing={3}>
             {showAddHospitalForm && role === "admin" && (
               <Grid item xs={12} sm={6} md={4} lg={3}>

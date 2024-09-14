@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 export const useDoctors = () => {
@@ -14,22 +14,32 @@ export const useDoctors = () => {
   const [activeHospitalTab, setActiveHospitalTab] = useState('0');
   const [activeDepartmentTab, setActiveDepartmentTab] = useState('0');
 
-  const handleHospitalSelect = async (hospital, tab) => {
+  const token = localStorage.getItem("token");
+
+  const handleHospitalSelect = useCallback(async (hospital, tab) => {
     setSelectedHospital(hospital);
     setActiveHospitalTab(tab);
     try {
-      const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/departments`);
+      const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/departments`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setDepartments(response.data);
     } catch (error) {
       console.error('Error fetching departments:', error);
     }
-  };
+  }, [token]);
 
   const handleDepartmentSelect = async (department, tab) => {
     setSelectedDepartment(department);
     setActiveDepartmentTab(tab);
     try {
-      const response = await axios.get(`http://localhost:3001/hospitals/${selectedHospital.nrRegjistrimit}/departments/${department.departmentID}/doctors`);
+      const response = await axios.get(`http://localhost:3001/hospitals/${selectedHospital.nrRegjistrimit}/departments/${department.departmentID}/doctors`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setDoctors(response.data);
     } catch (error) {
       console.error('Error fetching doctors:', error);
@@ -53,7 +63,6 @@ export const useDoctors = () => {
     setSelectedDepartmentModal(null);
     setNewDoctor({ ...newDoctor, hospitalName: selectedOption.label, depID: '', specializimi: '' });
     setSpecializations([]);
-
     try {
       const response = await axios.get(`http://localhost:3001/hospitals/${selectedOption.value}/departments`);
       setModalDepartments(response.data);
@@ -134,7 +143,7 @@ export const useDoctors = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-
+  
     formData.append('emri', newDoctor.emri);
     formData.append('mbiemri', newDoctor.mbiemri);
     formData.append('nrPersonal', newDoctor.nrPersonal);
@@ -145,17 +154,20 @@ export const useDoctors = () => {
     formData.append('password', newDoctor.password);
     formData.append('hospitalName', selectedHospitalModal.label);
     formData.append('departmentName', modalDepartments.find(d => d.departmentID === newDoctor.depID)?.emri);
-
+  
     if (newDoctor.imageUrl) {
-      formData.append('img', newDoctor.imageUrl);
+      formData.append('img', newDoctor.imageUrl); // Ensure the file is being appended correctly
     }
-
+  
     try {
       const response = await fetch("http://localhost:3001/doctors", {
         method: "POST",
-        body: formData,  // Use FormData for multipart/form-data
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+        body: formData,  // Send FormData
       });
-
+  
       if (response.ok) {
         toggleDoctorModal();
         handleDepartmentSelect(selectedDepartment, activeDepartmentTab);
@@ -169,7 +181,6 @@ export const useDoctors = () => {
           setErrorMessageModal(null);
         }, 3000);
       } else {
-        console.error("Failed to insert doctor");
         setErrorMessageModal("Failed to insert doctor: Unknown error occurred");
         setTimeout(() => {
           setErrorMessageModal(null);
@@ -177,8 +188,12 @@ export const useDoctors = () => {
       }
     } catch (error) {
       console.error("Error inserting doctor:", error);
+      setErrorMessageModal("Error inserting doctor");
+      setTimeout(() => {
+        setErrorMessageModal(null);
+      }, 3000);
     }
-  };
+  };  
 
   //edit a doctor
   const [selectedEditFile, setSelectedEditFile] = useState(null);
@@ -233,8 +248,9 @@ export const useDoctors = () => {
     try {
       const response = await axios.put(`http://localhost:3001/doctors/${editingDoctorId}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (response.status === 200) {
         handleHospitalSelect(selectedHospital, activeHospitalTab);
@@ -272,7 +288,11 @@ export const useDoctors = () => {
   //delete a doctor
   const handleDeleteDoctor = async (nrPersonal) => {
     try {
-      await axios.delete(`http://localhost:3001/doctors/${nrPersonal}`);
+      await axios.delete(`http://localhost:3001/doctors/${nrPersonal}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setDoctors(doctors.filter(doctor => doctor.nrPersonal !== nrPersonal));
       setSuccessMessage('Doctor deleted successfully');
       setTimeout(() => {
@@ -298,7 +318,7 @@ export const useDoctors = () => {
       .catch(error => {
         console.error('Error fetching hospitals:', error);
       });
-  }, []);
+  }, [handleHospitalSelect]);
 
   useEffect(() => {
     if (departments.length > 0) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 export const useDepartments = () => {
@@ -12,6 +12,7 @@ export const useDepartments = () => {
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [activeHospitalTab, setActiveHospitalTab] = useState('0');
   
+  const token = localStorage.getItem("token");
   
   //insert new department in database
   const [newDepartment, setNewDepartment] = useState({ emri: '', lokacioni: '', nrTel: '', hospitalId: '' });
@@ -23,16 +24,20 @@ export const useDepartments = () => {
     nrTel: "",
   });
 
-  const handleHospitalSelect = async (hospital, tab) => {
+  const handleHospitalSelect = useCallback(async (hospital, tab) => {
     setSelectedHospital(hospital);
     setActiveHospitalTab(tab);
     try {
-      const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/departments`);
+      const response = await axios.get(`http://localhost:3001/hospitals/${hospital.nrRegjistrimit}/departments`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setDepartments(response.data);
     } catch (error) {
       console.error('Error fetching departments:', error);
     }
-  };
+  }, [token]);
 
   const toggleDepartmentModal = () => setDepartmentModal(!departmentModal);
 
@@ -55,6 +60,7 @@ export const useDepartments = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(departmentWithHospital),
       });
@@ -100,7 +106,16 @@ export const useDepartments = () => {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put(`http://localhost:3001/departments/${editingDepartmentId}`, editedDepartment);
+      const response = await axios.put(
+        `http://localhost:3001/departments/${editingDepartmentId}`,
+        editedDepartment,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (response.status === 200) {
         handleHospitalSelect(selectedHospital, activeHospitalTab);
         setEditingDepartmentId(null);
@@ -121,7 +136,11 @@ export const useDepartments = () => {
 
   const handleDeleteDepartment = async (departmentID) => {
     try {
-      await axios.delete(`http://localhost:3001/departments/${departmentID}`);
+      await axios.delete(`http://localhost:3001/departments/${departmentID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setDepartments(departments.filter(department => department.departmentID !== departmentID));
       setSuccessMessage('Department deleted successfully');
       setTimeout(() => {
@@ -147,7 +166,7 @@ export const useDepartments = () => {
       .catch(error => {
         console.error('Error fetching hospitals:', error);
       });
-  }, []);
+  }, [handleHospitalSelect]);
 
   const hospitalOptions = hospitals.map(hospital => ({
     value: hospital.nrRegjistrimit,

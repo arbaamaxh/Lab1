@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 export const useBills = () => {
     const [successMessage, setSuccessMessage] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
     const [errorMessageModal, setErrorMessageModal] = useState(null);
+
+    const token = localStorage.getItem("token");
 
     //inserting a bill into database
     const [hospitals, setHospitals] = useState([]);
@@ -17,6 +19,7 @@ export const useBills = () => {
     const [billModal, setBillModal] = useState(false);
     const [newService, setNewService] = useState('');
     const [servicePrices, setServicePrices] = useState({});
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
     const toggleBillModal = () => setBillModal(!billModal);
 
@@ -52,29 +55,37 @@ export const useBills = () => {
         setNewService('');
     };
 
-    const fetchHospitals = async () => {
+    const fetchHospitals = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:3001/hospitals");
+            const response = await fetch("http://localhost:3001/hospitals", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
             const data = await response.json();
             setHospitals(data);
         } catch (error) {
             console.error("Error fetching hospitals:", error);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchHospitals();
-    }, []);
+    }, [fetchHospitals]);
 
-    const fetchPatients = async (hospitalId) => {
+    const fetchPatients = useCallback(async (hospitalId) => {
         try {
-            const response = await fetch(`http://localhost:3001/hospitals/${hospitalId}/patients`);
+            const response = await fetch(`http://localhost:3001/hospitals/${hospitalId}/patients`,{
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             const data = await response.json();
             setPatients(data);
         } catch (error) {
             console.error("Error fetching patients:", error);
         }
-    };
+    }, [token]);
 
     const handleHospitalChange = async (selectedOption) => {
         setSelectedHospital(selectedOption);
@@ -91,19 +102,28 @@ export const useBills = () => {
         setNewBill({ ...newBill, patientName: fullName });
     };
 
-    const fetchBills = async () => {
+    const handleDateChange = async (selectedOption) => {
+        setSelectedDate(selectedOption);
+        setNewBill({ ...newBill, data: selectedOption });
+      };
+
+    const fetchBills = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:3001/bills");
+            const response = await fetch("http://localhost:3001/bills", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
             const data = await response.json();
             setBills(data);
         } catch (error) {
             console.error("Error fetching bills:", error);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchBills();
-    }, []);
+    }, [fetchBills]);
 
     const handleChange = (e) => {
         if (e && e.target) {
@@ -114,17 +134,20 @@ export const useBills = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const formattedDate = new Date(selectedDate).toISOString().split('T')[0];
         const billWithDoctor = {
             ...newBill,
             patientNrPersonal: selectedPatient.nrPersonal,
             hospitalNrRegjistrimit: selectedHospital.value,
             patientName: `${selectedPatient.emri} ${selectedPatient.mbiemri}`,
+            data: formattedDate,
         };
         try {
             const response = await fetch("http://localhost:3001/bills", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(billWithDoctor),
             });
@@ -182,7 +205,12 @@ export const useBills = () => {
 
     const handleSave = async () => {
         try {
-            const response = await axios.put(`http://localhost:3001/bills/${editingBillId}`, editedBill);
+            const response = await axios.put(`http://localhost:3001/bills/${editingBillId}`, editedBill, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             if (response.status === 200) {
                 setEditingBillId(null);
                 fetchBills();
@@ -201,23 +229,14 @@ export const useBills = () => {
         }
     };
 
-    useEffect(() => {
-        const fetchBills = async () => {
-            try {
-                const response = await fetch("http://localhost:3001/bills");
-                const data = await response.json();
-                setBills(data);
-            } catch (error) {
-                console.error("Error fetching bills:", error);
-            }
-        };
-        fetchBills();
-    }, []);
-
     //delete a bill
     const handleDeleteBill = async (billID) => {
         try {
-            await axios.delete(`http://localhost:3001/bills/${billID}`);
+            await axios.delete(`http://localhost:3001/bills/${billID}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setBills(bills.filter(bill => bill.billID !== billID));
             setSuccessMessage('Bill deleted successfully');
             setTimeout(() => {
@@ -240,8 +259,6 @@ export const useBills = () => {
             .catch(error => {
                 console.error('Error fetching bills:', error);
             });
-
-
     }, []);
 
     return {
@@ -258,12 +275,14 @@ export const useBills = () => {
         errorMessageModal,
         selectedHospital,
         selectedPatient,
+        selectedDate,
         hospitals,
         toggleBillModal,
         addService,
         setNewService,
         handleHospitalChange,
         handlePatientChange,
+        handleDateChange,
         handleChange,
         handleSubmit,
         handleEdit,

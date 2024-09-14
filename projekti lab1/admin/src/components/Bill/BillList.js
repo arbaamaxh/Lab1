@@ -18,12 +18,14 @@ const BillList = () => {
         errorMessageModal,
         selectedHospital,
         selectedPatient,
+        selectedDate,
         hospitals,
         toggleBillModal,
         addService,
         setNewService,
         handleHospitalChange,
         handlePatientChange,
+        handleDateChange,
         handleChange,
         handleSubmit,
         handleEdit,
@@ -123,10 +125,12 @@ const BillList = () => {
                                 setNewService={setNewService}
                                 handleHospitalChange={handleHospitalChange}
                                 handlePatientChange={handlePatientChange}
+                                handleDateChange={handleDateChange}
                                 handleChange={handleChange}
                                 handleSubmit={handleSubmit}
                                 selectedHospital={selectedHospital}
                                 selectedPatient={selectedPatient}
+                                selectedDate={selectedDate}
                                 hospitals={hospitals}
                                 patients={patients}
                                 errorMessageModal={errorMessageModal}

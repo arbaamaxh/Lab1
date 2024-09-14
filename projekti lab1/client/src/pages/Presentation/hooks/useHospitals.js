@@ -5,12 +5,12 @@ export const useHospitals = () => {
   const [hospitals, setHospitals] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  const token = localStorage.getItem("token"); // Retrieve the token from local storage
+  const token = localStorage.getItem("token");
 
   const axiosConfig = {
     headers: {
       "Content-Type": "multipart/form-data",
-      Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      Authorization: `Bearer ${token}`,
     },
   };
 
@@ -19,7 +19,7 @@ export const useHospitals = () => {
     try {
       const response = await axios.get("http://localhost:3001/hospitals", {
         headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`,
         },
       });
       setHospitals(response.data);
@@ -157,7 +157,7 @@ export const useHospitals = () => {
     try {
       await axios.delete(`http://localhost:3001/hospitals/${hospitalId}`, {
         headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`,
         },
       });
       fetchHospitals();

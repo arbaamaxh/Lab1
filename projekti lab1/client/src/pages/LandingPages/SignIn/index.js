@@ -149,6 +149,7 @@ function SignInBasic() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      autoComplete="new-password"
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
@@ -193,7 +194,7 @@ function SignInBasic() {
                       Don&apos;t have an account?{" "}
                       <MKTypography
                         component={Link}
-                        to="/authentication/sign-up/cover"
+                        to="/pages/authentication/sign-in/sign-up"
                         variant="button"
                         color="info"
                         fontWeight="medium"
