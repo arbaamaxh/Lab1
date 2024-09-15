@@ -4,7 +4,7 @@ import {
 } from 'reactstrap';
 import classnames from 'classnames';
 import { useDoctors } from '../../hooks/useDoctors';
-import DoctorModal from './DoctorModal';
+import DoctorDrawer from './DoctorDrawer';
 
 const DoctorList = () => {
     const {
@@ -246,7 +246,7 @@ const DoctorList = () => {
                                                         ))}
                                                     </tbody>
                                                 </Table>
-                                                <DoctorModal
+                                                <DoctorDrawer
                                                     isOpen={doctorModal}
                                                     toggle={toggleDoctorModal}
                                                     newDoctor={newDoctor}

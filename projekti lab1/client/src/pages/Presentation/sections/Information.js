@@ -29,8 +29,13 @@ import DefaultInfoCard from "examples/Cards/InfoCards/DefaultInfoCard";
 // Images
 import bgFront from "assets/images/rotating-card-bg-front.jpeg";
 import bgBack from "assets/images/rotating-card-bg-back.jpeg";
+import { useUser } from "context/UserContext";
 
 function Information() {
+  const { user } = useUser();
+  const role = user ? user.role : "guest";
+  const token = localStorage.getItem("token"); // Retrieve the token from local storage
+
   return (
     <MKBox component="section" py={6} my={6}>
       <Container>
@@ -51,13 +56,25 @@ function Information() {
               />
               <RotatingCardBack
                 image={bgBack}
-                title="Embrace Wellness Here"
-                description="You will be feeling healthier by the day."
-                action={{
-                  type: "internal",
-                  route: "/pages/authentication/sign-in/booking",
-                  label: "Book appointment",
-                }}
+                title={role === "admin" ? "Go to Dashboard" : "Embrace Wellness Here"}
+                description={
+                  role === "admin"
+                    ? "Manage the hospital and all departments."
+                    : "You will be feeling healthier by the day."
+                }
+                action={
+                  role === "admin"
+                    ? {
+                        type: "internal",
+                        route: `http://localhost:3006/admin/dashboard?token=${token}`, // Dashboard for admin
+                        label: "Go to Dashboard",
+                      }
+                    : {
+                        type: "internal",
+                        route: "/pages/authentication/sign-in/booking", // Book appointment for non-admins
+                        label: "Book appointment",
+                      }
+                }
               />
             </RotatingCard>
           </Grid>

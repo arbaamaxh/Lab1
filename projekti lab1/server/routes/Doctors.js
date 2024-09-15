@@ -132,9 +132,11 @@ router.put("/:nrPersonal", upload.single('img'), auth, checkRole(["admin"]), asy
             depID
         };
 
-        if (password) {
+        if (password && !isHashedPassword(password)) {
             const hashedPassword = await bcrypt.hash(password, 10);
             updatedData.password = hashedPassword;
+        } else {
+            updatedData.password = doctor.password;
         }
 
         await Doctor.update(updatedData, {
@@ -149,6 +151,9 @@ router.put("/:nrPersonal", upload.single('img'), auth, checkRole(["admin"]), asy
     }
 });
 
+const isHashedPassword = (password) => {
+    return /^(\$2[aby]\$)/.test(password);
+};
 
 //get prescriptions by a doctor
 router.get('/:nrPersonal/prescriptions', auth, checkRole(["admin"]), async (req, res) => {

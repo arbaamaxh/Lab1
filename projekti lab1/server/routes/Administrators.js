@@ -121,9 +121,11 @@ router.put("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
             email,
         };
 
-        if (password) {
+        if (password && !isHashedPassword(password)) {
             const hashedPassword = await bcrypt.hash(password, 10);
             updatedData.password = hashedPassword;
+        } else {
+            updatedData.password = admin.password;
         }
 
         await Administrator.update(updatedData, {
@@ -137,6 +139,10 @@ router.put("/:nrPersonal", auth, checkRole(["admin"]), async (req, res) => {
         res.status(500).json({ error: 'Failed to update administrator' });
     }
 });
+
+const isHashedPassword = (password) => {
+    return /^(\$2[aby]\$)/.test(password);
+};
 
 
 // delete (fshirja e nje admini sipas nrPersonal te tij)
