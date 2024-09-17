@@ -1,39 +1,89 @@
 import React from 'react';
-import { Modal, ModalHeader, ModalBody, Form, FormGroup, Label, Button, Alert } from 'reactstrap';
+import { Drawer, Button, Alert } from '@mui/material';
+import { Form, FormGroup, Label, Input } from 'reactstrap';
 import Select from 'react-select';
-import DatePicker from "react-datepicker";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-const AppointmentModal = ({
+const PrescriptionDrawer = ({
     isOpen,
     toggle,
+    newPrescription,
     handleSubmit,
     handleHospitalChange,
     handleDepartmentChange,
     handleDoctorChange,
     handlePatientChange,
-    handleDateToInsert,
-    handleTimeChange,
+    handleDateChange,
+    handleChange,
     errorMessageModal,
     setErrorMessageModal,
     hospitals,
     departments,
     doctors,
     patients,
-    availableTimeSlots,
     selectedHospital,
     selectedDepartment,
     selectedDoctor,
     selectedPatient,
-    selectedTime,
-    selectedDateForInsert,
+    selectedDate,
 }) => (
-    <Modal isOpen={isOpen} toggle={toggle} className="Modal">
-        <ModalHeader toggle={toggle} className="ModalHeader">Add Appointment</ModalHeader>
-        <ModalBody className="ModalBody">
-            <Alert color="info" isOpen={!!errorMessageModal} toggle={() => setErrorMessageModal('')}>
+    <Drawer anchor="right" open={isOpen} onClose={toggle}>
+        <div style={{ width: '400px', padding: '20px' }}>
+            <h5>Add Prescription</h5>
+            <Alert
+                severity="info"
+                open={!!errorMessageModal}
+                onClose={() => setErrorMessageModal('')}
+            >
                 {errorMessageModal}
             </Alert>
             <Form onSubmit={handleSubmit}>
+                <FormGroup>
+                    <DatePicker
+                        placeholderText="Select Date"
+                        selected={selectedDate}
+                        onChange={handleDateChange}
+                        dateFormat="yyyy-MM-dd"
+                        className="form-control"
+                    />
+                </FormGroup>
+                <FormGroup>
+                    <Label for="diagnoza">Diagnoza</Label>
+                    <Input 
+                        type="text" 
+                        name="diagnoza" 
+                        id="diagnoza" 
+                        placeholder="Diagnosis" 
+                        value={newPrescription.diagnoza} 
+                        onChange={handleChange} 
+                        required 
+                    />
+                </FormGroup>
+                <FormGroup>
+                    <Label for="ilace">Ilace</Label>
+                    <Input 
+                        type="text" 
+                        name="ilace" 
+                        id="ilace" 
+                        placeholder="Medication" 
+                        value={newPrescription.ilace} 
+                        onChange={handleChange} 
+                        required 
+                    />
+                </FormGroup>
+                <FormGroup>
+                    <Label for="udhezimi">Udhezimi</Label>
+                    <Input 
+                        type="text" 
+                        name="udhezimi" 
+                        id="udhezimi" 
+                        placeholder="Instruction" 
+                        value={newPrescription.udhezimi} 
+                        onChange={handleChange} 
+                        required 
+                    />
+                </FormGroup>
                 <FormGroup>
                     <Label for="hospital">Hospital</Label>
                     <Select
@@ -81,36 +131,14 @@ const AppointmentModal = ({
                         required
                     />
                 </FormGroup>
-                <FormGroup>
-                    <Label for="data">Date</Label>
-                    <FormGroup>
-                        <DatePicker
-                            placeholderText="Select Date"
-                            selected={selectedDateForInsert}
-                            onChange={handleDateToInsert}
-                            dateFormat="yyyy-MM-dd"
-                            className="form-control"
-                        />
-                    </FormGroup>
-                </FormGroup>
-                <FormGroup>
-                    <Label for="ora">Time</Label>
-                    <Select
-                        options={availableTimeSlots.map(time => ({ value: time, label: time }))}
-                        classNamePrefix="custom-select"
-                        placeholder="Select Time"
-                        value={selectedTime}
-                        onChange={handleTimeChange}
-                        required
-                        isDisabled={!selectedDateForInsert || !selectedDoctor}
-                    />
-                </FormGroup>
                 <div className="text-center">
-                    <Button color="primary" type="submit">Add Appointment</Button>
+                    <Button color="primary" type="submit" variant="contained">
+                        Add Prescription
+                    </Button>
                 </div>
             </Form>
-        </ModalBody>
-    </Modal>
+        </div>
+    </Drawer>
 );
 
-export default AppointmentModal;
+export default PrescriptionDrawer;

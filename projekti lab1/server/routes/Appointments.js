@@ -4,6 +4,35 @@ const { Appointment, Patient, Doctor, Department, Hospital } = require('../model
 const moment = require('moment-timezone');
 const auth = require('../middleware/auth');
 const checkRole = require('../middleware/permission'); 
+const { Op } = require('sequelize');
+const { Sequelize } = require('sequelize');
+
+// Get appointments for the current year grouped by month
+const getAppointmentsByMonth = async (req, res) => {
+  try {
+    const appointments = await Appointment.findAll({
+      attributes: [
+        [Sequelize.fn('MONTH', Sequelize.col('data')), 'month'],
+        [Sequelize.fn('COUNT', Sequelize.col('appointmentID')), 'appointmentCount'],
+      ],
+      where: {
+        data: {
+          [Op.gte]: moment().startOf('year').toDate(),  // start of this year
+          [Op.lte]: moment().endOf('year').toDate(),    // end of this year
+        },
+      },
+      group: [Sequelize.fn('MONTH', Sequelize.col('data'))],
+      order: [[Sequelize.fn('MONTH', Sequelize.col('data')), 'ASC']],
+    });
+
+    res.json(appointments);  // send the data to the frontend
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve appointments' });
+  }
+};
+
+router.get('/monthly', getAppointmentsByMonth);
 
 // create (insertimi ne tabelen appointments)
 router.post("/", async (req,res) => {

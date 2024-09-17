@@ -6,7 +6,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import classnames from 'classnames';
 import { useAppointments } from '../../hooks/useAppointments';
-import AppointmentModal from './AppointmentModal';
+import AppointmentDrawer from './AppointmentDrawer';
 
 const AppointmentList = () => {
     const {
@@ -172,7 +172,7 @@ const AppointmentList = () => {
                                                         ))}
                                                     </tbody>
                                                 </Table>
-                                                <AppointmentModal
+                                                <AppointmentDrawer
                                                     isOpen={appointmentModal}
                                                     toggle={toggleAppointmentModal}
                                                     handleSubmit={handleSubmit}

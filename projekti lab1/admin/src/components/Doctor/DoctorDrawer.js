@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Drawer, Box, Typography, FormGroup, InputLabel, Input, Button, Alert, Grid, IconButton } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Select from 'react-select';
@@ -23,11 +23,21 @@ const DoctorDrawer = ({
     selectedDepartment,
     selectedImageName,
 }) => {
+    const [imageSelected, setImageSelected] = useState(!!selectedImageName);
 
-    // Debugging: Log data props
-    console.log('Hospitals:', hospitals);
-    console.log('Departments:', departments);
-    console.log('Specializations:', specializations);
+    const handleFileSelection = (event) => {
+        handleFileChange(event);
+        setImageSelected(!!event.target.files.length);
+    };
+
+    const onSubmit = (event) => {
+        event.preventDefault();
+        if (!imageSelected) {
+            setErrorMessageModal('Please select an image.');
+            return;
+        }
+        handleSubmit(event);
+    };
 
     return (
         <Drawer anchor="right" open={isOpen} onClose={toggle}>
@@ -38,7 +48,7 @@ const DoctorDrawer = ({
                 <Alert severity="info" open={!!errorMessageModal} onClose={() => setErrorMessageModal('')}>
                     {errorMessageModal}
                 </Alert>
-                <form onSubmit={handleSubmit} encType="multipart/form-data">
+                <form onSubmit={onSubmit} encType="multipart/form-data">
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                             <FormGroup>
@@ -193,8 +203,7 @@ const DoctorDrawer = ({
                                     style={{ display: 'none' }}
                                     id="raised-button-file"
                                     type="file"
-                                    onChange={handleFileChange}
-                                    required
+                                    onChange={handleFileSelection}
                                 />
                                 <label htmlFor="raised-button-file">
                                     <IconButton color="primary" component="span">

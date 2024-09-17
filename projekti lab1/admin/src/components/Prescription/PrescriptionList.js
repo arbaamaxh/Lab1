@@ -4,7 +4,7 @@ import {
 } from 'reactstrap';
 import classnames from 'classnames';
 import { usePrescriptions } from '../../hooks/usePrescriptions';
-import PrescriptionModal from './PrescriptionModal';
+import PrescriptionDrawer from './PrescriptionDrawer';
 
 const PrescriptionList = () => {
   const {
@@ -157,7 +157,7 @@ const PrescriptionList = () => {
                         ))}
                       </tbody>
                     </Table>
-                    <PrescriptionModal
+                    <PrescriptionDrawer
                       isOpen={prescriptionModal}
                       toggle={togglePrescriptionModal}
                       newPrescription={newPrescription}

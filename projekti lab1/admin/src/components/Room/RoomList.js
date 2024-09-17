@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Card, CardHeader, CardTitle, CardBody, Table, Button, Input, Alert } from 'reactstrap';
 import { useRooms } from '../../hooks/useRooms';
-import RoomModal from './RoomModal';
+import RoomDrawer from './RoomDrawer';
 
 const RoomList = () => {
     const {
@@ -99,7 +99,7 @@ const RoomList = () => {
                                     ))}
                                 </tbody>
                             </Table>
-                            <RoomModal
+                            <RoomDrawer
                                 isOpen={roomModal}
                                 toggle={toggleRoomModal}
                                 newRoom={newRoom}

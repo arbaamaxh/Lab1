@@ -1,8 +1,9 @@
 import React from 'react';
-import { Modal, ModalHeader, ModalBody, Form, FormGroup, Label, Input, Button, Alert } from 'reactstrap';
+import { Drawer, Button, Alert } from '@mui/material';
+import { Form, FormGroup, Label, Input } from 'reactstrap';
 import Select from 'react-select';
 
-const RoomModal = ({
+const RoomDrawer = ({
     isOpen,
     toggle,
     newRoom,
@@ -17,16 +18,28 @@ const RoomModal = ({
     selectedHospital,
     selectedDepartment
 }) => (
-    <Modal isOpen={isOpen} toggle={toggle} className="Modal">
-        <ModalHeader toggle={toggle} className="ModalHeader">Add Room</ModalHeader>
-        <ModalBody className="ModalBody">
-            <Alert color="info" isOpen={!!errorMessageModal} toggle={() => setErrorMessageModal('')}>
+    <Drawer anchor="right" open={isOpen} onClose={toggle}>
+        <div style={{ width: '400px', padding: '20px' }}>
+            <h5>Add Room</h5>
+            <Alert
+                severity="info"
+                open={!!errorMessageModal}
+                onClose={() => setErrorMessageModal('')}
+            >
                 {errorMessageModal}
             </Alert>
             <Form onSubmit={handleSubmit}>
                 <FormGroup>
                     <Label for="numri">Numri</Label>
-                    <Input type="text" name="numri" id="numri" placeholder="Number" value={newRoom.numri} onChange={handleChange} required />
+                    <Input 
+                        type="text" 
+                        name="numri" 
+                        id="numri" 
+                        placeholder="Number" 
+                        value={newRoom.numri} 
+                        onChange={handleChange} 
+                        required 
+                    />
                 </FormGroup>
                 <FormGroup>
                     <Label for="hospital">Hospital</Label>
@@ -38,7 +51,6 @@ const RoomModal = ({
                         onChange={handleHospitalChange}
                         required
                     />
-
                 </FormGroup>
                 <FormGroup>
                     <Label for="department">Department</Label>
@@ -53,11 +65,13 @@ const RoomModal = ({
                     />
                 </FormGroup>
                 <div className="text-center">
-                    <Button color="primary" type="submit">Add Room</Button>
+                    <Button color="primary" type="submit" variant="contained">
+                        Add Room
+                    </Button>
                 </div>
             </Form>
-        </ModalBody>
-    </Modal>
+        </div>
+    </Drawer>
 );
 
-export default RoomModal;
+export default RoomDrawer;

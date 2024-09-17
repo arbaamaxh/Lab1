@@ -1,37 +1,50 @@
 import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
 import { Line } from 'react-chartjs-2';
-import {
-    Button,
-    ButtonGroup,
-    Card,
-    CardHeader,
-    CardBody,
-    CardTitle,
-    Row,
-    Col,
-} from 'reactstrap';
-import { fetchAppointmentData } from 'variables/chartData';
-import { useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { Card, CardHeader, CardBody, CardTitle, Row, Col } from 'reactstrap';
 
-function Dashboard() {
-    const [bigChartData, setBigChartData] = useState('data1');
-    const [appointmentData, setAppointmentData] = useState({ labels: [], datasets: [] });
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
-    const token = queryParams.get('token');
+const AppointmentsChart = () => {
+    const [chartData, setChartData] = useState({
+        labels: [],
+        datasets: []
+    });
 
     useEffect(() => {
-        if (token) {
-            localStorage.setItem('token', token);
-            console.log('Token saved to localStorage:', token);
-        }
-        fetchAppointmentData().then(data => setAppointmentData(data));
-    }, [token]);
+        // Fetch appointments data from the backend
+        const fetchAppointments = async () => {
+            try {
+                const response = await axios.get('http://localhost:3001/appointments/monthly'); // adjust endpoint path as necessary
+                const appointments = response.data;
 
-    const setBgChartData = (name) => {
-        setBigChartData(name);
-    };
+                const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                const appointmentCounts = Array(12).fill(0); // Initialize with zero for all months
+
+                appointments.forEach(appointment => {
+                    if (appointment.month >= 1 && appointment.month <= 12) {
+                        appointmentCounts[appointment.month - 1] = parseInt(appointment.appointmentCount, 10); // Map counts to the corresponding month
+                    }
+                });
+
+                setChartData({
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Appointments',
+                            data: appointmentCounts,
+                            backgroundColor: 'rgba(75,192,192,0.4)',
+                            borderColor: 'rgba(75,192,192,1)',
+                            borderWidth: 2,
+                            fill: false,
+                        },
+                    ],
+                });
+            } catch (error) {
+                console.error('Failed to fetch appointments data', error);
+            }
+        };
+
+        fetchAppointments();
+    }, []);
 
     return (
         <div className="content">
@@ -44,25 +57,12 @@ function Dashboard() {
                                     <h5 className="card-category">Total Appointments</h5>
                                     <CardTitle tag="h2">Monthly Appointments</CardTitle>
                                 </Col>
-                                <Col sm="6">
-                                    <ButtonGroup className="btn-group-toggle float-right" data-toggle="buttons">
-                                        <Button
-                                            tag="label"
-                                            className={classNames('btn-simple', { active: bigChartData === 'data1' })}
-                                            color="info"
-                                            size="sm"
-                                            onClick={() => setBgChartData('data1')}
-                                        >
-                                            <span className="d-none d-sm-block">Appointments</span>
-                                        </Button>
-                                    </ButtonGroup>
-                                </Col>
                             </Row>
                         </CardHeader>
                         <CardBody>
-                            <div className="chart-area">
+                            <div className="chart-area" style={{ position: 'relative', height: '400px' }}>
                                 <Line
-                                    data={bigChartData === 'data1' ? appointmentData : {}}
+                                    data={chartData}
                                     options={{ maintainAspectRatio: false }}
                                 />
                             </div>
@@ -72,6 +72,6 @@ function Dashboard() {
             </Row>
         </div>
     );
-}
+};
 
-export default Dashboard;
+export default AppointmentsChart;

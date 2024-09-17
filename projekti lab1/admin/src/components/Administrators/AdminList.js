@@ -4,7 +4,7 @@ import {
 } from 'reactstrap';
 import classnames from 'classnames';
 import { useAdmins } from '../../hooks/useAdmins';
-import AdminModal from './AdminModal';
+import AdminDrawer from './AdminDrawer';
 
 const AdminList = () => {
     const {
@@ -193,7 +193,7 @@ const AdminList = () => {
                                                 ))}
                                             </tbody>
                                         </Table>
-                                        <AdminModal
+                                        <AdminDrawer
                                             isOpen={adminModal}
                                             toggle={toggleAdminModal}
                                             newAdmin={newAdmin}

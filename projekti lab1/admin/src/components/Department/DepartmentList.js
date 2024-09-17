@@ -4,7 +4,7 @@ import {
 } from 'reactstrap';
 import classnames from 'classnames';
 import { useDepartments } from '../../hooks/useDepartments';
-import DepartmentModal from './DepartmentModal';
+import DepartmentDrawer from './DepartmentDrawer';
 
 const DepartmentList = () => {
     const {
@@ -139,7 +139,7 @@ const DepartmentList = () => {
                                                 ))}
                                             </tbody>
                                         </Table>
-                                        <DepartmentModal
+                                        <DepartmentDrawer
                                             isOpen={departmentModal}
                                             toggle={toggleDepartmentModal}
                                             newDepartment={newDepartment}

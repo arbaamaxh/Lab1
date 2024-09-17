@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Card, CardHeader, CardTitle, CardBody, Table, Button, Input, Alert } from 'reactstrap';
 import { useBills } from '../../hooks/useBills';
-import BillModal from './BillModal';
+import BillDrawer from './BillDrawer';
 
 const BillList = () => {
     const {
@@ -115,7 +115,7 @@ const BillList = () => {
                                     ))}
                                 </tbody>
                             </Table>
-                            <BillModal
+                            <BillDrawer
                                 isOpen={billModal}
                                 toggle={toggleBillModal}
                                 newBill={newBill}

@@ -24,18 +24,26 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: true,
         hooks: {
             beforeCreate: (appointment) => {
-                appointment.ora = appointment.ora.slice(0, 5);
+                if (appointment.ora) {
+                    appointment.ora = appointment.ora.slice(0, 5);
+                }
             },
             beforeUpdate: (appointment) => {
-                appointment.ora = appointment.ora.slice(0, 5);
+                if (appointment.ora) {
+                    appointment.ora = appointment.ora.slice(0, 5);
+                }
             },
-            afterFind: (appointments) => {
-                if(Array.isArray(appointments)){
-                    appointments.forEach(appointment => {
-                        appointment.ora = appointment.ora.slice(0, 5);
+            afterFind: (results) => {
+                if (Array.isArray(results)) {
+                    results.forEach(appointment => {
+                        if (appointment.ora) {
+                            appointment.ora = appointment.ora.slice(0, 5);
+                        }
                     });
-                }else if(appointments){
-                    appointments.ora = appointments.ora.slice(0, 5);
+                } else if (results) {
+                    if (results.ora) {
+                        results.ora = results.ora.slice(0, 5);
+                    }
                 }
             }
         }

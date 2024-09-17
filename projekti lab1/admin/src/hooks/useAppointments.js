@@ -43,21 +43,29 @@ export const useAppointments = () => {
     const handleDepartmentSelect = async (department, tab) => {
         setSelectedDepartment(department);
         setActiveDepartmentTab(tab);
+        setAppointments([]);
+    
         try {
             const response = await axios.get(`http://localhost:3001/hospitals/${selectedHospital.nrRegjistrimit}/departments/${department.departmentID}/appointments`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            setAppointments(response.data);
+    
+            const filteredAppointments = response.data.filter(appointment => 
+                moment(appointment.data).isSame(selectedDate, 'day') && 
+                appointment.departmentID === department.departmentID
+            );
+            
+            setAppointments(filteredAppointments);
         } catch (error) {
             console.error('Error fetching appointments:', error);
-            setErrorMessage('An error occurred while fetching ');
+            setErrorMessage('An error occurred while fetching appointments');
             setTimeout(() => {
                 setErrorMessage(null);
             }, 3000);
         }
-    };
+    };    
 
     const handleFetchAppointmentsByDate = useCallback(async (date, departmentID) => {
         try {

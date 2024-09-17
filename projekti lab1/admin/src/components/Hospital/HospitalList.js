@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Card, CardHeader, CardTitle, CardBody, Table, Button, Input, Alert } from 'reactstrap';
 import { useHospitals } from '../../hooks/useHospitals';
-import HospitalModal from './HospitalModal';
+import HospitalDrawer from './HospitalDrawer';
 
 const HospitalList = () => {
     const {
@@ -143,7 +143,7 @@ const HospitalList = () => {
                                     ))}
                                 </tbody>
                             </Table>
-                            <HospitalModal
+                            <HospitalDrawer
                                 isOpen={hospitalModal}
                                 toggle={toggleHospitalModal}
                                 newHospital={newHospital}

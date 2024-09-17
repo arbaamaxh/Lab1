@@ -4,7 +4,7 @@ import {
 } from 'reactstrap';
 import classnames from 'classnames';
 import { useStaff } from '../../hooks/useStaff';
-import StaffModal from './StaffModal';
+import StaffDrawer from './StaffDrawer';
 
 const StaffList = () => {
     const {
@@ -187,7 +187,7 @@ const StaffList = () => {
                                                         ))}
                                                     </tbody>
                                                 </Table>
-                                                <StaffModal
+                                                <StaffDrawer
                                                     isOpen={staffModal}
                                                     toggle={toggleStaffModal}
                                                     newStaff={newStaff}
