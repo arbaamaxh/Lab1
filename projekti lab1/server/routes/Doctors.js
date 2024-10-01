@@ -1,8 +1,8 @@
 const express = require('express');
-const router = express.Router();
-const { Doctor, Department,  Hospital ,Prescription } = require('../models');
 const multer = require('multer');
 const path = require('path');
+const router = express.Router();
+const { Doctor, Department,  Hospital ,Prescription } = require('../models');
 const bcrypt = require("bcrypt");
 const auth = require('../middleware/auth');
 const checkRole = require('../middleware/permission'); 
@@ -13,7 +13,6 @@ const upload = multer({
         cb(null, 'uploads/');
       },
       filename: (req, file, cb) => {
-        // Generate a unique filename
         cb(null, Date.now() + path.extname(file.originalname));
       },
     }),
@@ -138,7 +137,7 @@ router.put("/:nrPersonal", upload.single('img'), auth, checkRole(["admin"]), asy
         } else {
             updatedData.password = doctor.password;
         }
-
+        
         await Doctor.update(updatedData, {
             where: { nrPersonal }
         });

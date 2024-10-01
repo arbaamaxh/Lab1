@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import axios from 'axios';
 import { Card, CardHeader, CardBody, CardTitle, Row, Col } from 'reactstrap';
+import { useLocation } from 'react-router-dom';
 
 const AppointmentsChart = () => {
     const [chartData, setChartData] = useState({
@@ -9,19 +10,30 @@ const AppointmentsChart = () => {
         datasets: []
     });
 
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const token = queryParams.get('token') || null;
+
     useEffect(() => {
-        // Fetch appointments data from the backend
+        if (token) {
+            localStorage.setItem('token', token);
+        } else {
+            localStorage.removeItem('token');
+
+        }
+    }, [token]);
+
+    useEffect(() => {
         const fetchAppointments = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/appointments/monthly'); // adjust endpoint path as necessary
+                const response = await axios.get('http://localhost:3001/appointments/monthly');
                 const appointments = response.data;
 
                 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-                const appointmentCounts = Array(12).fill(0); // Initialize with zero for all months
-
+                const appointmentCounts = Array(12).fill(0);
                 appointments.forEach(appointment => {
                     if (appointment.month >= 1 && appointment.month <= 12) {
-                        appointmentCounts[appointment.month - 1] = parseInt(appointment.appointmentCount, 10); // Map counts to the corresponding month
+                        appointmentCounts[appointment.month - 1] = parseInt(appointment.appointmentCount, 10);
                     }
                 });
 
@@ -45,7 +57,7 @@ const AppointmentsChart = () => {
 
         fetchAppointments();
     }, []);
-
+    
     return (
         <div className="content">
             <Row>

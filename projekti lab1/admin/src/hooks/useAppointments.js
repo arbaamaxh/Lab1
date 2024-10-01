@@ -14,7 +14,7 @@ export const useAppointments = () => {
     //displaying appointments by date
     const [appointments, setAppointments] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [displayedDate, setDisplayedDate] = useState(new Date()); // Track the displayed date separately
+    const [displayedDate, setDisplayedDate] = useState(new Date());
     const [departments, setDepartments] = useState([]);
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [selectedDepartment, setSelectedDepartment] = useState(null);
@@ -98,7 +98,7 @@ export const useAppointments = () => {
     }, [token]);
 
     const handleDateChange = (date) => {
-        setDisplayedDate(date); // Update displayedDate when date changes
+        setDisplayedDate(date);
     };
 
     useEffect(() => {
@@ -358,11 +358,9 @@ export const useAppointments = () => {
     };
 
     useEffect(() => {
-        //display hospitals
         axios.get("http://localhost:3001/hospitals/")
             .then(response => {
                 setHospitals(response.data);
-                // Set initial tabs here
                 if (response.data.length > 0) {
                     handleHospitalSelect(response.data[0], "0");
                 }

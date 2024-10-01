@@ -1,6 +1,7 @@
 import React from 'react';
-import { Drawer, Box, Typography, FormGroup, InputLabel, Input, Button, Alert, Grid } from '@mui/material';
+import { Drawer, Box, Typography, FormGroup, InputLabel, Input, Button, Alert, Grid, IconButton } from '@mui/material';
 import Select from 'react-select';
+import CloseIcon from '@mui/icons-material/Close';
 
 const DepartmentDrawer = ({
     isOpen,
@@ -18,6 +19,9 @@ const DepartmentDrawer = ({
             <Typography variant="h6" gutterBottom>
                 Add Department
             </Typography>
+            <IconButton edge="end" color="inherit" onClick={toggle}>
+                <CloseIcon />
+            </IconButton>
             <Alert severity="info" open={!!errorMessageModal} onClose={() => setErrorMessageModal('')}>
                 {errorMessageModal}
             </Alert>

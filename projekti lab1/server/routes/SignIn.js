@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { Patient, Doctor, Administrator } = require("../models"); // Import your models
+const { Patient, Doctor, Administrator } = require("../models");
 const router = express.Router();
 
 router.post("/", async (req, res) => {

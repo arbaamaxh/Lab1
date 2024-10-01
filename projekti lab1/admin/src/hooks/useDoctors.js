@@ -47,14 +47,13 @@ export const useDoctors = () => {
   };
 
   //insert a doctor in database
-  const [newDoctor, setNewDoctor] = useState({ emri: '', mbiemri: '', nrPersonal: '', adresa: '', nrTel: '', specializimi: '', depID: '', email: '', password: '' });
+  const [newDoctor, setNewDoctor] = useState({ emri: '', mbiemri: '', nrPersonal: '', adresa: '', nrTel: '', specializimi: '', depID: '', email: '', password: '', imageUrl: '' });
   const [selectedHospitalModal, setSelectedHospitalModal] = useState(null);
   const [selectedDepartmentModal, setSelectedDepartmentModal] = useState(null);
   const [doctorModal, setDoctorModal] = useState(false);
   const [specializations, setSpecializations] = useState([]);
   const [modalDepartments, setModalDepartments] = useState([]);
   const [selectedImageName, setSelectedImageName] = useState('');
-  const [imageError, setImageError] = useState('');
 
   const toggleDoctorModal = () => setDoctorModal(!doctorModal);
 
@@ -109,7 +108,7 @@ export const useDoctors = () => {
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setNewDoctor({ ...newDoctor, imageUrl: e.target.files[0] });
+      setNewDoctor(prev => ({ ...prev, img: e.target.files[0] }));
     }
   };
 
@@ -123,14 +122,20 @@ export const useDoctors = () => {
     handleImageChange(event);
   };
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    if (!selectedImageName) {
-      setImageError('Please select an image.');
-      return;
-    }
-    setImageError('');
-    handleSubmit(e);
+  const [imageSelected, setImageSelected] = useState(!!selectedImageName);
+
+  const handleFileSelection = (event) => {
+      handleFileChange(event);
+      setImageSelected(event.target.files.length > 0);
+  };
+
+  const onSubmit = (event) => {
+      event.preventDefault();
+      if (!imageSelected) {
+          setErrorMessageModal('Please select an image.');
+          return;
+      }
+      handleSubmit(event);
   };
 
   const handleChange = (e) => {
@@ -155,23 +160,23 @@ export const useDoctors = () => {
     formData.append('hospitalName', selectedHospitalModal.label);
     formData.append('departmentName', modalDepartments.find(d => d.departmentID === newDoctor.depID)?.emri);
   
-    if (newDoctor.imageUrl) {
-      formData.append('img', newDoctor.imageUrl); // Ensure the file is being appended correctly
+    if (newDoctor.img) {
+      formData.append('img', newDoctor.img);
     }
   
     try {
       const response = await fetch("http://localhost:3001/doctors", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`,
         },
-        body: formData,  // Send FormData
+        body: formData,
       });
   
       if (response.ok) {
         toggleDoctorModal();
         handleDepartmentSelect(selectedDepartment, activeDepartmentTab);
-        setNewDoctor({ emri: "", mbiemri: "", nrPersonal: "", adresa: "", nrTel: "", specializimi: "", depID: "", imageUrl: null, email: "", password: "" });
+        setNewDoctor({ emri: "", mbiemri: "", nrPersonal: "", adresa: "", nrTel: "", specializimi: "", depID: "", imageUrl: "", email: "", password: "" });
         setSelectedHospitalModal(null);
         setSelectedDepartmentModal(null);
       } else if (response.status === 400) {
@@ -241,17 +246,19 @@ export const useDoctors = () => {
     formData.append('specializimi', editedDoctor.specializimi);
     formData.append('email', editedDoctor.email);
     formData.append('password', editedDoctor.password);
+    
     if (selectedEditFile) {
       formData.append('img', selectedEditFile);
+      console.log("File appended:", selectedEditFile);
     }
-
+  
     try {
       const response = await axios.put(`http://localhost:3001/doctors/${editingDoctorId}`, formData, {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
+      
       if (response.status === 200) {
         handleHospitalSelect(selectedHospital, activeHospitalTab);
         handleDepartmentSelect(selectedDepartment, activeDepartmentTab);
@@ -262,7 +269,7 @@ export const useDoctors = () => {
           setSuccessMessage(null);
         }, 3000);
       } else {
-        const errorMessage = response.data.error || 'Failed to update patient: Unknown error occurred';
+        const errorMessage = response.data.error || 'Failed to update doctor: Unknown error occurred';
         setErrorMessage(errorMessage);
         setTimeout(() => {
           setErrorMessage(null);
@@ -272,18 +279,15 @@ export const useDoctors = () => {
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
         setErrorMessage(`Failed to update doctor: ${error.response.data.error}`);
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 3000);
       } else {
         setErrorMessage('An error occurred while updating the doctor');
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 3000);
       }
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 3000);
       setEditingDoctorId(null);
     }
-  };
+  };  
 
   //delete a doctor
   const handleDeleteDoctor = async (nrPersonal) => {
@@ -345,7 +349,6 @@ export const useDoctors = () => {
     successMessage,
     errorMessage,
     errorMessageModal,
-    imageError,
     selectedHospitalModal,
     selectedDepartmentModal,
     modalDepartments,
@@ -356,9 +359,8 @@ export const useDoctors = () => {
     handleChange,
     handleHospitalChange,
     handleDepartmentChange,
-    handleFileChange,
+    handleFileSelection,
     onSubmit,
-    handleSubmit,
     handleEdit,
     handleEditInputChange,
     handleEditFileChange,

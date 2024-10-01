@@ -8,9 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
 import DefaultNavbar from "examples/Navbars/DefaultNavbar";
-import DefaultFooter from "examples/Footers/DefaultFooter";
 import routes from "routes";
-import footerRoutes from "footer.routes";
 import bgImage from "assets/images/bg-presentation.jpg";
 import { useAppointments } from ".//../Booking/useAppointments";
 
@@ -100,47 +98,6 @@ const BookAppointment = () => {
                       <Grid item xs={12}>
                         <TextField
                           fullWidth
-                          label="Preferred Date"
-                          type="date"
-                          name="preferredDate"
-                          InputLabelProps={{ shrink: true }}
-                          variant="outlined"
-                          required
-                          value={formData.preferredDate}
-                          onChange={handleChange}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          select
-                          label="Preferred Time"
-                          name="preferredTime"
-                          variant="outlined"
-                          required
-                          value={formData.preferredTime}
-                          onChange={handleChange}
-                          disabled={availableTimeSlots.length === 0}
-                          sx={{
-                            "& .MuiInputBase-root": {
-                              padding: "12px 14px",
-                            },
-                          }}
-                        >
-                          {availableTimeSlots.length > 0 ? (
-                            availableTimeSlots.map((slot) => (
-                              <MenuItem key={slot} value={slot}>
-                                {slot}
-                              </MenuItem>
-                            ))
-                          ) : (
-                            <MenuItem value="">No available time slots</MenuItem>
-                          )}
-                        </TextField>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          fullWidth
                           select
                           label="Hospital"
                           name="hospital"
@@ -208,6 +165,47 @@ const BookAppointment = () => {
                         </TextField>
                       </Grid>
                       <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Preferred Date"
+                          type="date"
+                          name="preferredDate"
+                          InputLabelProps={{ shrink: true }}
+                          variant="outlined"
+                          required
+                          value={formData.preferredDate}
+                          onChange={handleChange}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          select
+                          label="Preferred Time"
+                          name="preferredTime"
+                          variant="outlined"
+                          required
+                          value={formData.preferredTime}
+                          onChange={handleChange}
+                          disabled={availableTimeSlots.length === 0}
+                          sx={{
+                            "& .MuiInputBase-root": {
+                              padding: "12px 14px",
+                            },
+                          }}
+                        >
+                          {availableTimeSlots.length > 0 ? (
+                            availableTimeSlots.map((slot) => (
+                              <MenuItem key={slot} value={slot}>
+                                {slot}
+                              </MenuItem>
+                            ))
+                          ) : (
+                            <MenuItem value="">No available time slots</MenuItem>
+                          )}
+                        </TextField>
+                      </Grid>
+                      <Grid item xs={12}>
                         <Button variant="contained" color="primary" fullWidth type="submit">
                           Book Appointment
                         </Button>
@@ -220,7 +218,6 @@ const BookAppointment = () => {
           </MKBox>
         </Card>
       </MKBox>
-      <DefaultFooter content={footerRoutes} />
     </>
   );
 };

@@ -1,8 +1,10 @@
 import React from 'react';
-import { Drawer, Box, Typography, Button, Alert, Grid, FormGroup, InputLabel, Input } from '@mui/material';
+import { Drawer, Box, Typography, Button, Alert, Grid, FormGroup, InputLabel, Input, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import Select from 'react-select';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import 'assets/css/custom-datepicker.css';
 
 const BillDrawer = ({
     isOpen,
@@ -30,6 +32,9 @@ const BillDrawer = ({
             <Typography variant="h6" gutterBottom>
                 Add Bill
             </Typography>
+            <IconButton edge="end" color="inherit" onClick={toggle}>
+                <CloseIcon />
+            </IconButton>
             <Alert severity="info" open={!!errorMessageModal} onClose={() => setErrorMessageModal('')}>
                 {errorMessageModal}
             </Alert>
@@ -67,11 +72,11 @@ const BillDrawer = ({
                         <FormGroup>
                             <InputLabel htmlFor="date">Date</InputLabel>
                             <DatePicker
+                                className="custom-datepicker"
                                 placeholderText="Select Date"
                                 selected={selectedDate}
                                 onChange={handleDateChange}
                                 dateFormat="yyyy-MM-dd"
-                                className="form-control"
                             />
                         </FormGroup>
                     </Grid>

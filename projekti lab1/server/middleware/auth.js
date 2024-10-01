@@ -18,7 +18,7 @@ const auth = async (req, res, next) => {
         return res.status(403).json({ message: 'Token not valid'})
       }
       console.log(decoded)
-      req.user = decoded; // Assign decoded user to req.user
+      req.user = decoded;
       next();
     });
   } catch (error) {

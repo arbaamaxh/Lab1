@@ -1,19 +1,3 @@
-/*
-=========================================================
-* Material Kit 2 React - v2.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-kit-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-// @mui material components
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 
@@ -34,7 +18,7 @@ import { useUser } from "context/UserContext";
 function Information() {
   const { user } = useUser();
   const role = user ? user.role : "guest";
-  const token = localStorage.getItem("token"); // Retrieve the token from local storage
+  const token = localStorage.getItem("token");
 
   return (
     <MKBox component="section" py={6} my={6}>
@@ -66,12 +50,12 @@ function Information() {
                   role === "admin"
                     ? {
                         type: "internal",
-                        route: `http://localhost:3006/admin/dashboard?token=${token}`, // Dashboard for admin
+                        route: `http://localhost:3006/admin/dashboard?token=${token}`,
                         label: "Go to Dashboard",
                       }
                     : {
                         type: "internal",
-                        route: "/pages/authentication/sign-in/booking", // Book appointment for non-admins
+                        route: "/pages/authentication/sign-in/booking",
                         label: "Book appointment",
                       }
                 }

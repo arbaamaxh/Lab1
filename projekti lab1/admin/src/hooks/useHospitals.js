@@ -61,6 +61,22 @@ export const useHospitals = () => {
     setNewHospital({ ...newHospital, [name]: value });
   };
 
+  const [imageSelected, setImageSelected] = useState(!!selectedImageName);
+
+  const handleFileSelection = (event) => {
+      handleFileChange(event);
+      setImageSelected(!!event.target.files.length);
+  };
+
+  const onSubmit = (event) => {
+      event.preventDefault();
+      if (!imageSelected) {
+          setErrorMessageModal('Please select an image.');
+          return;
+      }
+      handleSubmit(event);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -186,10 +202,10 @@ export const useHospitals = () => {
     errorMessage,
     errorMessageModal,
     toggleHospitalModal,
-    handleFileChange,
+    handleFileSelection,
     handleEditFileChange,
     handleChange,
-    handleSubmit,
+    onSubmit,
     handleEdit,
     handleEditInputChange,
     handleCancelEdit,

@@ -129,7 +129,7 @@ export const usePrescriptions = () => {
     fetchDoctors(selectedOption.value);
     setNewPrescription({ ...newPrescription, departmentName: selectedOption.label });
     setSelectedDoctorModal(null);
-    setSelectedPatientModal(null); //check this again
+    setSelectedPatientModal(null);
   };
 
   const handlePatientChange = (selectedOption) => {
@@ -289,7 +289,7 @@ export const usePrescriptions = () => {
   useEffect(() => {
     axios.get("http://localhost:3001/doctors/", {
       headers: {
-        Authorization: `Bearer ${token}` // Add token to the Authorization header
+        Authorization: `Bearer ${token}`
       }
     })
       .then(response => {

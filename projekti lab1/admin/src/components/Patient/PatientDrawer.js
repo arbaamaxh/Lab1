@@ -1,8 +1,10 @@
 import React from 'react';
-import { Drawer, Box, Typography, FormGroup, InputLabel, Input, Button, Alert, Grid, RadioGroup, FormControlLabel, Radio } from '@mui/material';
+import { Drawer, Box, Typography, FormGroup, InputLabel, Input, Button, Alert, Grid, RadioGroup, FormControlLabel, Radio, IconButton } from '@mui/material';
 import Select from 'react-select';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import CloseIcon from '@mui/icons-material/Close';
+import 'assets/css/custom-datepicker.css';
 
 const PatientDrawer = ({
     isOpen,
@@ -22,6 +24,9 @@ const PatientDrawer = ({
             <Typography variant="h6" gutterBottom>
                 Add Patient
             </Typography>
+            <IconButton edge="end" color="inherit" onClick={toggle}>
+                <CloseIcon />
+            </IconButton>
             <Alert severity="info" open={!!errorMessageModal} onClose={() => setErrorMessageModal('')}>
                 {errorMessageModal}
             </Alert>
@@ -76,11 +81,11 @@ const PatientDrawer = ({
                         <FormGroup>
                             <InputLabel htmlFor="date">Date</InputLabel>
                             <DatePicker
+                                className="custom-datepicker"
                                 placeholderText="Select Date"
                                 selected={selectedDate}
                                 onChange={handleDateChange}
                                 dateFormat="yyyy-MM-dd"
-                                className="form-control"
                                 wrapperClassName="datepicker-wrapper"
                             />
                         </FormGroup>

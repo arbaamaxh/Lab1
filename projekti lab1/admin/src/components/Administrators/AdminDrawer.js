@@ -1,8 +1,10 @@
 import React from 'react';
-import { Drawer, Box, Typography, InputLabel, Input, Button, Alert, Grid, FormGroup } from '@mui/material';
+import { Drawer, Box, Typography, InputLabel, Input, Button, Alert, Grid, FormGroup, IconButton } from '@mui/material';
 import Select from 'react-select';
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
+import CloseIcon from '@mui/icons-material/Close';
+import 'assets/css/custom-datepicker.css';
 
 const AdminDrawer = ({
     isOpen,
@@ -22,6 +24,9 @@ const AdminDrawer = ({
             <Typography variant="h6" gutterBottom>
                 Add Administrator
             </Typography>
+            <IconButton edge="end" color="inherit" onClick={toggle}>
+                <CloseIcon />
+            </IconButton>
             <Alert severity="info" open={!!errorMessageModal} onClose={() => setErrorMessageModal('')}>
                 {errorMessageModal}
             </Alert>
@@ -76,11 +81,11 @@ const AdminDrawer = ({
                         <FormGroup>
                             <InputLabel htmlFor="date">Date</InputLabel>
                             <DatePicker
+                                className="custom-datepicker"
                                 placeholderText="Select Date"
                                 selected={selectedDate}
                                 onChange={handleDateChange}
                                 dateFormat="yyyy-MM-dd"
-                                className="form-control"
                                 wrapperClassName="datepicker-wrapper"
                             />
                         </FormGroup>

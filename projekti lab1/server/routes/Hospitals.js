@@ -8,15 +8,12 @@ router.use('/', hospitalRelationsRouter);
 const auth = require('../middleware/auth');
 const checkRole = require('../middleware/permission'); 
 
-// Set up multer for file uploads
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      // Change this to the absolute path where you want to save the files
       cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-      // Generate a unique filename
       cb(null, Date.now() + path.extname(file.originalname));
     },
   }),

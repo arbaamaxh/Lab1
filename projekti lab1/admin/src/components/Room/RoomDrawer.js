@@ -1,7 +1,8 @@
 import React from 'react';
-import { Drawer, Button, Alert } from '@mui/material';
+import { Drawer, Button, Alert, IconButton } from '@mui/material';
 import { Form, FormGroup, Label, Input } from 'reactstrap';
 import Select from 'react-select';
+import CloseIcon from '@mui/icons-material/Close';
 
 const RoomDrawer = ({
     isOpen,
@@ -21,6 +22,9 @@ const RoomDrawer = ({
     <Drawer anchor="right" open={isOpen} onClose={toggle}>
         <div style={{ width: '400px', padding: '20px' }}>
             <h5>Add Room</h5>
+            <IconButton edge="end" color="inherit" onClick={toggle}>
+                <CloseIcon />
+            </IconButton>
             <Alert
                 severity="info"
                 open={!!errorMessageModal}

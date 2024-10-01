@@ -1,9 +1,10 @@
 import React from 'react';
-import { Drawer, Button, Alert } from '@mui/material';
-import { Form, FormGroup, Label, Input } from 'reactstrap';
+import { Drawer, Button, Alert, IconButton, Box, Typography, InputLabel, FormGroup, Input, Grid } from '@mui/material';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import CloseIcon from '@mui/icons-material/Close';
+import 'assets/css/custom-datepicker.css';
 
 const PrescriptionDrawer = ({
     isOpen,
@@ -29,8 +30,13 @@ const PrescriptionDrawer = ({
     selectedDate,
 }) => (
     <Drawer anchor="right" open={isOpen} onClose={toggle}>
-        <div style={{ width: '400px', padding: '20px' }}>
-            <h5>Add Prescription</h5>
+        <Box p={3} width={400}>
+            <Typography variant="h6" gutterBottom>
+                Add Prescription
+            </Typography>
+            <IconButton edge="end" color="inherit" onClick={toggle}>
+                <CloseIcon />
+            </IconButton>
             <Alert
                 severity="info"
                 open={!!errorMessageModal}
@@ -38,106 +44,124 @@ const PrescriptionDrawer = ({
             >
                 {errorMessageModal}
             </Alert>
-            <Form onSubmit={handleSubmit}>
-                <FormGroup>
-                    <DatePicker
-                        placeholderText="Select Date"
-                        selected={selectedDate}
-                        onChange={handleDateChange}
-                        dateFormat="yyyy-MM-dd"
-                        className="form-control"
-                    />
-                </FormGroup>
-                <FormGroup>
-                    <Label for="diagnoza">Diagnoza</Label>
-                    <Input 
-                        type="text" 
-                        name="diagnoza" 
-                        id="diagnoza" 
-                        placeholder="Diagnosis" 
-                        value={newPrescription.diagnoza} 
-                        onChange={handleChange} 
-                        required 
-                    />
-                </FormGroup>
-                <FormGroup>
-                    <Label for="ilace">Ilace</Label>
-                    <Input 
-                        type="text" 
-                        name="ilace" 
-                        id="ilace" 
-                        placeholder="Medication" 
-                        value={newPrescription.ilace} 
-                        onChange={handleChange} 
-                        required 
-                    />
-                </FormGroup>
-                <FormGroup>
-                    <Label for="udhezimi">Udhezimi</Label>
-                    <Input 
-                        type="text" 
-                        name="udhezimi" 
-                        id="udhezimi" 
-                        placeholder="Instruction" 
-                        value={newPrescription.udhezimi} 
-                        onChange={handleChange} 
-                        required 
-                    />
-                </FormGroup>
-                <FormGroup>
-                    <Label for="hospital">Hospital</Label>
-                    <Select
-                        options={hospitals.map(h => ({ value: h.nrRegjistrimit, label: h.emri }))}
-                        classNamePrefix="custom-select"
-                        placeholder="Select Hospital"
-                        value={selectedHospital}
-                        onChange={handleHospitalChange}
-                        required
-                    />
-                </FormGroup>
-                <FormGroup>
-                    <Label for="department">Department</Label>
-                    <Select
-                        options={departments.map(d => ({ value: d.departmentID, label: d.emri }))}
-                        classNamePrefix="custom-select"
-                        placeholder="Select Department"
-                        value={selectedDepartment}
-                        onChange={handleDepartmentChange}
-                        isDisabled={!selectedHospital}
-                        required
-                    />
-                </FormGroup>
-                <FormGroup>
-                    <Label for="doctorName">Doctor</Label>
-                    <Select
-                        options={doctors.map(doctor => ({ value: doctor.nrPersonal, label: `${doctor.emri} ${doctor.mbiemri}` }))}
-                        classNamePrefix="custom-select"
-                        placeholder="Select Doctor"
-                        value={selectedDoctor ? { value: selectedDoctor.nrPersonal, label: `${selectedDoctor.emri} ${selectedDoctor.mbiemri}` } : null}
-                        onChange={handleDoctorChange}
-                        isDisabled={!selectedDepartment}
-                        required
-                    />
-                </FormGroup>
-                <FormGroup>
-                    <Label for="patientName">Patient</Label>
-                    <Select
-                        options={patients.map(patient => ({ value: patient.nrPersonal, label: `${patient.emri} ${patient.mbiemri}` }))}
-                        classNamePrefix="custom-select"
-                        placeholder="Select Patient"
-                        value={selectedPatient ? { value: selectedPatient.nrPersonal, label: `${selectedPatient.emri} ${selectedPatient.mbiemri}` } : null}
-                        onChange={handlePatientChange}
-                        isDisabled={!selectedHospital}
-                        required
-                    />
-                </FormGroup>
-                <div className="text-center">
-                    <Button color="primary" type="submit" variant="contained">
-                        Add Prescription
-                    </Button>
-                </div>
-            </Form>
-        </div>
+            <form onSubmit={handleSubmit}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                        <FormGroup>
+                            <DatePicker
+                                className="custom-datepicker"
+                                placeholderText="Select Date"
+                                selected={selectedDate}
+                                onChange={handleDateChange}
+                                dateFormat="yyyy-MM-dd"
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormGroup>
+                            <InputLabel for="diagnoza">Diagnoza</InputLabel>
+                            <Input
+                                type="text"
+                                name="diagnoza"
+                                id="diagnoza"
+                                placeholder="Diagnosis"
+                                value={newPrescription.diagnoza}
+                                onChange={handleChange}
+                                required
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormGroup>
+                            <InputLabel for="ilace">Ilace</InputLabel>
+                            <Input
+                                type="text"
+                                name="ilace"
+                                id="ilace"
+                                placeholder="Medication"
+                                value={newPrescription.ilace}
+                                onChange={handleChange}
+                                required
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormGroup>
+                            <InputLabel for="udhezimi">Udhezimi</InputLabel>
+                            <Input
+                                type="text"
+                                name="udhezimi"
+                                id="udhezimi"
+                                placeholder="Instruction"
+                                value={newPrescription.udhezimi}
+                                onChange={handleChange}
+                                required
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormGroup>
+                            <InputLabel for="hospital">Hospital</InputLabel>
+                            <Select
+                                options={hospitals.map(h => ({ value: h.nrRegjistrimit, label: h.emri }))}
+                                classNamePrefix="custom-select"
+                                placeholder="Select Hospital"
+                                value={selectedHospital}
+                                onChange={handleHospitalChange}
+                                required
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormGroup>
+                            <InputLabel for="department">Department</InputLabel>
+                            <Select
+                                options={departments.map(d => ({ value: d.departmentID, label: d.emri }))}
+                                classNamePrefix="custom-select"
+                                placeholder="Select Department"
+                                value={selectedDepartment}
+                                onChange={handleDepartmentChange}
+                                isDisabled={!selectedHospital}
+                                required
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormGroup>
+                            <InputLabel for="doctorName">Doctor</InputLabel>
+                            <Select
+                                options={doctors.map(doctor => ({ value: doctor.nrPersonal, label: `${doctor.emri} ${doctor.mbiemri}` }))}
+                                classNamePrefix="custom-select"
+                                placeholder="Select Doctor"
+                                value={selectedDoctor ? { value: selectedDoctor.nrPersonal, label: `${selectedDoctor.emri} ${selectedDoctor.mbiemri}` } : null}
+                                onChange={handleDoctorChange}
+                                isDisabled={!selectedDepartment}
+                                required
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormGroup>
+                            <InputLabel for="patientName">Patient</InputLabel>
+                            <Select
+                                options={patients.map(patient => ({ value: patient.nrPersonal, label: `${patient.emri} ${patient.mbiemri}` }))}
+                                classNamePrefix="custom-select"
+                                placeholder="Select Patient"
+                                value={selectedPatient ? { value: selectedPatient.nrPersonal, label: `${selectedPatient.emri} ${selectedPatient.mbiemri}` } : null}
+                                onChange={handlePatientChange}
+                                isDisabled={!selectedHospital}
+                                required
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Box mt={2} textAlign="center">
+                        <Button color="primary" type="submit" variant="contained">
+                            Add Prescription
+                        </Button>
+                    </Box>
+                </Grid>
+            </form>
+        </Box>
     </Drawer>
 );
 

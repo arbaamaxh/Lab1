@@ -171,9 +171,6 @@ const RegisterPatient = () => {
                     {/* Second Row */}
                     <Grid item xs={12} md={6}>
                       <MKBox mb={2}>
-                        <MKTypography variant="body2" color="text" sx={{ mb: 1 }}>
-                          Gender
-                        </MKTypography>
                         <RadioGroup
                           name="gjinia"
                           value={newPatient.gjinia}

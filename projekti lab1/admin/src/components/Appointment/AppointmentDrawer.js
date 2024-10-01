@@ -1,8 +1,10 @@
 import React from 'react';
-import { Drawer, Button, Alert } from '@mui/material';
+import { Drawer, Button, Alert, IconButton } from '@mui/material';
 import { Form, FormGroup, Label } from 'reactstrap';
 import Select from 'react-select';
 import DatePicker from "react-datepicker";
+import CloseIcon from '@mui/icons-material/Close';
+import 'assets/css/custom-datepicker.css';
 
 const AppointmentDrawer = ({
     isOpen,
@@ -31,6 +33,9 @@ const AppointmentDrawer = ({
     <Drawer anchor="right" open={isOpen} onClose={toggle}>
         <div style={{ width: '400px', padding: '20px' }}>
             <h5>Add Appointment</h5>
+            <IconButton edge="end" color="inherit" onClick={toggle}>
+                <CloseIcon />
+            </IconButton>
             <Alert
                 severity="info"
                 open={!!errorMessageModal}
@@ -89,11 +94,11 @@ const AppointmentDrawer = ({
                 <FormGroup>
                     <Label for="data">Date</Label>
                     <DatePicker
+                        className="custom-datepicker"
                         placeholderText="Select Date"
                         selected={selectedDateForInsert}
                         onChange={handleDateToInsert}
                         dateFormat="yyyy-MM-dd"
-                        className="form-control"
                     />
                 </FormGroup>
                 <FormGroup>

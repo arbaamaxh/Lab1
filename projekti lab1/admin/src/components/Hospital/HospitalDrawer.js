@@ -1,34 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Drawer, Box, Typography, FormGroup, InputLabel, Input, Button, Alert, Grid } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 const HospitalDrawer = ({
     isOpen,
     toggle,
     newHospital,
     handleChange,
-    handleSubmit,
+    onSubmit,
     errorMessageModal,
     setErrorMessageModal,
-    handleFileChange,
+    handleFileSelection,
     selectedImageName
 }) => {
-    const [imageSelected, setImageSelected] = useState(!!selectedImageName);
-
-    const handleFileSelection = (event) => {
-        handleFileChange(event);
-        setImageSelected(!!event.target.files.length);
-    };
-
-    const onSubmit = (event) => {
-        event.preventDefault();
-        if (!imageSelected) {
-            setErrorMessageModal('Please select an image.');
-            return;
-        }
-        handleSubmit(event);
-    };
 
     return (
         <Drawer anchor="right" open={isOpen} onClose={toggle}>
@@ -36,6 +22,9 @@ const HospitalDrawer = ({
                 <Typography variant="h6" gutterBottom>
                     Add Hospital
                 </Typography>
+                <IconButton edge="end" color="inherit" onClick={toggle}>
+                    <CloseIcon />
+                </IconButton>
                 <Alert severity="info" open={!!errorMessageModal} onClose={() => setErrorMessageModal('')}>
                     {errorMessageModal}
                 </Alert>
