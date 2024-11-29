@@ -12,14 +12,15 @@ const AppointmentsChart = () => {
 
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const token = queryParams.get('token') || null;
+    const token = queryParams.get('token') || localStorage.getItem("token");
 
     useEffect(() => {
         if (token) {
             localStorage.setItem('token', token);
+            console.log('Token saved to localStorage:', token);
         } else {
             localStorage.removeItem('token');
-
+            console.log('No token found in URL, token removed from localStorage');
         }
     }, [token]);
 
@@ -57,7 +58,7 @@ const AppointmentsChart = () => {
 
         fetchAppointments();
     }, []);
-    
+
     return (
         <div className="content">
             <Row>

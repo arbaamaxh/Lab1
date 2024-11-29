@@ -9,6 +9,10 @@ import AppointmentData from "views/AppointmentData";
 import RoomData from "views/RoomData";
 import PrescriptionData from "views/PrescriptionData";
 import AdministratorData from "views/AdministratorData";
+import LecturerData from "views/LecturerData"
+import LectureData from "views/LectureData"
+import TeamData from "views/TeamData"
+import PlayerData from "views/PlayerData"
 
 var routes = [
   {
@@ -21,6 +25,30 @@ var routes = [
     path: "/hospitals",
     name: "Hospitals",
     component: <HospitalData />,
+    layout: "/admin",
+  },
+  {
+    path: "/teams",
+    name: "Teams",
+    component: <TeamData />,
+    layout: "/admin",
+  },
+  {
+    path: "/players",
+    name: "Players",
+    component: <PlayerData />,
+    layout: "/admin",
+  },
+  {
+    path: "/lecturers",
+    name: "Lecturers",
+    component: <LecturerData />,
+    layout: "/admin",
+  },
+  {
+    path: "/lectures",
+    name: "Lectures",
+    component: <LectureData />,
     layout: "/admin",
   },
   {
